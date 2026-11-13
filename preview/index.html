@@ -2,6 +2,13 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.15 — DAYBREAK CONTROL REWORK (13 Nov 2026)
+Character keeps hand-set Transform values (Custom), no hidden LPF darkening or auto-filter boost; one Echo level
+(Return level removed from Daybreak, Effects knob now drives Echo); limiter light; feedback up to 0.97 + Hold;
+12/24 dB Repeat tone with resonance (feedback ceiling keeps it stable); Transform edits audition a fragment;
+Transform shows when the layer is off; Auto Filter dims when off; fragment display draws real waveform shapes;
+undo now moves Daybreak sliders too.
+
 EXP 0.3.14 — STUDIO LOOK, STAGE 1 (13 Nov 2026)
 Parent: EXP 0.3.13.1. Visual layer only: new default "Studio" Look (charcoal, rainbow module colours, flat 3-4px shapes,
 compact top bar + tab strip, help text moved to ? tooltips, dismissible first-run tip). Old Looks remain in the picker.
@@ -2336,7 +2343,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.14 Studio</title>
+  <title>Shmung Machine — EXP 0.3.15 Studio</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3292,6 +3299,34 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .functional-effect-card{border-top:3px solid var(--module)!important}
 :root .functional-effect-card .fx-knob{--knob-accent:var(--module)!important}
 :root .functional-effect-card h3,:root .functional-effect-card h3 *{color:var(--s-strong)}
+
+/* ===================== EXP 0.3.15 — Daybreak control rework (all Looks) ===================== */
+:root #expEchoCanvas{height:260px!important}
+:root .daybreak-return-control{display:none!important}
+:root .daybreak-character-panel{grid-template-columns:minmax(220px,.8fr) 2fr!important}
+/* limiter light */
+.db-limit-led{display:inline-flex;align-items:center;gap:5px;margin-top:4px;font:600 9.5px/1 system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);opacity:.55}
+.db-limit-led::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--s-line-strong,#888)}
+.db-limit-led.on{opacity:1;color:var(--c-yellow,#c99a00)}.db-limit-led.on::before{background:var(--c-yellow,#c99a00);box-shadow:0 0 6px var(--c-yellow,#c99a00)}
+.db-limit-led.hot{color:var(--c-red,#d93a30)}.db-limit-led.hot::before{background:var(--c-red,#d93a30);box-shadow:0 0 8px var(--c-red,#d93a30)}
+/* hold */
+:root .daybreak-hold-btn{margin-top:6px;min-height:26px!important;padding:3px 12px!important;font-size:11px!important;width:auto!important;align-self:flex-start}
+:root .daybreak-hold-btn.active{background:var(--c-red)!important;border-color:var(--c-red)!important;color:#fff!important}
+:root .daybreak-hold-btn:disabled{opacity:.35}
+/* repeat tone strip: title · HPF · LPF · resonance · slope */
+:root .input-filter-strip{grid-template-columns:minmax(130px,1fr) minmax(130px,180px) minmax(130px,180px) minmax(130px,180px) auto!important}
+:root .tone-slope-switch{display:inline-flex!important;align-self:center;margin:0!important}
+:root .tone-slope-switch .timing-mode-button{padding:6px 10px!important;font-size:11px!important}
+@media(max-width:900px){:root .input-filter-strip{grid-template-columns:1fr 1fr!important}}
+/* auto filter reads as off */
+:root .daybreak-auto-core.is-off .auto-filter-core-grid,:root .daybreak-auto-core.is-off>strong,:root #daybreakAutoFilterPanel.is-off>*:not(.auto-filter-head){opacity:.38;filter:saturate(.3)}
+:root .daybreak-auto-core.is-off .auto-filter-toggle{border-color:var(--module,var(--gold))!important}
+/* transform panel: locks, layer note */
+:root .daybreak-transform-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+:root .daybreak-layer-note{margin:0!important;padding:8px 10px;border-left:3px solid var(--c-yellow);background:var(--s-2);font-size:12px!important;color:var(--ink)!important;flex:1}
+:root .transform-details.layer-off .control-grid,:root .transform-details.layer-off .daybreak-extreme-panel,:root .transform-details.layer-off .transform-mix-control{opacity:.45}
+:root .transform-details label.is-locked{position:relative}
+:root .transform-details label.is-locked::after{content:"";position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--module,var(--c-blue))}
 </style>
 
 </head>
@@ -3301,7 +3336,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.14 STUDIO</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.15 STUDIO</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -3980,7 +4015,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
             <div id="fxDaybreakVisual" class="fx-visual fx-daybreak-visual" aria-hidden="true"><i></i><i></i><i></i><i></i><span id="fxDaybreakStage">Total Dawn</span></div>
             <div class="fx-knob-grid two-knobs">
               <label class="fx-knob-control"><span>Character</span><button class="fx-knob" type="button" data-rotary-for="effectsDaybreakCharacter"><i></i></button><input id="effectsDaybreakCharacter" class="rotary-native" type="range" min="0" max="100" step="1" value="0" data-default="0" /><output id="effectsDaybreakCharacterValue">0%</output></label>
-              <label class="fx-knob-control"><span>Return</span><button class="fx-knob" type="button" data-rotary-for="effectsDaybreakReturn"><i></i></button><input id="effectsDaybreakReturn" class="rotary-native" type="range" min="-12" max="12" step="1" value="-4" data-default="-4" /><output id="effectsDaybreakReturnValue">-4 dB</output></label>
+              <label class="fx-knob-control"><span>Echo</span><button class="fx-knob" type="button" data-rotary-for="effectsDaybreakReturn"><i></i></button><input id="effectsDaybreakReturn" class="rotary-native" type="range" min="0" max="100" step="1" value="52" data-default="52" /><output id="effectsDaybreakReturnValue">-4 dB</output></label>
             </div>
             <button id="openDaybreakFromEffects" class="button ghost effect-open-button" type="button">Open full Daybreak instrument</button>
           </section>
@@ -4055,12 +4090,14 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
           <label class="core-control">Repeats / feedback
             <strong id="daybreakFeedbackValue">38%</strong>
             <input id="daybreakFeedback" type="range" min="0" max="100" value="38" />
+            <button id="daybreakHoldBtn" class="button ghost daybreak-hold-btn" type="button" aria-pressed="false" title="Hold: repeat what is in the delay forever and stop new sound entering">Hold</button>
             <span id="daybreakFeedbackCue" class="daybreak-feedback-cue"><i></i><span>Stable echoes</span></span>
             <span class="daybreak-core-caption">Musically spread from a short echo to a long, bounded decay.</span>
           </label>
           <label class="core-control">Echo level
             <strong id="daybreakMixValue">52%</strong>
             <input id="daybreakMix" type="range" min="0" max="100" value="52" />
+            <span id="daybreakLimitLed" class="db-limit-led" title="Lights when the safety limiter is catching peaks — turning up further will not get louder">Limit</span>
             <span class="daybreak-core-caption">Additive echo return; Dry Monitor remains independent.</span>
           </label>
           <div class="core-control daybreak-auto-core">
@@ -4078,6 +4115,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
           <div class="input-filter-title"><strong>Repeat tone</strong><span>Each echo passes through these non-resonant filters again; Character may darken it further</span></div>
           <label class="input-filter-control">HPF<strong id="daybreakHPFValue">90 Hz</strong><input id="daybreakHPF" type="range" min="0" max="100" step="1" value="33" aria-label="Daybreak feedback high-pass filter" /></label>
           <label class="input-filter-control">LPF<strong id="daybreakLPFValue">7.2 kHz</strong><input id="daybreakLPF" type="range" min="0" max="100" step="1" value="72" aria-label="Daybreak feedback low-pass filter" /></label>
+          <label class="input-filter-control tone-res-control">Resonance<strong id="daybreakToneResValue">0%</strong><input id="daybreakToneRes" type="range" min="0" max="100" step="1" value="0" aria-label="Repeat tone resonance" /></label>
+          <span class="timing-mode-switch tone-slope-switch" role="group" aria-label="Repeat tone slope"><button id="daybreakSlope12" class="timing-mode-button active" type="button" aria-pressed="true" title="Gentle: 12 dB per octave">12 dB</button><button id="daybreakSlope24" class="timing-mode-button" type="button" aria-pressed="false" title="Steep: 24 dB per octave">24 dB</button></span>
         </div>
 
         <div id="daybreakAutoFilterPanel" class="daybreak-auto-filter-panel is-off" aria-label="Daybreak Auto Filter">
@@ -4203,7 +4242,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.14 Studio</span>
+    <span>Shmung Machine · EXP 0.3.15 Studio</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -4355,6 +4394,10 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     samplerRecordingChunks: [],
     samplerWaveDrag: null,
     daybreak: {
+      characterLocks: {},
+      hold: false,
+      toneSlope: 12,
+      toneRes: 0,
       stream: null,
       source: null,
       analyser: null,
@@ -4447,7 +4490,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   function cloneHistoryPad(p){ensureFxSendState(p);ensureFadeCurveState?.(p);return {name:p.name,buffer:p.buffer,mode:p.mode,gainDb:p.gainDb,pitch:p.pitch,trimStart:p.trimStart,trimEnd:p.trimEnd,reverse:!!p.reverse,pan:p.pan,chokeGroup:p.chokeGroup,muted:!!p.muted,solo:!!p.solo,daybreakSend:p.daybreakSend,sendMode:p.sendMode||"post",fxSends:{...p.fxSends},fxSendModes:{...p.fxSendModes},decayMs:p.decayMs,fadeInMs:p.fadeInMs,fadeOutMs:p.fadeOutMs,fadeCurve:p.fadeCurve,fadeInCurve:p.fadeInCurve,fadeOutCurve:p.fadeOutCurve,sourceName:p.sourceName,sliceMarkers:[...(p.sliceMarkers||[])]};}
   function cloneHistoryMixer(){const result={};for(const key of ["drumBus","sampler","synth","live","daybreakReturn","master"]){const d=state.mixer[key]||{};result[key]={...d,fxSends:d.fxSends?{...d.fxSends}:undefined,fxSendModes:d.fxSendModes?{...d.fxSendModes}:undefined};}return result;}
-  function captureHistoryState(){const db=state.daybreak;return {selectedPad:state.selectedPad,tempo:state.tempo,performanceTarget:state.performanceTarget,sampleRootMidi:state.sampleRootMidi,samplerProgram:{...state.samplerProgram},pads:state.pads.map(cloneHistoryPad),pattern:state.pattern.map(r=>[...r]),sampler:{...state.sampler},synth:{...state.synth},mixer:cloneHistoryMixer(),sequence:{target:state.sequence.target,bars:state.sequence.bars,storageVersion:4,editBar:state.sequence.editBar,follow:state.sequence.follow,length:state.sequence.length,swing:state.sequence.swing,record:state.sequence.record,octave:state.sequence.octave,sampler:[...state.sequence.sampler],synth:[...state.sequence.synth]},effects:{...state.effects},slice:{mode:state.slice.mode,sensitivity:state.slice.sensitivity,regions:state.slice.regions,minGapMs:state.slice.minGapMs,snapZero:state.slice.snapZero,startPad:state.slice.startPad,writeMode:state.slice.writeMode,keepSource:state.slice.keepSource,selectedSlice:state.slice.selectedSlice,sourcePadIndex:state.slice.sourcePadIndex},metronome:{levelDb:state.metronome.levelDb,meter:state.metronome.meter,inExport:state.metronome.inExport},daybreak:{monitor:db.monitor,inputTrimDb:db.inputTrimDb,inputDeviceId:db.inputDeviceId,inputChannel:db.inputChannel,timeMode:db.timeMode,subdivision:db.subdivision,freeTimeMs:db.freeTimeMs,feedback:db.feedback,mix:db.mix,hpfHz:db.hpfHz,lpfHz:db.lpfHz,autoFilterEnabled:db.autoFilterEnabled,autoFilterType:db.autoFilterType,autoFilterMode:db.autoFilterMode,autoFilterSubdivision:db.autoFilterSubdivision,autoFilterRate:db.autoFilterRate,autoFilterCenter:db.autoFilterCenter,autoFilterDepth:db.autoFilterDepth,autoFilterQ:db.autoFilterQ,autoFilterPosition:db.autoFilterPosition,autoFilterDirection:db.autoFilterDirection,transformMix:db.transformMix,character:db.character,returnDb:db.returnDb,fragmentLayer:db.fragmentLayer,freeze:db.freeze,fragmentMs:db.fragmentMs,density:db.density,scatter:db.scatter,pitchVariation:db.pitchVariation,stereo:db.stereo,colour:db.colour,allowReverse:db.allowReverse,shred:db.shred,crush:db.crush,ringMod:db.ringMod,burstCount:db.burstCount}};}
+  function captureHistoryState(){const db=state.daybreak;return {selectedPad:state.selectedPad,tempo:state.tempo,performanceTarget:state.performanceTarget,sampleRootMidi:state.sampleRootMidi,samplerProgram:{...state.samplerProgram},pads:state.pads.map(cloneHistoryPad),pattern:state.pattern.map(r=>[...r]),sampler:{...state.sampler},synth:{...state.synth},mixer:cloneHistoryMixer(),sequence:{target:state.sequence.target,bars:state.sequence.bars,storageVersion:4,editBar:state.sequence.editBar,follow:state.sequence.follow,length:state.sequence.length,swing:state.sequence.swing,record:state.sequence.record,octave:state.sequence.octave,sampler:[...state.sequence.sampler],synth:[...state.sequence.synth]},effects:{...state.effects},slice:{mode:state.slice.mode,sensitivity:state.slice.sensitivity,regions:state.slice.regions,minGapMs:state.slice.minGapMs,snapZero:state.slice.snapZero,startPad:state.slice.startPad,writeMode:state.slice.writeMode,keepSource:state.slice.keepSource,selectedSlice:state.slice.selectedSlice,sourcePadIndex:state.slice.sourcePadIndex},metronome:{levelDb:state.metronome.levelDb,meter:state.metronome.meter,inExport:state.metronome.inExport},daybreak:{monitor:db.monitor,inputTrimDb:db.inputTrimDb,inputDeviceId:db.inputDeviceId,inputChannel:db.inputChannel,timeMode:db.timeMode,subdivision:db.subdivision,freeTimeMs:db.freeTimeMs,feedback:db.feedback,mix:db.mix,hpfHz:db.hpfHz,lpfHz:db.lpfHz,autoFilterEnabled:db.autoFilterEnabled,autoFilterType:db.autoFilterType,autoFilterMode:db.autoFilterMode,autoFilterSubdivision:db.autoFilterSubdivision,autoFilterRate:db.autoFilterRate,autoFilterCenter:db.autoFilterCenter,autoFilterDepth:db.autoFilterDepth,autoFilterQ:db.autoFilterQ,autoFilterPosition:db.autoFilterPosition,autoFilterDirection:db.autoFilterDirection,transformMix:db.transformMix,character:db.character,returnDb:db.returnDb,fragmentLayer:db.fragmentLayer,freeze:db.freeze,fragmentMs:db.fragmentMs,density:db.density,scatter:db.scatter,pitchVariation:db.pitchVariation,stereo:db.stereo,colour:db.colour,allowReverse:db.allowReverse,shred:db.shred,crush:db.crush,ringMod:db.ringMod,burstCount:db.burstCount,characterLocks:{...(db.characterLocks||{})},toneSlope:db.toneSlope,toneRes:db.toneRes}};}
   function historySignature(snapshot){return JSON.stringify(snapshot,(key,value)=>key==="buffer"?(value?`audio:${value.duration}:${value.length}:${value.sampleRate}`:null):value);}
   function updateHistoryUI(){const u=$("undoBtn"),r=$("redoBtn");if(!u||!r)return;const undoItem=editHistory.undo.at(-1),redoItem=editHistory.redo.at(-1);u.disabled=!undoItem;r.disabled=!redoItem;u.textContent=undoItem?`↶ Undo ${undoItem.label}`:"↶ Undo";r.textContent=redoItem?`↷ Redo ${redoItem.label}`:"↷ Redo";u.title=undoItem?`Undo ${undoItem.label}`:"Nothing to undo";r.title=redoItem?`Redo ${redoItem.label}`:"Nothing to redo";u.classList.toggle("history-ready",!!undoItem);r.classList.toggle("history-ready",!!redoItem);}
   function beginHistory(label){if(editHistory.applying||editHistory.pending)return;const before=captureHistoryState();editHistory.pending={label:label||"change",before,signature:historySignature(before)};}
@@ -6565,7 +6608,10 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
         shred: state.daybreak.shred,
         crush: state.daybreak.crush,
         ringMod: state.daybreak.ringMod,
-        burstCount: state.daybreak.burstCount
+        burstCount: state.daybreak.burstCount,
+        characterLocks: { ...(state.daybreak.characterLocks || {}) },
+        toneSlope: state.daybreak.toneSlope,
+        toneRes: state.daybreak.toneRes
       },
       pads
     };
@@ -6794,7 +6840,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   function daybreakFeedbackGainFromControl(value=state.daybreak.feedback){
     const x=clamp(Number(value)||0,0,1);
-    return .90*Math.pow(x,.75);
+    return .97*Math.pow(x,.85);
   }
 
   function daybreakSubdivisionBeats(value=state.daybreak.subdivision){
@@ -6867,38 +6913,81 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
 
   const expFragmentEvents=[];
+  /* EXP 0.3.15 — Inside the echoes: echo train on top, fragments drawn as their real waveform shapes.
+     x = time (last 6 s, NOW at the right), y = pitch shift, shape = the captured audio's envelope,
+     colour = forward / reverse / stutter, thin arc = where in the recent past the fragment was taken from. */
   function startExpDaybreakVisual(){
     const canvas=$('expEchoCanvas'),g=canvas.getContext('2d');let last=0;
+    const H=260;
     const tick=timestamp=>{
       requestAnimationFrame(tick);
-      if(document.hidden||!$('tab-daybreak').classList.contains('active')||timestamp-last<50)return;
+      if(document.hidden||!$('tab-daybreak').classList.contains('active')||timestamp-last<33)return;
       last=timestamp;
-      const db=state.daybreak,now=state.ctx?.currentTime||0,delay=daybreakDelaySeconds(),feedback=daybreakFeedbackGainFromControl(db.feedback);
+      const db=state.daybreak,now=state.ctx?.currentTime||0,delay=daybreakDelaySeconds(),feedback=db.effectiveFeedback??daybreakFeedbackGainFromControl(db.feedback);
+      // limiter light
+      const led=$('daybreakLimitLed');if(led){const red=db.outputLimiter?Number(db.outputLimiter.reduction)||0:0;led.classList.toggle('on',red<-1);led.classList.toggle('hot',red<-6);}
       const rect=canvas.getBoundingClientRect();if(!rect.width)return;
-      const ratio=Math.min(window.devicePixelRatio||1,2),w=rect.width,h=150;
+      const ratio=Math.min(window.devicePixelRatio||1,2),w=rect.width,h=H;
       if(canvas.width!==Math.round(w*ratio)||canvas.height!==h*ratio){canvas.width=Math.round(w*ratio);canvas.height=h*ratio;}
       g.setTransform(ratio,0,0,ratio,0,0);g.clearRect(0,0,w,h);
-      const css=getComputedStyle(document.documentElement),ink=css.getPropertyValue('--ink').trim(),teal=css.getPropertyValue('--teal').trim(),purple=css.getPropertyValue('--purple').trim();
-      g.font='11px system-ui';g.fillStyle=ink;g.fillText('ECHO MODEL',10,17);g.fillText('FRAGMENTS · last 6 seconds',10,91);
-      const span=Math.max(2,delay*6),left=15,right=w-20;
-      g.strokeStyle=ink;g.globalAlpha=.15;g.beginPath();g.moveTo(left,65);g.lineTo(right,65);g.moveTo(left,135);g.lineTo(right,135);g.stroke();g.globalAlpha=1;
-      for(let i=1;i<=6;i++){
-        const x=left+(right-left)*i*delay/span,amp=Math.pow(feedback,i-1)*db.mix;
-        g.fillStyle=teal;g.globalAlpha=db.delayEnabled?.85:.3;g.fillRect(x-3,65-35*amp,6,Math.max(2,35*amp));
+      const css=getComputedStyle(document.documentElement),cv=n=>css.getPropertyValue(n).trim();
+      const ink=cv('--s-strong')||cv('--ink'),muted=cv('--muted'),fwd=cv('--c-blue')||cv('--teal'),rev=cv('--c-violet')||cv('--purple'),stut=cv('--c-orange')||cv('--coral'),band=cv('--c-pink')||cv('--coral'),echo=cv('--c-teal')||cv('--teal'),hot=cv('--c-red')||cv('--coral');
+      const left=34,right=w-150,laneW=right-left;
+      g.font='600 10px system-ui,sans-serif';g.textBaseline='alphabetic';
+      // ---- echo train ----
+      g.fillStyle=muted;g.fillText('ECHOES',8,14);
+      const holding=db.hold&&db.delayEnabled,span=Math.max(2,delay*8),base=58;
+      g.strokeStyle=ink;g.globalAlpha=.12;g.beginPath();g.moveTo(left,base);g.lineTo(right,base);g.stroke();g.globalAlpha=1;
+      for(let i=1;i<=8;i++){
+        const x=left+laneW*i*delay/span;if(x>right)break;
+        const amp=Math.min(1,(holding?1:Math.pow(feedback,i-1))*Math.max(.35,db.mix)*1.25),hh=40*amp;
+        g.fillStyle=holding?hot:echo;g.globalAlpha=db.delayEnabled?.25+.7*amp:.18;
+        g.beginPath();g.moveTo(x-5,base);g.quadraticCurveTo(x,base-hh*2.1,x+5,base);g.closePath();g.fill();
+      }
+      g.globalAlpha=1;g.fillStyle=muted;
+      g.fillText(holding?'HOLD ∞':`${Math.round(feedback*100)}% loop · ${Math.round(delay*1000)} ms`,right-150,14);
+      // ---- fragment lane ----
+      const top=92,bottom=h-14,mid=(top+bottom)/2,pxSt=(bottom-top)/2/24;
+      g.fillStyle=muted;g.fillText('FRAGMENTS',8,top-6);
+      g.font='9px system-ui,sans-serif';
+      for(const st of [24,12,0,-12,-24]){const y=mid-st*pxSt;g.strokeStyle=ink;g.globalAlpha=st===0?.22:.08;g.setLineDash(st===0?[]:[2,4]);g.beginPath();g.moveTo(left,y);g.lineTo(right,y);g.stroke();g.setLineDash([]);g.globalAlpha=.55;g.fillStyle=muted;g.fillText(st>0?`+${st}`:String(st),8,y+3);}
+      g.globalAlpha=.35;g.strokeStyle=ink;g.beginPath();g.moveTo(right,top-2);g.lineTo(right,bottom);g.stroke();g.globalAlpha=.6;g.fillStyle=muted;g.fillText('NOW',right-22,bottom+9);
+      g.globalAlpha=1;
+      for(let i=expFragmentEvents.length-1;i>=0;i--)if(now-expFragmentEvents[i].when>6.5)expFragmentEvents.splice(i,1);
+      const shapePts=(ev,x0,x1,amp)=>{const env=ev.env||[],n=env.length||1,reps=ev.stutter?Math.max(1,Math.min(14,Math.round(1/Math.max(.07,ev.loopFrac||1)))):1,pts=[];for(let k=0;k<=64;k++){const t=k/64,xx=x0+(x1-x0)*t;let e;if(ev.stutter){const local=(t*reps)%1;e=(env[Math.min(n-1,Math.floor(local*(ev.loopFrac||1)*n))]||0)*(1-.55*local);}else{e=env[Math.min(n-1,Math.floor(t*n))]||0;}const edge=Math.min(1,t*16,(1-t)*16);pts.push([xx,Math.max(.08,e)*amp*edge]);}return pts;};
+      const fillShape=(pts,cy)=>{g.beginPath();g.moveTo(pts[0][0],cy);for(const [xx,a] of pts)g.lineTo(xx,cy-a);for(let k=pts.length-1;k>=0;k--)g.lineTo(pts[k][0],cy+pts[k][1]);g.closePath();};
+      const pxSec=laneW/6;let latest=null,shown=0;
+      for(const ev of expFragmentEvents){
+        const age=now-ev.when;if(age<-.05)continue;latest=ev;
+        const dur=Math.max(.03,ev.duration),x0=right-age*pxSec,x1=Math.min(right,x0+dur*pxSec),cy=mid-clamp(ev.pitch,-24,24)*pxSt;
+        if(x1<left)continue;
+        const playing=age>=0&&age<=dur,fade=playing?1:Math.max(.12,1-(age-dur)/5);
+        const col=ev.stutter?stut:ev.band?band:ev.reverse?rev:fwd;
+        // where it came from
+        const srcX=right-(age+ev.sourceAgo)*pxSec;
+        shown++;if(age<2.5&&srcX>left-40){g.strokeStyle=col;g.globalAlpha=.22*fade;g.setLineDash([3,3]);g.beginPath();g.moveTo(Math.max(left,srcX),bottom);g.quadraticCurveTo((Math.max(left,srcX)+x0)/2,bottom-4,x0,cy);g.stroke();g.setLineDash([]);if(srcX>=left){g.globalAlpha=.5*fade;g.fillStyle=col;g.fillRect(srcX-1,bottom-5,2,5);}}
+        // waveform silhouette — the captured audio's real envelope
+        const amp=(9+17*(ev.level??.6)),pts=shapePts(ev,x0,x1,amp);
+        g.globalAlpha=(playing?.95:.72)*fade;g.fillStyle=col;fillShape(pts,cy);g.fill();
+        if(playing){g.globalAlpha=1;g.strokeStyle=ink;g.lineWidth=1.2;g.stroke();g.lineWidth=1;const px=x0+(x1-x0)*Math.min(1,age/dur);g.beginPath();g.moveTo(px,cy-amp-3);g.lineTo(px,cy+amp+3);g.stroke();}
+        if(x1-x0>44&&age<1.5){g.globalAlpha=.8*fade;g.fillStyle=ink;g.font='600 9px system-ui,sans-serif';g.fillText(ev.reverse?'◀':'▶',ev.reverse?x0+3:x1-10,cy-amp-3);}
       }
       g.globalAlpha=1;
-      for(let i=expFragmentEvents.length-1;i>=0;i--)if(now-expFragmentEvents[i].when>6)expFragmentEvents.splice(i,1);
-      let latest=null;
-      for(const event of expFragmentEvents){const age=now-event.when;if(age<0)continue;latest=event;
-        const x=right-age/6*(right-left),y=117-clamp(event.pitch,-24,24)*.55;
-        g.fillStyle=event.reverse?purple:teal;g.globalAlpha=Math.max(.15,1-age/6);
-        g.fillRect(x-Math.min(45,event.duration*20),y,Math.min(45,event.duration*20)+3,event.stutter?9:5);
-        g.fillText(event.reverse?'←':'→',x-8,y-4);
-      }
+      // ---- last gesture, enlarged ----
+      const bx=right+14,bw=w-bx-8,by=top-2,bh=bottom-by;
+      g.strokeStyle=ink;g.globalAlpha=.15;g.strokeRect(bx,by,bw,bh);g.globalAlpha=1;g.fillStyle=muted;g.font='600 10px system-ui,sans-serif';g.fillText('LAST GESTURE',bx,by-6);
+      if(latest&&latest.env){
+        const ev=latest,col=ev.stutter?stut:ev.band?band:ev.reverse?rev:fwd,cy=by+bh*.42,amp=bh*.3,n=ev.env.length,age=now-ev.when,fresh=Math.max(.35,1-age/3);
+        g.fillStyle=col;g.globalAlpha=.9*fresh;fillShape(shapePts(ev,bx+6,bx+bw-6,amp),cy);g.fill();
+        if(ev.reverse){g.globalAlpha=.7;g.fillStyle=ink;g.fillText('◀ reversed',bx+6,by+14);}
+        g.globalAlpha=1;g.fillStyle=ink;g.font='600 10px system-ui,sans-serif';
+        const lines=[`${ev.reverse?'Reverse':'Forward'}${ev.stutter?' · stutter':''}${ev.band?' · band':''}`,`${ev.pitch>0?'+':''}${ev.pitch.toFixed(1)} st · ${Math.round(ev.duration*1000)} ms`,`Pan ${Math.abs(ev.pan)<.05?'C':(ev.pan<0?'L':'R')+Math.round(Math.abs(ev.pan)*100)} · from ${ev.sourceAgo.toFixed(1)} s ago`];
+        lines.forEach((t,i)=>{g.globalAlpha=i?.75:1;g.fillText(t,bx+4,by+bh*.76+i*13);});
+      }else{g.globalAlpha=.6;g.fillStyle=muted;g.font='10px system-ui,sans-serif';g.fillText(db.fragmentLayer?(db.delayEnabled?'Waiting for a fragment…':'Start the delay'):'Fragment layer off',bx+4,by+bh/2);}
       g.globalAlpha=1;
-      $('expEchoSummary').textContent=`${Math.round(delay*1000)} ms · ${db.delayEnabled?'Running':'Stopped'}`;
-      const stage=daybreakCharacterStage(db.character);
-      $('expCharacterReadout').textContent=`${stage.name} · ${Math.round(db.character*100)}% — ${db.fragmentLayer?`${db.fragmentMs} ms fragments · about ${Math.round(db.density)} gestures/min`:'pure filtered echoes'}${latest?` · Last: ${latest.reverse?'reverse':'forward'}, ${latest.pitch.toFixed(1)} st${latest.stutter?', stutter':''}`:''}`;
+      $('expEchoSummary').textContent=`${Math.round(delay*1000)} ms · ${holding?'Holding':db.delayEnabled?'Running':'Stopped'}`;
+      const stage=daybreakCharacterStage(db.character),locks=Object.keys(db.characterLocks||{}).length;
+      $('expCharacterReadout').textContent=`${stage.name}${locks?' · Custom':''} · ${Math.round(db.character*100)}% — ${db.fragmentLayer?`${db.fragmentMs} ms fragments · about ${Math.round(db.density)} gestures/min`:'pure filtered echoes'}`;
     };requestAnimationFrame(tick);
   }
   function daybreakCharacterStage(value=state.daybreak.character){const v=clamp(Number(value)||0,0,1);if(v<.025)return{name:"Total Dawn",key:"dawn",description:"Pure filtered delay. Fragment, filter-motion and rupture layers are inactive."};if(v<.18)return{name:"Dawn",key:"dawn",description:"Barely-there widening, darker echoes and rare fragments."};if(v<.46)return{name:"Daybreak",key:"daybreak",description:"Soft fragmentation moving around a clearly audible musical delay."};if(v<.72)return{name:"Fracture",key:"fracture",description:"Rhythmic cuts, pitch displacement, reverse gestures and stereo scatter."};if(v<.91)return{name:"Rupture",key:"rupture",description:"Dense stutters, saturated echoes and aggressive spatial movement."};return{name:"Collapse",key:"collapse",description:"Maximum controlled glitch: rapid bursts, reverse shards and strongly coloured repeats."};}
@@ -6941,8 +7030,9 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     if($("daybreakAutoFilterFreeWrap"))$("daybreakAutoFilterFreeWrap").hidden=db.autoFilterMode!=="free";
     const stage=daybreakCharacterStage(db.character);if($("daybreakCharacterName"))$("daybreakCharacterName").textContent=stage.name;if($("daybreakCharacterDescription"))$("daybreakCharacterDescription").textContent=stage.description;if($("daybreakCharacterPanel"))$("daybreakCharacterPanel").dataset.stage=stage.key;
     updateEffectsDaybreakCard();
+    daybreakProSync();
   }
-  function applyDaybreakCharacter(value,{writeParameters=true,announce=false}={}){const db=state.daybreak,v=clamp(Number(value)||0,0,1);db.character=v;if(writeParameters){const shaped=Math.pow(v,.82);db.fragmentLayer=v>.025;db.transformMix=v<=.025?0:.035+shaped*.965;/* EXP 0.3.3: restore locked Reset 1.20.3 DSP workload curve. */db.fragmentMs=Math.round(1250-(1120*shaped));db.density=Math.round(3+Math.pow(v,1.45)*77);db.scatter=.04+v*.92;db.pitchVariation=Math.round(1+Math.pow(v,1.35)*23);db.stereo=.10+v*.90;db.colour=.10+v*.83;db.allowReverse=v>.38;db.shred=Math.pow(v,1.65)*.88;db.crush=Math.pow(Math.max(0,v-.28)/.72,1.35)*.82;db.ringMod=Math.pow(Math.max(0,v-.42)/.58,1.25)*.72;db.burstCount=clamp(1+Math.floor(Math.pow(v,1.7)*5),1,6);}syncDaybreakControls();updateDaybreakGraph();if(db.fragmentLayer&&db.delayEnabled){if(db.fragmentDue>performance.now()+81000/Math.max(1,db.density)){clearTimeout(db.fragmentTimer);db.fragmentTimer=null;}if(!db.fragmentTimer)scheduleNextFragment();}else{clearTimeout(db.fragmentTimer);db.fragmentTimer=null;}if(announce)toast(`Daybreak character: ${daybreakCharacterStage(v).name}`);}
+  function applyDaybreakCharacter(value,{writeParameters=true,announce=false}={}){const db=state.daybreak,v=clamp(Number(value)||0,0,1);db.character=v;if(writeParameters){const shaped=Math.pow(v,.82),L=db.characterLocks||{},set=(k,val)=>{if(!L[k])db[k]=val;};set('fragmentLayer',v>.025);set('transformMix',v<=.025?0:.035+shaped*.965);/* EXP 0.3.3 workload curve; EXP 0.3.15: hand-set values are kept */set('fragmentMs',Math.round(1250-(1120*shaped)));set('density',Math.round(3+Math.pow(v,1.45)*77));set('scatter',.04+v*.92);set('pitchVariation',Math.round(1+Math.pow(v,1.35)*23));set('stereo',.10+v*.90);set('colour',.10+v*.83);set('allowReverse',v>.38);set('shred',Math.pow(v,1.65)*.88);set('crush',Math.pow(Math.max(0,v-.28)/.72,1.35)*.82);set('ringMod',Math.pow(Math.max(0,v-.42)/.58,1.25)*.72);set('burstCount',clamp(1+Math.floor(Math.pow(v,1.7)*5),1,6));}syncDaybreakControls();updateDaybreakGraph();if(db.fragmentLayer&&db.delayEnabled){if(db.fragmentDue>performance.now()+81000/Math.max(1,db.density)){clearTimeout(db.fragmentTimer);db.fragmentTimer=null;}if(!db.fragmentTimer)scheduleNextFragment();}else{clearTimeout(db.fragmentTimer);db.fragmentTimer=null;}if(announce)toast(`Daybreak character: ${daybreakCharacterStage(v).name}`);}
 
   function updateDaybreakLabels() {
     const db = state.daybreak;
@@ -6958,7 +7048,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     $("daybreakFreeModeBtn").classList.toggle("active", !syncMode);
     $("daybreakSyncModeBtn").setAttribute("aria-pressed", String(syncMode));
     $("daybreakFreeModeBtn").setAttribute("aria-pressed", String(!syncMode));
-    $("daybreakFeedbackValue").textContent = `${Math.round(db.feedback * 100)}%`;
+    $("daybreakFeedbackValue").textContent = db.hold&&db.delayEnabled ? "Hold ∞" : `${Math.round(db.feedback * 100)}%`;
     const feedbackCue=$("daybreakFeedbackCue");if(feedbackCue){const extended=db.feedback>=.78;feedbackCue.classList.toggle("warning",extended);feedbackCue.querySelector("span").textContent=db.feedback>=.9?"Very long, bounded tail":db.feedback>=.78?"Long filtered tail":"Stable echoes";}
     $("daybreakMixValue").textContent = `${Math.round(db.mix * 100)}%`;
     if ($("daybreakHPFValue")) $("daybreakHPFValue").textContent = formatFilterFrequency(db.hpfHz);
@@ -7122,7 +7212,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const db = state.daybreak, c = state.ctx;
     db.delayNode = c.createDelay(8);
     db.feedbackHPF=c.createBiquadFilter();db.feedbackHPF.type="highpass";db.feedbackHPF.frequency.value=db.hpfHz;db.feedbackHPF.Q.value=.707;
-    db.feedbackLPF=c.createBiquadFilter();db.feedbackLPF.type="lowpass";db.feedbackLPF.frequency.value=db.lpfHz;db.feedbackLPF.Q.value=.707;
+    db.feedbackLPF=c.createBiquadFilter();db.feedbackLPF.type="lowpass";db.feedbackLPF.frequency.value=db.lpfHz;db.feedbackLPF.Q.value=.707;db.feedbackHPF2=c.createBiquadFilter();db.feedbackHPF2.type="highpass";db.feedbackHPF2.frequency.value=10;db.feedbackHPF2.Q.value=.707;db.feedbackLPF2=c.createBiquadFilter();db.feedbackLPF2.type="lowpass";db.feedbackLPF2.frequency.value=Math.min(20000,c.sampleRate/2-100);db.feedbackLPF2.Q.value=.707;
     db.feedbackSaturatorPre=c.createGain();db.feedbackSaturatorPre.gain.value=1/DAYBREAK_SATURATION_RANGE;
     db.feedbackSaturator=c.createWaveShaper();db.feedbackSaturator.curve=DAYBREAK_SATURATION_CURVE;db.feedbackSaturator.oversample="4x";
     db.feedbackGain = c.createGain(); db.wetGain = c.createGain();
@@ -7132,7 +7222,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.autoFilterLfo.connect(db.autoFilterLfoGainReturn).connect(db.autoFilterReturn.frequency);
     db.autoFilterLfo.start();
     db.delayInputGain.connect(db.autoFilterPre).connect(db.delayNode);
-    db.delayNode.connect(db.feedbackHPF).connect(db.feedbackLPF).connect(db.feedbackSaturatorPre).connect(db.feedbackSaturator);
+    db.delayNode.connect(db.feedbackHPF).connect(db.feedbackLPF).connect(db.feedbackHPF2).connect(db.feedbackLPF2).connect(db.feedbackSaturatorPre).connect(db.feedbackSaturator);
     db.feedbackSaturator.connect(db.feedbackGain).connect(db.delayNode);
     db.feedbackSaturator.connect(db.autoFilterReturn).connect(db.wetGain).connect(db.outputBus);
   }
@@ -7141,7 +7231,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const db = state.daybreak, oldPre = db.autoFilterPre;
     try{db.autoFilterLfo?.stop();}catch(_){}
     try { if(oldPre) db.delayInputGain?.disconnect(oldPre); } catch (_) {}
-    [db.delayNode,db.feedbackHPF,db.feedbackLPF,db.feedbackSaturatorPre,db.feedbackSaturator,db.feedbackGain,db.wetGain,db.autoFilterPre,db.autoFilterReturn,db.autoFilterLfo,db.autoFilterLfoGainPre,db.autoFilterLfoGainReturn].forEach(node => { try { node?.disconnect(); } catch (_) {} });
+    [db.delayNode,db.feedbackHPF,db.feedbackLPF,db.feedbackHPF2,db.feedbackLPF2,db.feedbackSaturatorPre,db.feedbackSaturator,db.feedbackGain,db.wetGain,db.autoFilterPre,db.autoFilterReturn,db.autoFilterLfo,db.autoFilterLfoGainPre,db.autoFilterLfoGainReturn].forEach(node => { try { node?.disconnect(); } catch (_) {} });
     connectDaybreakTail(); updateDaybreakGraph();
   }
 
@@ -7152,13 +7242,13 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.inputTrimNode?.gain.setTargetAtTime(dbToGain(clamp(db.inputTrimDb??0,-24,6)),now,.02);
     state.graph?.liveMonitorGate?.gain.setTargetAtTime(db.micEnabled&&db.monitor?1:0,now,.012);
     db.delayNode.delayTime.cancelScheduledValues(now);db.delayNode.delayTime.setTargetAtTime(delaySeconds,now,db.timeMode==="free"?.055:.025);
-    db.delayInputGain.gain.setTargetAtTime(db.delayEnabled ? 1 : 0, now, 0.012);
-    const effectiveFeedback=daybreakFeedbackGainFromControl(db.feedback);
+    const holding=!!(db.hold&&db.delayEnabled);db.delayInputGain.gain.setTargetAtTime(db.delayEnabled&&!holding ? 1 : 0, now, 0.012);
+    const toneQ=.707+clamp(Number(db.toneRes)||0,0,1)*1.5,tonePeak=toneQ>.708?toneQ/Math.sqrt(1-1/(4*toneQ*toneQ)):1;db.loopCeiling=.96/tonePeak;const effectiveFeedback=holding?Math.min(1,.995/tonePeak):Math.min(daybreakFeedbackGainFromControl(db.feedback),db.loopCeiling);db.effectiveFeedback=effectiveFeedback;
     db.feedbackGain.gain.setTargetAtTime(db.delayEnabled ? effectiveFeedback : 0, now, 0.025);
-    const effectiveHPF=clamp(db.hpfHz,20,2000),effectiveLPF=clamp(db.lpfHz*Math.pow(.62,v),Math.max(500,effectiveHPF*1.05),20000);
+    const effectiveHPF=clamp(db.hpfHz,20,2000),effectiveLPF=clamp(db.lpfHz,Math.max(500,effectiveHPF*1.05),20000),steep=Number(db.toneSlope)===24;
     db.feedbackHPF.frequency.setTargetAtTime(effectiveHPF,now,.025);db.feedbackHPF.Q.setTargetAtTime(.707,now,.025);
-    db.feedbackLPF.frequency.setTargetAtTime(effectiveLPF,now,.025);db.feedbackLPF.Q.setTargetAtTime(.707,now,.025);
-    const autoType=["lowpass","highpass","bandpass"].includes(db.autoFilterType)?db.autoFilterType:"lowpass",autoPosition=db.autoFilterPosition==="pre"?"pre":"return",autoCenter=clamp(db.autoFilterCenter,80,16000),autoQ=clamp(db.autoFilterQ,.1,16),autoDepth=clamp(db.autoFilterDepth,0,1)*(1+v*.22),autoLfoActive=db.autoFilterEnabled&&db.autoFilterMode!=="envelope";
+    db.feedbackLPF.frequency.setTargetAtTime(effectiveLPF,now,.025);db.feedbackLPF.Q.setTargetAtTime(steep?.707:toneQ,now,.025);if(db.feedbackHPF2){db.feedbackHPF2.frequency.setTargetAtTime(steep?effectiveHPF:10,now,.025);db.feedbackLPF2.frequency.setTargetAtTime(steep?effectiveLPF:Math.min(20000,state.ctx.sampleRate/2-100),now,.025);db.feedbackLPF2.Q.setTargetAtTime(steep?toneQ:.707,now,.025);}
+    const autoType=["lowpass","highpass","bandpass"].includes(db.autoFilterType)?db.autoFilterType:"lowpass",autoPosition=db.autoFilterPosition==="pre"?"pre":"return",autoCenter=clamp(db.autoFilterCenter,80,16000),autoQ=clamp(db.autoFilterQ,.1,16),autoDepth=clamp(db.autoFilterDepth,0,1),autoLfoActive=db.autoFilterEnabled&&db.autoFilterMode!=="envelope";
     setDaybreakAutoFilterNodeState(db.autoFilterPre,db.autoFilterEnabled&&autoPosition==="pre",autoType,autoCenter,autoQ);
     setDaybreakAutoFilterNodeState(db.autoFilterReturn,db.autoFilterEnabled&&autoPosition==="return",autoType,autoCenter,autoQ);
     if(db.autoFilterLfo){db.autoFilterLfo.type=db.autoFilterDirection==="alternate"?"sine":"sawtooth";db.autoFilterLfo.frequency.setTargetAtTime(daybreakAutoFilterRateHz(),now,.02);}
@@ -7169,7 +7259,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.wetGain.gain.setTargetAtTime(wet, now, 0.016);
     db.outputBus.gain.setTargetAtTime(dbToGain(clamp(db.returnDb??0,-12,12)),now,.018);
     updateMixerRouting();
-    if (db.transformGain) { const transformLevel = db.fragmentLayer&&db.delayEnabled&&v>.025 ? Math.sin(clamp(db.transformMix,0,1)*Math.PI/2)*(0.42+v*.72) : 0; db.transformGain.gain.setTargetAtTime(transformLevel, now, 0.018); }
+    if (db.transformGain) { const transformLevel = db.fragmentLayer&&db.delayEnabled ? Math.sin(clamp(db.transformMix,0,1)*Math.PI/2)*(0.42+v*.72) : 0; db.transformGain.gain.setTargetAtTime(transformLevel, now, 0.018); }
     syncDaybreakControls(); updateDaybreakLabels();
   }
 
@@ -7331,7 +7421,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       source.connect(filter).connect(crusher).connect(ringGain).connect(gain);
       if(panner){gain.connect(panner);panner.pan.value=(Math.random()*2-1)*db.stereo*(.45+db.scatter*.55);panner.connect(db.transformGain||db.outputBus);}else gain.connect(db.transformGain||db.outputBus);
       ringOsc.start(when);ringOsc.stop(when+duration+.09);source.start(when);source.stop(when+duration+.08);
-      expFragmentEvents.push({when,duration,reverse,pitch,stutter,pan:panner?.pan.value||0});
+      const envN=56,env=new Float32Array(envN),seg=Math.max(1,Math.floor(size/envN));let envMax=1e-6;for(let k=0;k<envN;k++){let m=0;for(let j=k*seg,e=Math.min(size,(k+1)*seg);j<e;j++){const a=Math.abs(data[j]);if(a>m)m=a;}env[k]=m;if(m>envMax)envMax=m;}for(let k=0;k<envN;k++)env[k]/=envMax;
+      expFragmentEvents.push({when,duration,reverse,pitch,stutter,pan:panner?.pan.value||0,env,level:Math.min(1,envMax*3),sourceAgo:(size+offsetBack)/c.sampleRate,loopFrac:stutter?Math.min(1,(source.loopEnd||.05)/Math.max(.01,buffer.duration)):1,band:filter.type==="bandpass",burst:burstIndex});
       if(expFragmentEvents.length>48)expFragmentEvents.shift();
     };
     for(let i=0;i<burstCount;i++)spawn(i);
@@ -7535,7 +7626,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   const effectsVisualState={raf:null,last:0,data:null};
   function effectInputLevel(analyser){if(!analyser||!state.audioReady)return 0;if(!effectsVisualState.data)effectsVisualState.data=new Float32Array(256);analyser.getFloatTimeDomainData(effectsVisualState.data);let sum=0;for(const v of effectsVisualState.data)sum+=v*v;return Math.sqrt(sum/effectsVisualState.data.length);}
   function updateEffectVisualStatic(){const e=state.effects,curve=$('fxFilterCurve');if(curve){const x=clamp((Math.log(Math.max(40,e.filterFreq))-Math.log(40))/(Math.log(18000)-Math.log(40)),0,1)*240,q=clamp(e.filterQ/24,0,1);let d='';if(e.filterType==='highpass')d=`M0 68 Q${Math.max(8,x-30)} ${68-q*34} ${x} ${18-q*8} L240 18`;else if(e.filterType==='bandpass')d=`M0 68 Q${Math.max(0,x-60)} 68 ${x} ${18-q*12} Q${Math.min(240,x+60)} 68 240 68`;else if(e.filterType==='notch')d=`M0 18 L${Math.max(0,x-35)} 18 Q${x} ${68+q*5} ${Math.min(240,x+35)} 18 L240 18`;else d=`M0 18 L${Math.max(0,x-18)} 18 Q${x+q*20} ${18+q*4} 240 68`;curve.setAttribute('d',d);}const drive=clamp(e.distDrive/100,0,1),path=$('fxDistortionPath');if(path){const top=5+drive*22,bottom=71-drive*22;path.setAttribute('d',`M0 38 C18 ${top} 42 ${top} 60 38 S102 ${bottom} 120 38 S162 ${top} 180 38 S222 ${bottom} 240 38`);}const delayTaps=$('fxDelayTimeline')?.querySelectorAll('i')||[];delayTaps.forEach((tap,i)=>{const spacing=clamp(e.delayTime/1.2,.03,1)*42,feedback=Math.pow(clamp(e.delayFeedback,0,1),i);tap.style.left=`${8+Math.min(84,(i+1)*spacing)}%`;tap.style.opacity=String(i===0?.9:clamp(feedback+.08,.08,.9));tap.style.transform=`translate(-50%,-50%) scale(${.72+feedback*.45})`;});const field=$('fxReverbField');if(field){field.style.setProperty('--reverb-space',String(clamp(e.reverbSpace/8,0,1)));field.querySelectorAll('i').forEach((ring,i)=>{const scale=.65+(i+1)*(.22+e.reverbSpace/30);ring.style.transform=`translate(-50%,-50%) scale(${scale})`;ring.style.opacity=String(clamp(e.reverbMix*(1-i*.11),.05,.65));});}const threshold=$('fxCompressionThreshold');if(threshold)threshold.style.left=`${clamp((e.compThreshold+60)/60,0,1)*100}%`;updateEffectsDaybreakCard();refreshAllRotaries();expEffectSync.forEach(sync=>sync());}
-  function updateEffectsDaybreakCard(){const db=state.daybreak,stage=daybreakCharacterStage(db.character);if($('effectsDaybreakCharacter'))$('effectsDaybreakCharacter').value=String(Math.round(db.character*100));if($('effectsDaybreakReturn'))$('effectsDaybreakReturn').value=String(Math.round(db.returnDb));if($('effectsDaybreakCharacterValue'))$('effectsDaybreakCharacterValue').textContent=`${Math.round(db.character*100)}%`;if($('effectsDaybreakReturnValue'))$('effectsDaybreakReturnValue').textContent=`${db.returnDb>0?'+':''}${Math.round(db.returnDb)} dB`;if($('fxDaybreakStage'))$('fxDaybreakStage').textContent=stage.name;refreshAllRotaries();}
+  function updateEffectsDaybreakCard(){const db=state.daybreak,stage=daybreakCharacterStage(db.character);if($('effectsDaybreakCharacter'))$('effectsDaybreakCharacter').value=String(Math.round(db.character*100));if($('effectsDaybreakReturn'))$('effectsDaybreakReturn').value=String(Math.round(db.mix*100));if($('effectsDaybreakCharacterValue'))$('effectsDaybreakCharacterValue').textContent=`${Math.round(db.character*100)}%`;if($('effectsDaybreakReturnValue'))$('effectsDaybreakReturnValue').textContent=`${Math.round(db.mix*100)}%`;if($('fxDaybreakStage'))$('fxDaybreakStage').textContent=stage.name;refreshAllRotaries();}
   function startEffectsVisualLoop(){if(effectsVisualState.raf)return;const tick=t=>{effectsVisualState.raf=requestAnimationFrame(tick);if(t-effectsVisualState.last<48)return;effectsVisualState.last=t;const active=$('tab-effects')?.classList.contains('active');if(document.hidden||!active)return;const level=effectInputLevel(state.graph?.masterAnalyser),energy=clamp(level*9,0,1);const spectrum=$('fxFilterSpectrum');if(spectrum){spectrum.style.opacity=String(active?.18+energy*.75:.12);spectrum.style.transform=`translateY(${Math.sin(t*.004)*energy*5}px) scaleY(${1+energy*.2})`;spectrum.style.transformOrigin='center';}const e=state.effects,rate=e.autoFilterMode==='free'?e.autoFilterRate:1/Math.max(.08,(60/state.tempo)*e.autoFilterSubdivision),phase=(t/1000*rate)%1;let pos=e.autoFilterDirection==='up'?phase:e.autoFilterDirection==='down'?1-phase:(.5-.5*Math.cos(phase*Math.PI*2));const dot=$('fxAutoFilterDot'),trail=$('fxAutoFilterTrail');if(dot)dot.style.left=`${8+pos*84}%`;if(trail)trail.style.width=`${8+pos*84}%`;if($('fxAutoFilterMotion'))$('fxAutoFilterMotion').textContent=e.autoFilterMode==='free'?`${e.autoFilterRate.toFixed(2)} Hz free sweep`:`Tempo sync · ${String(e.autoFilterSubdivision).replace('0.25','1/16').replace('0.5','1/8').replace('1','1/4').replace('2','1/2').replace('4','1 bar').replace('8','2 bars')}`;const chorusPhase=t/1000*e.chorusRate;['A','B','C'].forEach((letter,i)=>{const path=$(`fxChorusPath${letter}`);if(path)path.style.transform=`translateX(${Math.sin(chorusPhase*Math.PI*2+i*2.1)*e.chorusDepth*energy*.45}px)`;});const reduction=Math.abs(Number(state.graph?.compressor?.reduction)||0),bar=$('fxCompressionReduction');if(bar)bar.style.height=`${clamp(reduction/18*100,2,100)}%`;if($('fxCompressionReductionValue'))$('fxCompressionReductionValue').textContent=`${reduction.toFixed(1)} dB`;const dayLevel=effectInputLevel(state.daybreak?.outputAnalyser),dayVisual=$('fxDaybreakVisual');if(dayVisual){dayVisual.querySelectorAll('i').forEach((shard,i)=>{const wobble=Math.sin(t*.003+i*1.7)*(4+dayLevel*80);shard.style.marginLeft=`${wobble}px`;shard.style.opacity=String(.25+clamp(dayLevel*7,0,.75));});}if(active&&energy>.02)document.querySelectorAll('.functional-effect-card').forEach((card,i)=>card.style.setProperty('--fx-energy',String(energy*(.75+Math.sin(t*.002+i)*.2))));};effectsVisualState.raf=requestAnimationFrame(tick);}
 
   function resetMixer() {
@@ -8012,7 +8103,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     $("grainBurst").addEventListener("input",e=>{state.daybreak.burstCount=clamp(Number(e.target.value),1,6);$("grainBurstValue").textContent=`${e.target.value} voice${Number(e.target.value)===1?"":"s"}`;updateDaybreakGraph();});
     $("grainReverse").addEventListener("change", e => {state.daybreak.allowReverse = e.target.checked;updateDaybreakGraph();});
     $("effectsDaybreakCharacter")?.addEventListener("input",e=>applyDaybreakCharacter(Number(e.target.value)/100,{writeParameters:true}));
-    $("effectsDaybreakReturn")?.addEventListener("input",e=>{state.daybreak.returnDb=Number(e.target.value);syncDaybreakControls();updateDaybreakGraph();});
+    $("effectsDaybreakReturn")?.addEventListener("input",e=>{state.daybreak.mix=Number(e.target.value)/100;syncDaybreakControls();updateDaybreakGraph();});
     $("openDaybreakFromEffects")?.addEventListener("click",()=>document.querySelector('.tab[data-tab="daybreak"]')?.click());
 
     // Reset 1.15.1 — keep the selected computer-keyboard instrument active while editing controls.
@@ -8181,6 +8272,72 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     }
   }
 
+  /* ===== EXP 0.3.15 — Daybreak control rework: Character locks, Hold, tone, limiter light, audition ===== */
+  const DAYBREAK_LOCK_MAP={grainSize:"fragmentMs",grainDensity:"density",grainScatter:"scatter",grainPitch:"pitchVariation",grainStereo:"stereo",grainColour:"colour",grainReverse:"allowReverse",grainShred:"shred",grainCrush:"crush",grainRing:"ringMod",grainBurst:"burstCount",transformMix:"transformMix",fragmentLayerCheck:"fragmentLayer"};
+  let daybreakAuditionTimer=null,daybreakAuditionLast=0,daybreakStartHintShown=0;
+  function daybreakLockCount(){return Object.keys(state.daybreak.characterLocks||{}).length;}
+  function daybreakProSync(){
+    const db=state.daybreak,locks=db.characterLocks||{};
+    // keep every core control in step with state (fixes undo leaving sliders behind)
+    const setIf=(id,val)=>{const el=$(id);if(el&&String(el.value)!==String(val))el.value=val;};
+    setIf("daybreakFeedback",Math.round(clamp(db.feedback,0,1)*100));
+    setIf("daybreakMix",Math.round(clamp(db.mix,0,1)*100));
+    if(typeof logFrequencyToSlider==="function"){setIf("daybreakHPF",Math.round(logFrequencyToSlider(db.hpfHz,20,2000)));setIf("daybreakLPF",Math.round(logFrequencyToSlider(db.lpfHz,500,20000)));}
+    setIf("daybreakToneRes",Math.round(clamp(Number(db.toneRes)||0,0,1)*100));
+    if($("daybreakToneResValue"))$("daybreakToneResValue").textContent=`${Math.round(clamp(Number(db.toneRes)||0,0,1)*100)}%`;
+    const steep=Number(db.toneSlope)===24;
+    [["daybreakSlope12",!steep],["daybreakSlope24",steep]].forEach(([id,on])=>{const b=$(id);if(b){b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));}});
+    const hold=$("daybreakHoldBtn");if(hold){const on=!!(db.hold&&db.delayEnabled);hold.classList.toggle("active",on);hold.setAttribute("aria-pressed",String(on));hold.textContent=on?"Holding":"Hold";hold.disabled=!db.delayEnabled;}
+    // Auto Filter reads as off until switched on
+    document.querySelectorAll(".daybreak-auto-core,#daybreakAutoFilterPanel").forEach(el=>el.classList.toggle("is-off",!db.autoFilterEnabled));
+    // which Transform values are hand-set
+    for(const [id,key] of Object.entries(DAYBREAK_LOCK_MAP)){const el=$(id);const host=el?.closest("label");if(host){host.classList.toggle("is-locked",!!locks[key]);if(locks[key])host.title="Set by you — Character will not change this";else host.removeAttribute("title");}}
+    const n=daybreakLockCount();
+    const release=$("daybreakReleaseLocks");if(release){release.hidden=!n;release.textContent=`Return ${n} to Character`;}
+    const name=$("daybreakCharacterName");if(name&&n)name.textContent=`${daybreakCharacterStage(db.character).name} · Custom`;
+    const details=document.querySelector(".transform-details");if(details)details.classList.toggle("layer-off",!db.fragmentLayer);
+    const note=$("daybreakLayerNote");if(note)note.hidden=!!db.fragmentLayer;
+  }
+  function daybreakAudition(){
+    const db=state.daybreak;
+    if(!db.delayEnabled||!db.ring){const now=performance.now();if(now-daybreakStartHintShown>6000){daybreakStartHintShown=now;toast("Start the delay to hear fragment changes");}return;}
+    if(!db.fragmentLayer)return;
+    const now=performance.now();clearTimeout(daybreakAuditionTimer);
+    const fire=()=>{daybreakAuditionLast=performance.now();triggerDaybreakGrain();};
+    if(now-daybreakAuditionLast>260)fire();else daybreakAuditionTimer=setTimeout(fire,260-(now-daybreakAuditionLast));
+  }
+  function initDaybreakProControls(){
+    const db=state.daybreak;
+    // Transform panel: note + release button
+    const inner=document.querySelector(".transform-inner");
+    if(inner&&!$("daybreakLayerNote")){
+      const bar=document.createElement("div");bar.className="daybreak-transform-bar";
+      bar.innerHTML='<p id="daybreakLayerNote" class="daybreak-layer-note">Fragment layer is off. Raise Character above Total Dawn, or tick <b>Enable fragment layer</b> below.</p><button id="daybreakReleaseLocks" class="button ghost" type="button" hidden>Return to Character</button>';
+      inner.prepend(bar);
+      $("daybreakReleaseLocks").addEventListener("click",()=>{state.daybreak.characterLocks={};applyDaybreakCharacter(state.daybreak.character,{writeParameters:true});toast("Transform settings follow Character again");});
+    }
+    // hand edits lock the value and play a fragment straight away
+    const onEdit=ev=>{
+      const id=ev.target?.id,key=DAYBREAK_LOCK_MAP[id];if(!key)return;
+      const d=state.daybreak;if(!(d.characterLocks||{})[key])d.characterLocks={...(d.characterLocks||{}),[key]:true};
+      setTimeout(()=>{
+        if(id==="fragmentLayerCheck"&&d.fragmentLayer&&d.transformMix<.05){d.transformMix=.5;d.characterLocks={...d.characterLocks,transformMix:true};updateDaybreakGraph();}
+        daybreakProSync();daybreakAudition();
+      },0);
+    };
+    document.addEventListener("input",onEdit,true);document.addEventListener("change",onEdit,true);
+    // Hold
+    $("daybreakHoldBtn")?.addEventListener("click",ev=>{ev.preventDefault();const d=state.daybreak;if(!d.delayEnabled){toast("Start the delay first");return;}d.hold=!d.hold;updateDaybreakGraph();toast(d.hold?"Holding the echoes":"Hold released");});
+    // tone
+    $("daybreakToneRes")?.addEventListener("input",e=>{state.daybreak.toneRes=Number(e.target.value)/100;updateDaybreakGraph();});
+    $("daybreakSlope12")?.addEventListener("click",ev=>{ev.preventDefault();state.daybreak.toneSlope=12;updateDaybreakGraph();});
+    $("daybreakSlope24")?.addEventListener("click",ev=>{ev.preventDefault();state.daybreak.toneSlope=24;updateDaybreakGraph();});
+    // hold switches off when the delay stops
+    $("daybreakDelayBtn")?.addEventListener("click",()=>setTimeout(()=>{if(!state.daybreak.delayEnabled&&state.daybreak.hold){state.daybreak.hold=false;updateDaybreakGraph();}},0));
+    if(db.toneSlope!==24)db.toneSlope=12;db.toneRes=clamp(Number(db.toneRes)||0,0,1);db.characterLocks=db.characterLocks&&typeof db.characterLocks==="object"?db.characterLocks:{};
+    daybreakProSync();
+  }
+
   function init() {
     const sliceStart=$("sliceStartPad");for(let i=0;i<16;i++){const option=document.createElement("option");option.value=i;option.textContent=`Pad ${String(i+1).padStart(2,"0")}`;sliceStart.appendChild(option);}
     let savedTheme = "pro";
@@ -8215,6 +8372,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     initGlobalTransportDock();
     bindGlobalTransportKeyboard();
     initEffectRotaries();
+    initDaybreakProControls();
     startEffectsVisualLoop();
     initPadAccordions();
     initMetronomeUI();
@@ -8476,7 +8634,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
 
   /* ---- Stage 2: knobs for key Daybreak sliders (the range input stays the real control) ---- */
-  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakReturnLevel','sm'],['daybreakInputTrim','sm'],['sampleCoarse','cell'],['sampleFine','cell'],['sampleGlideTime','cell'],['sampleAttack','cell'],['sampleDecay','cell'],['sampleSustain','cell'],['sampleRelease','cell'],['sampleCutoff','cell'],['sampleQ','cell'],['sampleFilterEnv','cell'],['sampleVelocity','cell'],['sampleLevel','cell'],['samplePosition','cell'],['sampleSend','cell'],['synthGlideTime','cell'],['synthAttack','cell'],['synthDecay','cell'],['synthSustain','cell'],['synthRelease','cell'],['synthCutoff','cell'],['synthRes','cell'],['synthEnvAmount','cell'],['synthDetune','cell'],['synthLfoRate','cell'],['synthLfoDepth','cell'],['synthLevel','cell'],['synthSend','cell']];
+  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakToneRes','sm'],['daybreakInputTrim','sm'],['sampleCoarse','cell'],['sampleFine','cell'],['sampleGlideTime','cell'],['sampleAttack','cell'],['sampleDecay','cell'],['sampleSustain','cell'],['sampleRelease','cell'],['sampleCutoff','cell'],['sampleQ','cell'],['sampleFilterEnv','cell'],['sampleVelocity','cell'],['sampleLevel','cell'],['samplePosition','cell'],['sampleSend','cell'],['synthGlideTime','cell'],['synthAttack','cell'],['synthDecay','cell'],['synthSustain','cell'],['synthRelease','cell'],['synthCutoff','cell'],['synthRes','cell'],['synthEnvAmount','cell'],['synthDetune','cell'],['synthLfoRate','cell'],['synthLfoDepth','cell'],['synthLevel','cell'],['synthSend','cell']];
   function knobVisual(btn,input){
     const min=+input.min||0,max=+input.max||100,v=+input.value,pct=Math.min(1,Math.max(0,(v-min)/((max-min)||1)));
     btn.style.setProperty('--rotary-fill',(pct*270)+'deg'); btn.style.setProperty('--rotary-turn',(-135+pct*270)+'deg');
