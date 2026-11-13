@@ -6942,7 +6942,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
         const x=left+laneW*i*delay/span;if(x>right)break;
         const amp=Math.min(1,(holding?1:Math.pow(feedback,i-1))*Math.max(.35,db.mix)*1.25),hh=40*amp;
         g.fillStyle=holding?hot:echo;g.globalAlpha=db.delayEnabled?.25+.7*amp:.18;
-        g.beginPath();g.moveTo(x-5,base);g.quadraticCurveTo(x,base-hh*2.1,x+5,base);g.closePath();g.fill();
+        g.strokeStyle=holding?hot:echo;g.lineWidth=1;g.globalAlpha=db.delayEnabled?.2+.5*amp:.15;g.beginPath();g.moveTo(x-6,base);g.quadraticCurveTo(x,base-hh*2.1,x+6,base);g.stroke();
       }
       g.globalAlpha=1;g.fillStyle=muted;
       g.fillText(holding?'HOLD ∞':`${Math.round(feedback*100)}% loop · ${Math.round(delay*1000)} ms`,right-150,14);
@@ -6965,12 +6965,11 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
         const col=ev.stutter?stut:ev.band?band:ev.reverse?rev:fwd;
         // where it came from
         const srcX=right-(age+ev.sourceAgo)*pxSec;
-        shown++;if(age<2.5&&srcX>left-40){g.strokeStyle=col;g.globalAlpha=.22*fade;g.setLineDash([3,3]);g.beginPath();g.moveTo(Math.max(left,srcX),bottom);g.quadraticCurveTo((Math.max(left,srcX)+x0)/2,bottom-4,x0,cy);g.stroke();g.setLineDash([]);if(srcX>=left){g.globalAlpha=.5*fade;g.fillStyle=col;g.fillRect(srcX-1,bottom-5,2,5);}}
+        shown++;if(age<2.5&&srcX>left-40){g.strokeStyle=col;g.globalAlpha=.1*fade;g.setLineDash([2,4]);g.beginPath();g.moveTo(Math.max(left,srcX),bottom);g.quadraticCurveTo((Math.max(left,srcX)+x0)/2,bottom-4,x0,cy);g.stroke();g.setLineDash([]);}
         // waveform silhouette — the captured audio's real envelope
-        const amp=(9+17*(ev.level??.6)),pts=shapePts(ev,x0,x1,amp);
-        g.globalAlpha=(playing?.95:.72)*fade;g.fillStyle=col;fillShape(pts,cy);g.fill();
-        if(playing){g.globalAlpha=1;g.strokeStyle=ink;g.lineWidth=1.2;g.stroke();g.lineWidth=1;const px=x0+(x1-x0)*Math.min(1,age/dur);g.beginPath();g.moveTo(px,cy-amp-3);g.lineTo(px,cy+amp+3);g.stroke();}
-        if(x1-x0>44&&age<1.5){g.globalAlpha=.8*fade;g.fillStyle=ink;g.font='600 9px system-ui,sans-serif';g.fillText(ev.reverse?'◀':'▶',ev.reverse?x0+3:x1-10,cy-amp-3);}
+        const amp=(7+13*(ev.level??.6)),pts=shapePts(ev,x0,x1,amp);
+        g.strokeStyle=col;g.lineWidth=playing?1.25:.85;g.globalAlpha=(playing?.85:.42)*fade;fillShape(pts,cy);g.stroke();g.lineWidth=1;
+        if(playing){g.globalAlpha=.5;g.strokeStyle=ink;const px=x0+(x1-x0)*Math.min(1,age/dur);g.beginPath();g.moveTo(px,cy-amp-2);g.lineTo(px,cy+amp+2);g.stroke();}
       }
       g.globalAlpha=1;
       // ---- last gesture, enlarged ----
@@ -6978,11 +6977,11 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       g.strokeStyle=ink;g.globalAlpha=.15;g.strokeRect(bx,by,bw,bh);g.globalAlpha=1;g.fillStyle=muted;g.font='600 10px system-ui,sans-serif';g.fillText('LAST GESTURE',bx,by-6);
       if(latest&&latest.env){
         const ev=latest,col=ev.stutter?stut:ev.band?band:ev.reverse?rev:fwd,cy=by+bh*.42,amp=bh*.3,n=ev.env.length,age=now-ev.when,fresh=Math.max(.35,1-age/3);
-        g.fillStyle=col;g.globalAlpha=.9*fresh;fillShape(shapePts(ev,bx+6,bx+bw-6,amp),cy);g.fill();
-        if(ev.reverse){g.globalAlpha=.7;g.fillStyle=ink;g.fillText('◀ reversed',bx+6,by+14);}
+        g.strokeStyle=col;g.lineWidth=1.1;g.globalAlpha=.75*fresh;fillShape(shapePts(ev,bx+6,bx+bw-6,amp),cy);g.stroke();g.lineWidth=1;g.globalAlpha=.18*fresh;g.beginPath();g.moveTo(bx+6,cy);g.lineTo(bx+bw-6,cy);g.stroke();
+        if(ev.reverse){g.globalAlpha=.55;g.fillStyle=muted;g.fillText('reversed',bx+6,by+14);}
         g.globalAlpha=1;g.fillStyle=ink;g.font='600 10px system-ui,sans-serif';
         const lines=[`${ev.reverse?'Reverse':'Forward'}${ev.stutter?' · stutter':''}${ev.band?' · band':''}`,`${ev.pitch>0?'+':''}${ev.pitch.toFixed(1)} st · ${Math.round(ev.duration*1000)} ms`,`Pan ${Math.abs(ev.pan)<.05?'C':(ev.pan<0?'L':'R')+Math.round(Math.abs(ev.pan)*100)} · from ${ev.sourceAgo.toFixed(1)} s ago`];
-        lines.forEach((t,i)=>{g.globalAlpha=i?.75:1;g.fillText(t,bx+4,by+bh*.76+i*13);});
+        lines.forEach((t,i)=>{g.globalAlpha=i?.55:.8;g.fillText(t,bx+4,by+bh*.76+i*13);});
       }else{g.globalAlpha=.6;g.fillStyle=muted;g.font='10px system-ui,sans-serif';g.fillText(db.fragmentLayer?(db.delayEnabled?'Waiting for a fragment…':'Start the delay'):'Fragment layer off',bx+4,by+bh/2);}
       g.globalAlpha=1;
       $('expEchoSummary').textContent=`${Math.round(delay*1000)} ms · ${holding?'Holding':db.delayEnabled?'Running':'Stopped'}`;
