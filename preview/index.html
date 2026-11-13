@@ -3165,9 +3165,9 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root[data-theme="pro"] .timing-mode-switch{margin:4px 0 6px!important}
 
 /* small knob controls (filters, trim, return) */
-:root[data-theme="pro"] label.has-pro-knob:not(.core-control){position:relative;display:grid!important;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:10px;padding-right:0!important;min-height:44px}
-:root[data-theme="pro"] label.has-pro-knob:not(.core-control)>.pro-knob{grid-column:2;grid-row:1/3}
-:root[data-theme="pro"] label.has-pro-knob:not(.core-control)>strong,:root[data-theme="pro"] label.has-pro-knob:not(.core-control)>span:not(.pro-knob){grid-column:1;font-size:13px!important;color:#fff!important;font-weight:500!important;text-align:left!important;justify-self:start}
+:root[data-theme="pro"] label.has-pro-knob:not(.core-control):not(.knob-cell){position:relative;display:grid!important;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:10px;padding-right:0!important;min-height:44px}
+:root[data-theme="pro"] label.has-pro-knob:not(.core-control):not(.knob-cell)>.pro-knob{grid-column:2;grid-row:1/3}
+:root[data-theme="pro"] label.has-pro-knob:not(.core-control):not(.knob-cell)>strong,:root[data-theme="pro"] label.has-pro-knob:not(.core-control):not(.knob-cell)>span:not(.pro-knob){grid-column:1;font-size:13px!important;color:#fff!important;font-weight:500!important;text-align:left!important;justify-self:start}
 :root[data-theme="pro"] .input-filter-strip{display:grid!important;grid-template-columns:minmax(150px,1fr) minmax(150px,200px) minmax(150px,200px)!important;gap:8px 18px!important;align-items:center!important;padding:10px 14px!important}
 :root[data-theme="pro"] .daybreak-return-control.has-pro-knob{min-width:150px}
 
@@ -3199,6 +3199,50 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root[data-theme="pro"] .mixer-fader-wrap{background:#0f0f11!important;border:1px solid var(--line)!important;background-image:linear-gradient(0deg,transparent calc(83.3% - 1px),#3a3a41 calc(83.3% - 1px) 83.3%,transparent 83.3%)!important}
 :root[data-theme="pro"] .mixer-channel-head b{font-size:11.5px!important;font-weight:600!important}
 :root[data-theme="pro"] .mixer-channel-head small{font-size:9.5px!important}
+
+/* ===================== STAGE 3 — SAMPLER / SYNTH / SEQUENCER / EFFECTS (Studio only) ===================== */
+/* instrument parameter grids: selects and toggles first, then a row of knob cells */
+:root[data-theme="pro"] .instrument-controls{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(86px,1fr))!important;gap:8px!important;align-items:stretch}
+:root[data-theme="pro"] .instrument-controls>label:not(.knob-cell){grid-column:span 2;order:0}
+:root[data-theme="pro"] .instrument-controls>label.knob-cell{order:1}
+:root[data-theme="pro"] label.knob-cell{display:flex!important;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;padding:8px 4px 7px!important;background:var(--surface-2)!important;border:1px solid var(--line)!important;text-align:center;font-size:9.5px!important;letter-spacing:.08em;min-height:0!important}
+:root[data-theme="pro"] label.knob-cell>.pro-knob{order:1;width:44px!important;height:44px!important;margin:0}
+:root[data-theme="pro"] label.knob-cell>span[id$="Value"]{order:2;text-transform:none!important;font-size:11px!important;color:#fff!important;font-weight:500!important;letter-spacing:0;white-space:nowrap}
+:root[data-theme="pro"] label.knob-cell:hover{border-color:#45454d!important}
+
+/* sequencer: dark steps, row colours, velocity as brightness, white playhead */
+:root[data-theme="pro"] .sequencer-grid .seq-row{--pc:var(--c-red)}
+:root[data-theme="pro"] .sequencer-grid.melodic-grid .seq-row,:root[data-theme="pro"] .melodic-grid .seq-row{--pc:var(--c-green)}
+:root[data-theme="pro"] .seq-step{background:#1d1d21!important;border:1px solid #2c2c32!important;border-radius:2px!important;height:30px!important;min-height:30px!important;transform:none!important;filter:none!important}
+:root[data-theme="pro"] .seq-step:hover:not(.disabled-step){background:#26262b!important}
+:root[data-theme="pro"] .seq-step.beat,:root[data-theme="pro"] .seq-step.group-start{border-left:2px solid #45454d!important}
+:root[data-theme="pro"] .seq-step.on,:root[data-theme="pro"] .seq-step[data-velocity="1"]{background:color-mix(in srgb,var(--pc) 72%,#1d1d21)!important;border-color:var(--pc)!important}
+:root[data-theme="pro"] .seq-step[data-velocity="0.65"]{background:color-mix(in srgb,var(--pc) 38%,#1d1d21)!important;border-color:color-mix(in srgb,var(--pc) 55%,#1d1d21)!important}
+:root[data-theme="pro"] .seq-step[data-velocity="1.25"]{background:var(--pc)!important;border-color:#fff!important}
+:root[data-theme="pro"] .seq-step.note-on{background:color-mix(in srgb,var(--pc) 80%,#1d1d21)!important;border-color:var(--pc)!important}
+:root[data-theme="pro"] .seq-step.current{outline:1px solid rgba(255,255,255,.75);outline-offset:-1px}
+:root[data-theme="pro"] .seq-step.current::after{border:0!important;inset:0!important;background:rgba(255,255,255,.08)!important;border-radius:0!important}
+:root[data-theme="pro"] .seq-label{background:#202024!important;border:1px solid #2c2c32!important;border-left:3px solid var(--pc)!important;border-radius:2px!important;font-size:11px}
+:root[data-theme="pro"] .seq-header{color:var(--muted)!important;font-size:10px!important}
+:root[data-theme="pro"] .velocity-dot.soft{background:color-mix(in srgb,var(--c-red) 38%,#1d1d21)!important}
+:root[data-theme="pro"] .velocity-dot.medium{background:color-mix(in srgb,var(--c-red) 72%,#1d1d21)!important}
+:root[data-theme="pro"] .velocity-dot.hard{background:var(--c-red)!important;box-shadow:0 0 0 1px #fff!important}
+
+/* pads: glow strength follows hit velocity */
+:root[data-theme="pro"] .pad.playing{background:color-mix(in srgb,var(--pc) calc(22% + var(--vel,1) * 48%),#232327)!important}
+
+/* effects: each unit gets its own colour */
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="filter"]{--module:var(--c-teal)}
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="autoFilter"]{--module:var(--c-orange)}
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="distortion"]{--module:var(--c-red)}
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="chorus"]{--module:var(--c-violet)}
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="delay"]{--module:var(--c-blue)}
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="reverb"]{--module:var(--c-pink)}
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="compression"]{--module:var(--c-green)}
+:root[data-theme="pro"] .functional-effect-card[data-effect-key="daybreak"]{--module:var(--c-blue)}
+:root[data-theme="pro"] .functional-effect-card{border-top:3px solid var(--module)!important}
+:root[data-theme="pro"] .functional-effect-card .fx-knob{--knob-accent:var(--module)!important}
+:root[data-theme="pro"] .functional-effect-card h3,:root[data-theme="pro"] .functional-effect-card h3 *{color:#fff}
 </style>
 
 </head>
@@ -5690,7 +5734,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     }
     pad.activeSources.add(source);
     source.onended = () => {pad.activeSources.delete(source);state.padVoiceData.delete(source);if(state.sampleEditorPlayhead?.source===source){state.sampleEditorPlayhead=null;drawWaveform(state.pads[state.selectedPad]);}if(typeof options.onended==="function")options.onended();};
-    flashPad(index, t);
+    flashPad(index, t, velocity);
     return source;
   }
 
@@ -5699,11 +5743,12 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     state.pads[index].activeSources.clear();
   }
 
-  function flashPad(index, when) {
+  function flashPad(index, when, velocity = 1) {
     const delayMs = Math.max(0, (when - state.ctx.currentTime) * 1000);
     setTimeout(() => {
       const el = document.querySelector(`.pad[data-pad="${index}"]`);
       if (!el) return;
+      el.style.setProperty("--vel", String(velocity));
       el.classList.add("playing");
       clearTimeout(state.padFlashTimers.get(index));
       state.padFlashTimers.set(index,setTimeout(() => {el.classList.remove("playing");state.padFlashTimers.delete(index);},115));
@@ -8382,7 +8427,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
 
   /* ---- Stage 2: knobs for key Daybreak sliders (the range input stays the real control) ---- */
-  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakReturnLevel','sm'],['daybreakInputTrim','sm']];
+  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakReturnLevel','sm'],['daybreakInputTrim','sm'],['sampleCoarse','cell'],['sampleFine','cell'],['sampleGlideTime','cell'],['sampleAttack','cell'],['sampleDecay','cell'],['sampleSustain','cell'],['sampleRelease','cell'],['sampleCutoff','cell'],['sampleQ','cell'],['sampleFilterEnv','cell'],['sampleVelocity','cell'],['sampleLevel','cell'],['samplePosition','cell'],['sampleSend','cell'],['synthGlideTime','cell'],['synthAttack','cell'],['synthDecay','cell'],['synthSustain','cell'],['synthRelease','cell'],['synthCutoff','cell'],['synthRes','cell'],['synthEnvAmount','cell'],['synthDetune','cell'],['synthLfoRate','cell'],['synthLfoDepth','cell'],['synthLevel','cell'],['synthSend','cell']];
   function knobVisual(btn,input){
     const min=+input.min||0,max=+input.max||100,v=+input.value,pct=Math.min(1,Math.max(0,(v-min)/((max-min)||1)));
     btn.style.setProperty('--rotary-fill',(pct*270)+'deg'); btn.style.setProperty('--rotary-turn',(-135+pct*270)+'deg');
@@ -8395,12 +8440,12 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     KNOBS.forEach(([id,size])=>{
       const input=document.getElementById(id); if(!input||input.dataset.proKnob)return; input.dataset.proKnob='1';
       const host=input.closest('label')||input.parentElement;
-      const btn=document.createElement('button'); btn.type='button'; btn.className='fx-knob pro-knob'+(size?' '+size:'');
+      const btn=document.createElement('button'); btn.type='button'; btn.className='fx-knob pro-knob'+(size&&size!=='cell'?' '+size:'');
       btn.innerHTML='<i></i>'; btn.setAttribute('role','slider');
       const name=(input.getAttribute('aria-label')||(host.firstChild&&host.firstChild.textContent)||id).trim();
       btn.setAttribute('aria-label',name); btn.setAttribute('aria-valuemin',input.min||'0'); btn.setAttribute('aria-valuemax',input.max||'100');
       btn.title='Drag up/down · double-click to reset';
-      input.classList.add('pro-knobbed'); host.classList.add('has-pro-knob'); input.insertAdjacentElement('beforebegin',btn); input._proKnob=btn; knobVisual(btn,input);
+      input.classList.add('pro-knobbed'); host.classList.add('has-pro-knob'); if(size==='cell')host.classList.add('knob-cell'); input.insertAdjacentElement('beforebegin',btn); input._proKnob=btn; knobVisual(btn,input);
       input.addEventListener('input',()=>knobVisual(btn,input));
       let drag=null;
       btn.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();beginHist(input);btn.setPointerCapture?.(ev.pointerId);drag={id:ev.pointerId,y:ev.clientY,x:ev.clientX,start:+input.value,fine:ev.shiftKey};});
@@ -8416,7 +8461,15 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   /* ---- Stage 2: mixer channel colours (match tab and pad-row colours) ---- */
   const CHAN={master:'#d7d7dc','drum bus':'var(--c-red)',sampler:'var(--c-orange)',synth:'var(--c-yellow)','live input':'var(--c-green)',daybreak:'var(--c-blue)'};
   const PAD_ROW=['var(--c-red)','var(--c-orange)','var(--c-blue)','var(--c-violet)'];
-  function colourStrips(){
+  function colourRows(){
+    const melodic=!!document.querySelector('.sequencer-grid.melodic-grid,.melodic-grid');
+    document.querySelectorAll('.sequencer-grid .seq-row').forEach((row,i)=>{
+      const n=parseInt(row.querySelector('.seq-label strong')?.textContent||'',10);
+      const c=melodic||!(n>=1&&n<=16)?'var(--c-green)':PAD_ROW[Math.floor((n-1)/4)];
+      if(row.style.getPropertyValue('--pc')!==c)row.style.setProperty('--pc',c);
+    });
+  }
+  function colourStrips(){ colourRows();
     document.querySelectorAll('.mixer-strip').forEach(strip=>{
       const t=(strip.querySelector('.mixer-channel-head b')?.textContent||'').trim().toLowerCase(); let c=null;
       const m=t.match(/^pad\s+(\d+)/); if(m)c=PAD_ROW[Math.min(3,Math.floor((+m[1]-1)/4))];
