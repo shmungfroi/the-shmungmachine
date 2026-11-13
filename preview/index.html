@@ -3331,6 +3331,17 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 .fx-filter-visual .pro-peak{fill:var(--module,var(--c-teal))}
 .fx-filter-visual .pro-peak-label{font:600 7px system-ui,sans-serif;fill:var(--muted);text-transform:none;letter-spacing:0}
 .fx-filter-visual .fx-spectrum-trace{transition:none}
+
+/* top-bar transport (all windows) */
+:root .pro-transport{display:inline-flex!important;align-items:center;gap:4px;margin-right:6px;padding:2px;border:1px solid var(--s-line);background:var(--s-1)}
+:root .pro-transport button{width:30px;height:24px;min-height:0!important;padding:0!important;border:1px solid var(--s-line-strong)!important;background:var(--s-ctl)!important;color:var(--ink)!important;font:600 11px/1 system-ui,sans-serif!important;cursor:pointer}
+:root .pro-transport button:hover:not(:disabled){background:var(--s-ctl-hover)!important}
+:root .pro-transport button:disabled{opacity:.4;cursor:default}
+:root .pro-transport.running .pro-tp-play{background:var(--c-green)!important;border-color:var(--c-green)!important;color:#fff!important}
+:root .pro-transport .pro-tp-pos{min-width:84px;padding:0 6px;font:500 11.5px/1 ui-monospace,"SF Mono",Menlo,monospace;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+:root .pro-transport.running .pro-tp-pos{color:var(--ink)}
+:root body.daybreak-focus-mode .top-actions>#proTransport:not(#x1):not(#x2):not(#x3){display:inline-flex!important}
+@media(max-width:640px){:root .pro-transport .pro-tp-pos{display:none}}
 </style>
 
 </head>
@@ -8735,8 +8746,25 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       if(c&&strip.style.getPropertyValue('--chan')!==c)strip.style.setProperty('--chan',c);
     });
   }
+  /* ---- top-bar transport: mirrors the Sequencer's Play / Stop and position on every window ---- */
+  function proTransport(){
+    const actions=document.querySelector('.top-actions'),play=document.getElementById('playBtn'),stop=document.getElementById('stopBtn'),dock=document.getElementById('globalTransportDock'),pos=document.getElementById('globalPositionReadout');
+    if(!actions||!play||!stop||document.getElementById('proTransport'))return;
+    const box=document.createElement('div');box.id='proTransport';box.className='pro-transport';box.setAttribute('role','group');box.setAttribute('aria-label','Transport');
+    box.innerHTML='<button type="button" class="pro-tp-play" aria-label="Play" title="Play (Space)">▶</button><button type="button" class="pro-tp-stop" aria-label="Stop" title="Stop (Space)">■</button><span class="pro-tp-pos" aria-live="off">001 · 1 · 01</span>';
+    actions.prepend(box);
+    const bp=box.querySelector('.pro-tp-play'),bs=box.querySelector('.pro-tp-stop'),bpos=box.querySelector('.pro-tp-pos');
+    bp.addEventListener('click',()=>{if(!play.disabled)play.click();});
+    bs.addEventListener('click',()=>{if(!stop.disabled)stop.click();});
+    const sync=()=>{const running=dock?!dock.classList.contains('stopped'):stop.disabled===false;box.classList.toggle('running',running);bp.disabled=play.disabled;bs.disabled=stop.disabled;bp.setAttribute('aria-pressed',String(running));if(pos)bpos.textContent=(pos.textContent||'').trim()||bpos.textContent;};
+    const mo=new MutationObserver(sync);
+    [play,stop].forEach(el=>mo.observe(el,{attributes:true,attributeFilter:['disabled','class']}));
+    if(dock)mo.observe(dock,{attributes:true,attributeFilter:['class']});
+    if(pos)mo.observe(pos,{childList:true,characterData:true,subtree:true});
+    sync();
+  }
   function topbarH(){ const t=document.querySelector('.topbar'); if(t)document.documentElement.style.setProperty('--pro-topbar-h',t.offsetHeight+'px'); }
-  function start(){ knobify(); wire(); fills(); colourStrips(); tipClose(); topbarH(); addEventListener('resize',topbarH); addEventListener('scroll',hideTip,{passive:true}); document.addEventListener('pointerdown',ev=>{if(!ev.target.closest('.pro-help'))hideTip();}); new ResizeObserver(topbarH).observe(document.querySelector('.topbar')); }
+  function start(){ proTransport(); knobify(); wire(); fills(); colourStrips(); tipClose(); topbarH(); addEventListener('resize',topbarH); addEventListener('scroll',hideTip,{passive:true}); document.addEventListener('pointerdown',ev=>{if(!ev.target.closest('.pro-help'))hideTip();}); new ResizeObserver(topbarH).observe(document.querySelector('.topbar')); }
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start):start();
 })();
 </script>
