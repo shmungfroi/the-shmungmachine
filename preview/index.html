@@ -2,6 +2,12 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.16 — DAYBREAK ENGINE FIXES (13 Nov 2026)
+Loop always decays (Butterworth base, 100% = 0.98 at the loudest frequency; Hold opens the filters); fragment pitches stay on
+musical intervals; Feed-into-echoes, Capture-from-echoes and Lock-to-tempo for fragments; fragments scheduled on the audio clock;
+lighter fragments (unused stages skipped, cached crush curves); Auto Filter LFO sweeps in octaves; envelope follows echoes in
+return position and keeps working in Freeze/Hold; stereo Width + Ping-pong; Clear echoes fades; WAV export follows the same rules.
+
 EXP 0.3.15 — DAYBREAK CONTROL REWORK (13 Nov 2026)
 Character keeps hand-set Transform values (Custom), no hidden LPF darkening or auto-filter boost; one Echo level
 (Return level removed from Daybreak, Effects knob now drives Echo); limiter light; feedback up to 0.97 + Hold;
@@ -2343,7 +2349,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.15 Studio</title>
+  <title>Shmung Machine — EXP 0.3.16 Studio</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3342,6 +3348,11 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .pro-transport.running .pro-tp-pos{color:var(--ink)}
 :root body.daybreak-focus-mode .top-actions>#proTransport:not(#x1):not(#x2):not(#x3){display:inline-flex!important}
 @media(max-width:640px){:root .pro-transport .pro-tp-pos{display:none}}
+
+/* EXP 0.3.16: Space strip + fragment routing */
+:root .daybreak-space-strip{grid-template-columns:minmax(130px,1fr) minmax(130px,180px) auto!important;margin-top:8px}
+:root .daybreak-space-strip .toggle-row{align-self:center}
+:root .daybreak-fragment-routing{margin-top:8px}
 </style>
 
 </head>
@@ -3351,7 +3362,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.15 STUDIO</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.16 STUDIO</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4134,6 +4145,12 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
           <span class="timing-mode-switch tone-slope-switch" role="group" aria-label="Repeat tone slope"><button id="daybreakSlope12" class="timing-mode-button active" type="button" aria-pressed="true" title="Gentle: 12 dB per octave">12 dB</button><button id="daybreakSlope24" class="timing-mode-button" type="button" aria-pressed="false" title="Steep: 24 dB per octave">24 dB</button></span>
         </div>
 
+        <div class="input-filter-strip daybreak-space-strip" aria-label="Daybreak stereo space">
+          <div class="input-filter-title"><strong>Space</strong><span>Width spreads the echoes across left and right. Ping-pong delays the right side by half the echo time so repeats bounce between speakers.</span></div>
+          <label class="input-filter-control">Width<strong id="daybreakSpreadValue">0%</strong><input id="daybreakSpread" type="range" min="0" max="100" step="1" value="0" aria-label="Echo stereo width" /></label>
+          <label class="toggle-row"><input id="daybreakPingPong" type="checkbox" /> Ping-pong</label>
+        </div>
+
         <div id="daybreakAutoFilterPanel" class="daybreak-auto-filter-panel is-off" aria-label="Daybreak Auto Filter">
           <div class="auto-filter-motion">
             <div class="auto-filter-motion-head"><strong>Filter movement</strong><output id="daybreakAutoFilterMotionText">Inactive</output></div>
@@ -4181,6 +4198,11 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
               <label class="toggle-row"><input id="fragmentLayerCheck" type="checkbox" /> Enable fragment layer</label>
               <button id="daybreakCaptureBtn" class="button" disabled>Trigger fragment</button>
               <label class="toggle-row"><input id="daybreakFreeze" type="checkbox" /> Freeze recent sound</label>
+            </div>
+            <div class="control-grid daybreak-fragment-routing">
+              <label>Feed into echoes <span id="fragmentFeedValue">0%</span><input id="fragmentFeed" type="range" min="0" max="100" step="1" value="0" /></label>
+              <label>Capture from<select id="fragmentSource"><option value="input">Input only</option><option value="both">Input + echoes</option></select></label>
+              <label class="toggle-row"><input id="fragmentLock" type="checkbox" /> Lock fragments to tempo (1/16)</label>
             </div>
             <div class="control-grid">
               <label>Fragment size <span id="grainSizeValue">350 ms</span>
@@ -4257,7 +4279,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.15 Studio</span>
+    <span>Shmung Machine · EXP 0.3.16 Studio</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -4413,6 +4435,11 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       hold: false,
       toneSlope: 12,
       toneRes: 0,
+      fragmentFeedAmt: 0,
+      fragmentSource: "input",
+      fragmentLock: false,
+      stereoSpread: 0,
+      pingPong: false,
       stream: null,
       source: null,
       analyser: null,
@@ -4505,7 +4532,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   function cloneHistoryPad(p){ensureFxSendState(p);ensureFadeCurveState?.(p);return {name:p.name,buffer:p.buffer,mode:p.mode,gainDb:p.gainDb,pitch:p.pitch,trimStart:p.trimStart,trimEnd:p.trimEnd,reverse:!!p.reverse,pan:p.pan,chokeGroup:p.chokeGroup,muted:!!p.muted,solo:!!p.solo,daybreakSend:p.daybreakSend,sendMode:p.sendMode||"post",fxSends:{...p.fxSends},fxSendModes:{...p.fxSendModes},decayMs:p.decayMs,fadeInMs:p.fadeInMs,fadeOutMs:p.fadeOutMs,fadeCurve:p.fadeCurve,fadeInCurve:p.fadeInCurve,fadeOutCurve:p.fadeOutCurve,sourceName:p.sourceName,sliceMarkers:[...(p.sliceMarkers||[])]};}
   function cloneHistoryMixer(){const result={};for(const key of ["drumBus","sampler","synth","live","daybreakReturn","master"]){const d=state.mixer[key]||{};result[key]={...d,fxSends:d.fxSends?{...d.fxSends}:undefined,fxSendModes:d.fxSendModes?{...d.fxSendModes}:undefined};}return result;}
-  function captureHistoryState(){const db=state.daybreak;return {selectedPad:state.selectedPad,tempo:state.tempo,performanceTarget:state.performanceTarget,sampleRootMidi:state.sampleRootMidi,samplerProgram:{...state.samplerProgram},pads:state.pads.map(cloneHistoryPad),pattern:state.pattern.map(r=>[...r]),sampler:{...state.sampler},synth:{...state.synth},mixer:cloneHistoryMixer(),sequence:{target:state.sequence.target,bars:state.sequence.bars,storageVersion:4,editBar:state.sequence.editBar,follow:state.sequence.follow,length:state.sequence.length,swing:state.sequence.swing,record:state.sequence.record,octave:state.sequence.octave,sampler:[...state.sequence.sampler],synth:[...state.sequence.synth]},effects:{...state.effects},slice:{mode:state.slice.mode,sensitivity:state.slice.sensitivity,regions:state.slice.regions,minGapMs:state.slice.minGapMs,snapZero:state.slice.snapZero,startPad:state.slice.startPad,writeMode:state.slice.writeMode,keepSource:state.slice.keepSource,selectedSlice:state.slice.selectedSlice,sourcePadIndex:state.slice.sourcePadIndex},metronome:{levelDb:state.metronome.levelDb,meter:state.metronome.meter,inExport:state.metronome.inExport},daybreak:{monitor:db.monitor,inputTrimDb:db.inputTrimDb,inputDeviceId:db.inputDeviceId,inputChannel:db.inputChannel,timeMode:db.timeMode,subdivision:db.subdivision,freeTimeMs:db.freeTimeMs,feedback:db.feedback,mix:db.mix,hpfHz:db.hpfHz,lpfHz:db.lpfHz,autoFilterEnabled:db.autoFilterEnabled,autoFilterType:db.autoFilterType,autoFilterMode:db.autoFilterMode,autoFilterSubdivision:db.autoFilterSubdivision,autoFilterRate:db.autoFilterRate,autoFilterCenter:db.autoFilterCenter,autoFilterDepth:db.autoFilterDepth,autoFilterQ:db.autoFilterQ,autoFilterPosition:db.autoFilterPosition,autoFilterDirection:db.autoFilterDirection,transformMix:db.transformMix,character:db.character,returnDb:db.returnDb,fragmentLayer:db.fragmentLayer,freeze:db.freeze,fragmentMs:db.fragmentMs,density:db.density,scatter:db.scatter,pitchVariation:db.pitchVariation,stereo:db.stereo,colour:db.colour,allowReverse:db.allowReverse,shred:db.shred,crush:db.crush,ringMod:db.ringMod,burstCount:db.burstCount,characterLocks:{...(db.characterLocks||{})},toneSlope:db.toneSlope,toneRes:db.toneRes}};}
+  function captureHistoryState(){const db=state.daybreak;return {selectedPad:state.selectedPad,tempo:state.tempo,performanceTarget:state.performanceTarget,sampleRootMidi:state.sampleRootMidi,samplerProgram:{...state.samplerProgram},pads:state.pads.map(cloneHistoryPad),pattern:state.pattern.map(r=>[...r]),sampler:{...state.sampler},synth:{...state.synth},mixer:cloneHistoryMixer(),sequence:{target:state.sequence.target,bars:state.sequence.bars,storageVersion:4,editBar:state.sequence.editBar,follow:state.sequence.follow,length:state.sequence.length,swing:state.sequence.swing,record:state.sequence.record,octave:state.sequence.octave,sampler:[...state.sequence.sampler],synth:[...state.sequence.synth]},effects:{...state.effects},slice:{mode:state.slice.mode,sensitivity:state.slice.sensitivity,regions:state.slice.regions,minGapMs:state.slice.minGapMs,snapZero:state.slice.snapZero,startPad:state.slice.startPad,writeMode:state.slice.writeMode,keepSource:state.slice.keepSource,selectedSlice:state.slice.selectedSlice,sourcePadIndex:state.slice.sourcePadIndex},metronome:{levelDb:state.metronome.levelDb,meter:state.metronome.meter,inExport:state.metronome.inExport},daybreak:{monitor:db.monitor,inputTrimDb:db.inputTrimDb,inputDeviceId:db.inputDeviceId,inputChannel:db.inputChannel,timeMode:db.timeMode,subdivision:db.subdivision,freeTimeMs:db.freeTimeMs,feedback:db.feedback,mix:db.mix,hpfHz:db.hpfHz,lpfHz:db.lpfHz,autoFilterEnabled:db.autoFilterEnabled,autoFilterType:db.autoFilterType,autoFilterMode:db.autoFilterMode,autoFilterSubdivision:db.autoFilterSubdivision,autoFilterRate:db.autoFilterRate,autoFilterCenter:db.autoFilterCenter,autoFilterDepth:db.autoFilterDepth,autoFilterQ:db.autoFilterQ,autoFilterPosition:db.autoFilterPosition,autoFilterDirection:db.autoFilterDirection,transformMix:db.transformMix,character:db.character,returnDb:db.returnDb,fragmentLayer:db.fragmentLayer,freeze:db.freeze,fragmentMs:db.fragmentMs,density:db.density,scatter:db.scatter,pitchVariation:db.pitchVariation,stereo:db.stereo,colour:db.colour,allowReverse:db.allowReverse,shred:db.shred,crush:db.crush,ringMod:db.ringMod,burstCount:db.burstCount,characterLocks:{...(db.characterLocks||{})},toneSlope:db.toneSlope,toneRes:db.toneRes,fragmentFeedAmt:db.fragmentFeedAmt,fragmentSource:db.fragmentSource,fragmentLock:db.fragmentLock,stereoSpread:db.stereoSpread,pingPong:db.pingPong}};}
   function historySignature(snapshot){return JSON.stringify(snapshot,(key,value)=>key==="buffer"?(value?`audio:${value.duration}:${value.length}:${value.sampleRate}`:null):value);}
   function updateHistoryUI(){const u=$("undoBtn"),r=$("redoBtn");if(!u||!r)return;const undoItem=editHistory.undo.at(-1),redoItem=editHistory.redo.at(-1);u.disabled=!undoItem;r.disabled=!redoItem;u.textContent=undoItem?`↶ Undo ${undoItem.label}`:"↶ Undo";r.textContent=redoItem?`↷ Redo ${redoItem.label}`:"↷ Redo";u.title=undoItem?`Undo ${undoItem.label}`:"Nothing to undo";r.title=redoItem?`Redo ${redoItem.label}`:"Nothing to redo";u.classList.toggle("history-ready",!!undoItem);r.classList.toggle("history-ready",!!redoItem);}
   function beginHistory(label){if(editHistory.applying||editHistory.pending)return;const before=captureHistoryState();editHistory.pending={label:label||"change",before,signature:historySignature(before)};}
@@ -4674,11 +4701,12 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     return !!context.__shmungCaptureReady;
   }
   function writeDaybreakRing(input, rms) {
-    const db = state.daybreak; if (db.freeze || !db.ring) return;
-    const ring = db.ring, len = ring.length; let w = db.writeIndex;
+    const db = state.daybreak; if (!db.ring) return;
+    const skip = db.freeze || (db.hold && db.delayEnabled && db.fragmentSource !== "both");
+    if (!skip) { const ring = db.ring, len = ring.length; let w = db.writeIndex;
     for (let i = 0; i < input.length; i++) { ring[w] = input[i]; w = w + 1 === len ? 0 : w + 1; }
-    db.writeIndex = w;
-    applyDaybreakEnvelopeFilter(rms);
+    db.writeIndex = w; }
+    applyDaybreakEnvelopeFilter(db.autoFilterPosition === "return" ? daybreakEchoRms(rms) : rms);
   }
   // Effect sends are created only while a send is turned up. Previously every channel carried
   // 16 always-connected send nodes (352 idle nodes), which cost a large slice of the audio thread
@@ -6401,9 +6429,9 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const daybreakAutoLfoPreGain = off.createGain();
     const daybreakAutoLfoReturnGain = off.createGain();
     daybreakDelay.delayTime.value = daybreakDelaySeconds();
-    daybreakFeedback.gain.value = state.daybreak.delayEnabled ? daybreakFeedbackGainFromControl(state.daybreak.feedback) : 0;
-    daybreakFeedbackHPF.type="highpass";daybreakFeedbackHPF.frequency.value=clamp(state.daybreak.hpfHz,20,2000);daybreakFeedbackHPF.Q.value=.707;
-    daybreakFeedbackLPF.type="lowpass";daybreakFeedbackLPF.frequency.value=clamp(state.daybreak.lpfHz*Math.pow(.62,clamp(state.daybreak.character||0,0,1)),Math.max(500,daybreakFeedbackHPF.frequency.value*1.05),20000);daybreakFeedbackLPF.Q.value=.707;
+    daybreakFeedback.gain.value = state.daybreak.delayEnabled ? (state.daybreak.hold?.998:daybreakFeedbackGainFromControl(state.daybreak.feedback)/daybreakTonePeak()) : 0;
+    daybreakFeedbackHPF.type="highpass";daybreakFeedbackHPF.frequency.value=clamp(state.daybreak.hpfHz,20,2000);daybreakFeedbackHPF.Q.value=DB_QBASE;
+    daybreakFeedbackLPF.type="lowpass";daybreakFeedbackLPF.frequency.value=clamp(state.daybreak.lpfHz,Math.max(500,daybreakFeedbackHPF.frequency.value*1.05),20000);const dbSteepX=Number(state.daybreak.toneSlope)===24;daybreakFeedbackLPF.Q.value=dbSteepX?DB_QBASE:daybreakToneQ();const daybreakFeedbackHPF2=off.createBiquadFilter(),daybreakFeedbackLPF2=off.createBiquadFilter();daybreakFeedbackHPF2.type="highpass";daybreakFeedbackLPF2.type="lowpass";daybreakFeedbackHPF2.Q.value=DB_QBASE;daybreakFeedbackHPF2.frequency.value=dbSteepX?daybreakFeedbackHPF.frequency.value:10;daybreakFeedbackLPF2.frequency.value=dbSteepX?daybreakFeedbackLPF.frequency.value:Math.min(20000,off.sampleRate/2-100);daybreakFeedbackLPF2.Q.value=dbSteepX?daybreakToneQ():DB_QBASE;
     daybreakFeedbackSaturator.curve=DAYBREAK_SATURATION_CURVE;daybreakFeedbackSaturator.oversample="4x";const daybreakSaturatorPre=off.createGain();daybreakSaturatorPre.gain.value=1/DAYBREAK_SATURATION_RANGE;
     daybreakWet.gain.value = state.daybreak.delayEnabled ? clamp(state.daybreak.mix,0,1) : 0;
     daybreakOutputBus.gain.value=dbToGain(clamp(state.daybreak.returnDb??0,-12,12));
@@ -6412,22 +6440,22 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const dbAutoType = ["lowpass","highpass","bandpass"].includes(state.daybreak.autoFilterType) ? state.daybreak.autoFilterType : "lowpass";
     const dbAutoPosition = state.daybreak.autoFilterPosition === "pre" ? "pre" : "return";
     const dbAutoCenter = clamp(state.daybreak.autoFilterCenter,80,16000);
-    const dbAutoDepth = clamp(state.daybreak.autoFilterDepth,0,1)*(1+clamp(state.daybreak.character||0,0,1)*.22);
+    const dbAutoDepth = clamp(state.daybreak.autoFilterDepth,0,1);
     daybreakAutoPre.type = dbAutoActive&&dbAutoPosition==="pre" ? dbAutoType : "allpass";
     daybreakAutoReturn.type = dbAutoActive&&dbAutoPosition==="return" ? dbAutoType : "allpass";
     daybreakAutoPre.frequency.value = dbAutoCenter; daybreakAutoReturn.frequency.value = dbAutoCenter;
     daybreakAutoPre.Q.value = clamp(state.daybreak.autoFilterQ,.1,16); daybreakAutoReturn.Q.value = clamp(state.daybreak.autoFilterQ,.1,16);
     daybreakAutoLfo.type = state.daybreak.autoFilterDirection === "alternate" ? "sine" : "sawtooth";
     daybreakAutoLfo.frequency.value = state.daybreak.autoFilterMode === "free" ? clamp(state.daybreak.autoFilterRate,.05,8) : 1/((60/state.tempo)*clamp(state.daybreak.autoFilterSubdivision,.125,16));
-    const dbSweep = dbAutoCenter*dbAutoDepth*.88;
+    const dbSweep = dbAutoDepth*DB_LFO_OCTAVES*1200;
     daybreakAutoLfoPreGain.gain.value = dbAutoActive&&dbAutoPosition==="pre"&&state.daybreak.autoFilterMode!=="envelope" ? autoFilterDirectionGain(state.daybreak.autoFilterDirection,dbSweep) : 0;
     daybreakAutoLfoReturnGain.gain.value = dbAutoActive&&dbAutoPosition==="return"&&state.daybreak.autoFilterMode!=="envelope" ? autoFilterDirectionGain(state.daybreak.autoFilterDirection,dbSweep) : 0;
-    daybreakAutoLfo.connect(daybreakAutoLfoPreGain).connect(daybreakAutoPre.frequency);
-    daybreakAutoLfo.connect(daybreakAutoLfoReturnGain).connect(daybreakAutoReturn.frequency);
+    daybreakAutoLfo.connect(daybreakAutoLfoPreGain).connect(daybreakAutoPre.detune);
+    daybreakAutoLfo.connect(daybreakAutoLfoReturnGain).connect(daybreakAutoReturn.detune);
     daybreakInput.connect(daybreakAutoPre).connect(daybreakDelay);
-    daybreakDelay.connect(daybreakFeedbackHPF).connect(daybreakFeedbackLPF).connect(daybreakSaturatorPre).connect(daybreakFeedbackSaturator);
+    daybreakDelay.connect(daybreakFeedbackHPF).connect(daybreakFeedbackLPF).connect(daybreakFeedbackHPF2).connect(daybreakFeedbackLPF2).connect(daybreakSaturatorPre).connect(daybreakFeedbackSaturator);
     daybreakFeedbackSaturator.connect(daybreakFeedback).connect(daybreakDelay);
-    daybreakFeedbackSaturator.connect(daybreakAutoReturn).connect(daybreakWet).connect(daybreakOutputBus).connect(daybreakOutputLimiter).connect(daybreakReturnChannel.input);
+    daybreakFeedbackSaturator.connect(daybreakAutoReturn).connect(daybreakWet);daybreakOutputBus.connect(daybreakOutputLimiter).connect(daybreakReturnChannel.input);{const st=daybreakStereoChain(off,daybreakWet,daybreakOutputBus);setDaybreakStereo(st,null);}
     daybreakAutoLfo.start(0);
 
     const nodesFor = desc => desc.key === "pad" ? offNodes.padChannels[desc.padIndex] : offNodes[desc.key];
@@ -6626,7 +6654,12 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
         burstCount: state.daybreak.burstCount,
         characterLocks: { ...(state.daybreak.characterLocks || {}) },
         toneSlope: state.daybreak.toneSlope,
-        toneRes: state.daybreak.toneRes
+        toneRes: state.daybreak.toneRes,
+        fragmentFeedAmt: state.daybreak.fragmentFeedAmt,
+        fragmentSource: state.daybreak.fragmentSource,
+        fragmentLock: state.daybreak.fragmentLock,
+        stereoSpread: state.daybreak.stereoSpread,
+        pingPong: state.daybreak.pingPong
       },
       pads
     };
@@ -6855,7 +6888,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   function daybreakFeedbackGainFromControl(value=state.daybreak.feedback){
     const x=clamp(Number(value)||0,0,1);
-    return .97*Math.pow(x,.85);
+    return .98*Math.pow(x,.85);
   }
 
   function daybreakSubdivisionBeats(value=state.daybreak.subdivision){
@@ -7215,7 +7248,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.delayInputGain=c.createGain();db.delayInputGain.gain.value=0;
     db.outputBus=c.createGain();db.outputBus.gain.value=dbToGain(db.returnDb);
     db.outputLimiter=configureSafetyLimiter(c.createDynamicsCompressor(),.1);
-    db.transformGain=c.createGain();db.transformGain.gain.value=0;db.transformGain.connect(db.outputBus);
+    db.transformGain=c.createGain();db.transformGain.gain.value=0;db.transformGain.connect(db.outputBus);db.fragmentFeed=c.createGain();db.fragmentFeed.gain.value=0;db.transformGain.connect(db.fragmentFeed);db.captureEchoGain=c.createGain();db.captureEchoGain.gain.value=0;
     db.inputTrimNode.connect(db.analyser);
     // Reset 1.19.0: clean recording taps remain pre-mixer, while audible live input enters the Live mixer channel.
     db.inputTrimNode.connect(db.padRecordDestination);
@@ -7229,7 +7262,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       db.processor=c.createScriptProcessor(1024,1,1);
       db.processor.onaudioprocess=ev=>{const input=ev.inputBuffer.getChannelData(0);let sum=0;for(let i=0;i<input.length;i++)sum+=input[i]*input[i];writeDaybreakRing(input,Math.sqrt(sum/Math.max(1,input.length)));};
     }
-    db.delayInputGain.connect(db.processor).connect(db.zeroGain).connect(c.destination);
+    db.captureEchoGain.connect(db.processor);db.delayInputGain.connect(db.processor).connect(db.zeroGain).connect(c.destination);
     connectDaybreakTail();connectMixerEffectSends();applyDaybreakCharacter(db.character,{writeParameters:false});updateDaybreakGraph();
   }
 
@@ -7243,21 +7276,26 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.feedbackGain = c.createGain(); db.wetGain = c.createGain();
     db.autoFilterPre=c.createBiquadFilter();db.autoFilterReturn=c.createBiquadFilter();
     db.autoFilterLfo=c.createOscillator();db.autoFilterLfoGainPre=c.createGain();db.autoFilterLfoGainReturn=c.createGain();
-    db.autoFilterLfo.connect(db.autoFilterLfoGainPre).connect(db.autoFilterPre.frequency);
-    db.autoFilterLfo.connect(db.autoFilterLfoGainReturn).connect(db.autoFilterReturn.frequency);
+    db.autoFilterLfo.connect(db.autoFilterLfoGainPre).connect(db.autoFilterPre.detune);
+    db.autoFilterLfo.connect(db.autoFilterLfoGainReturn).connect(db.autoFilterReturn.detune);
     db.autoFilterLfo.start();
     db.delayInputGain.connect(db.autoFilterPre).connect(db.delayNode);
     db.delayNode.connect(db.feedbackHPF).connect(db.feedbackLPF).connect(db.feedbackHPF2).connect(db.feedbackLPF2).connect(db.feedbackSaturatorPre).connect(db.feedbackSaturator);
     db.feedbackSaturator.connect(db.feedbackGain).connect(db.delayNode);
-    db.feedbackSaturator.connect(db.autoFilterReturn).connect(db.wetGain).connect(db.outputBus);
+    db.feedbackSaturator.connect(db.autoFilterReturn).connect(db.wetGain);
+    db.stereoChain=daybreakStereoChain(c,db.wetGain,db.outputBus);
+    db.echoEnvAnalyser=c.createAnalyser();db.echoEnvAnalyser.fftSize=512;db.feedbackSaturator.connect(db.echoEnvAnalyser);
+    if(db.captureEchoGain)db.feedbackSaturator.connect(db.captureEchoGain);
+    if(db.fragmentFeed)db.fragmentFeed.connect(db.delayNode);
   }
 
   function rebuildDaybreakTail() {
     const db = state.daybreak, oldPre = db.autoFilterPre;
     try{db.autoFilterLfo?.stop();}catch(_){}
     try { if(oldPre) db.delayInputGain?.disconnect(oldPre); } catch (_) {}
-    [db.delayNode,db.feedbackHPF,db.feedbackLPF,db.feedbackHPF2,db.feedbackLPF2,db.feedbackSaturatorPre,db.feedbackSaturator,db.feedbackGain,db.wetGain,db.autoFilterPre,db.autoFilterReturn,db.autoFilterLfo,db.autoFilterLfoGainPre,db.autoFilterLfoGainReturn].forEach(node => { try { node?.disconnect(); } catch (_) {} });
-    connectDaybreakTail(); updateDaybreakGraph();
+    if(db.stereoChain)Object.values(db.stereoChain).forEach(n=>{try{n.disconnect();}catch(_){}});try{db.echoEnvAnalyser?.disconnect();}catch(_){}
+    [db.fragmentFeed,db.delayNode,db.feedbackHPF,db.feedbackLPF,db.feedbackHPF2,db.feedbackLPF2,db.feedbackSaturatorPre,db.feedbackSaturator,db.feedbackGain,db.wetGain,db.autoFilterPre,db.autoFilterReturn,db.autoFilterLfo,db.autoFilterLfoGainPre,db.autoFilterLfoGainReturn].forEach(node => { try { node?.disconnect(); } catch (_) {} });
+    connectDaybreakTail(); db.wetGain.gain.value=0; db.feedbackGain.gain.value=0; updateDaybreakGraph();
   }
 
   function updateDaybreakGraph() {
@@ -7268,16 +7306,15 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     state.graph?.liveMonitorGate?.gain.setTargetAtTime(db.micEnabled&&db.monitor?1:0,now,.012);
     db.delayNode.delayTime.cancelScheduledValues(now);db.delayNode.delayTime.setTargetAtTime(delaySeconds,now,db.timeMode==="free"?.055:.025);
     const holding=!!(db.hold&&db.delayEnabled);db.delayInputGain.gain.setTargetAtTime(db.delayEnabled&&!holding ? 1 : 0, now, 0.012);
-    const toneQ=.707+clamp(Number(db.toneRes)||0,0,1)*9.3,qPeak=qdb=>{const q=Math.pow(10,qdb/20);return q>.7072?q/Math.sqrt(1-1/(4*q*q)):1;},tonePeak=qPeak(toneQ)/qPeak(.707);db.loopCeiling=.96/tonePeak;/* Web Audio LP/HP Q is in dB: 0.707 dB = original tone, up to +10 dB resonance; ceiling only offsets the added peak */const effectiveFeedback=holding?Math.min(1,.995/tonePeak):Math.min(daybreakFeedbackGainFromControl(db.feedback),db.loopCeiling);db.effectiveFeedback=effectiveFeedback;
+    const toneQ=daybreakToneQ(),tonePeak=daybreakTonePeak();const effectiveFeedback=holding?.998:daybreakFeedbackGainFromControl(db.feedback)/tonePeak;db.effectiveFeedback=effectiveFeedback;
     db.feedbackGain.gain.setTargetAtTime(db.delayEnabled ? effectiveFeedback : 0, now, 0.025);
     const effectiveHPF=clamp(db.hpfHz,20,2000),effectiveLPF=clamp(db.lpfHz,Math.max(500,effectiveHPF*1.05),20000),steep=Number(db.toneSlope)===24;
-    db.feedbackHPF.frequency.setTargetAtTime(effectiveHPF,now,.025);db.feedbackHPF.Q.setTargetAtTime(.707,now,.025);
-    db.feedbackLPF.frequency.setTargetAtTime(effectiveLPF,now,.025);db.feedbackLPF.Q.setTargetAtTime(steep?.707:toneQ,now,.025);if(db.feedbackHPF2){db.feedbackHPF2.frequency.setTargetAtTime(steep?effectiveHPF:10,now,.025);db.feedbackLPF2.frequency.setTargetAtTime(steep?effectiveLPF:Math.min(20000,state.ctx.sampleRate/2-100),now,.025);db.feedbackLPF2.Q.setTargetAtTime(steep?toneQ:.707,now,.025);}
+    const nyq=Math.min(20000,state.ctx.sampleRate/2-100),hpT=holding?10:effectiveHPF,lpT=holding?nyq:effectiveLPF;db.feedbackHPF.frequency.setTargetAtTime(hpT,now,.025);db.feedbackHPF.Q.setTargetAtTime(DB_QBASE,now,.025);db.feedbackLPF.frequency.setTargetAtTime(lpT,now,.025);db.feedbackLPF.Q.setTargetAtTime(holding||steep?DB_QBASE:toneQ,now,.025);if(db.feedbackHPF2){db.feedbackHPF2.frequency.setTargetAtTime(steep&&!holding?effectiveHPF:10,now,.025);db.feedbackHPF2.Q.setTargetAtTime(DB_QBASE,now,.025);db.feedbackLPF2.frequency.setTargetAtTime(steep&&!holding?effectiveLPF:nyq,now,.025);db.feedbackLPF2.Q.setTargetAtTime(steep&&!holding?toneQ:DB_QBASE,now,.025);}
     const autoType=["lowpass","highpass","bandpass"].includes(db.autoFilterType)?db.autoFilterType:"lowpass",autoPosition=db.autoFilterPosition==="pre"?"pre":"return",autoCenter=clamp(db.autoFilterCenter,80,16000),autoQ=clamp(db.autoFilterQ,.1,16),autoDepth=clamp(db.autoFilterDepth,0,1),autoLfoActive=db.autoFilterEnabled&&db.autoFilterMode!=="envelope";
     setDaybreakAutoFilterNodeState(db.autoFilterPre,db.autoFilterEnabled&&autoPosition==="pre",autoType,autoCenter,autoQ);
     setDaybreakAutoFilterNodeState(db.autoFilterReturn,db.autoFilterEnabled&&autoPosition==="return",autoType,autoCenter,autoQ);
     if(db.autoFilterLfo){db.autoFilterLfo.type=db.autoFilterDirection==="alternate"?"sine":"sawtooth";db.autoFilterLfo.frequency.setTargetAtTime(daybreakAutoFilterRateHz(),now,.02);}
-    const sweep=autoFilterDirectionGain(db.autoFilterDirection,autoCenter*autoDepth*.88);
+    const sweep=autoFilterDirectionGain(db.autoFilterDirection,autoDepth*DB_LFO_OCTAVES*1200);
     db.autoFilterLfoGainPre?.gain.setTargetAtTime(autoLfoActive&&autoPosition==="pre"?sweep:0,now,.02);
     db.autoFilterLfoGainReturn?.gain.setTargetAtTime(autoLfoActive&&autoPosition==="return"?sweep:0,now,.02);
     const wet = db.delayEnabled ? clamp(db.mix,0,1) : 0;
@@ -7285,6 +7322,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.outputBus.gain.setTargetAtTime(dbToGain(clamp(db.returnDb??0,-12,12)),now,.018);
     updateMixerRouting();
     if (db.transformGain) { const transformLevel = db.fragmentLayer&&db.delayEnabled ? Math.sin(clamp(db.transformMix,0,1)*Math.PI/2)*(0.42+v*.72) : 0; db.transformGain.gain.setTargetAtTime(transformLevel, now, 0.018); }
+    daybreakApplyExtras(now);
     syncDaybreakControls(); updateDaybreakLabels();
   }
 
@@ -7367,7 +7405,9 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   function clearDaybreakEchoes() {
     if (!state.audioReady) return;
-    rebuildDaybreakTail();
+    const db=state.daybreak,now=state.ctx.currentTime;
+    try{db.wetGain.gain.setTargetAtTime(0,now,.012);db.feedbackGain.gain.setTargetAtTime(0,now,.012);db.stereoChain&&db.stereoChain.width.gain.setTargetAtTime(0,now,.012);}catch(_){}
+    clearTimeout(db.clearTimer);db.clearTimer=setTimeout(rebuildDaybreakTail,70);
     toast("Echoes cleared");
   }
 
@@ -7406,22 +7446,36 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     }
   }
 
+  function daybreakNextFragmentTime(from){
+    const db=state.daybreak,average=60/Math.max(1,db.density);let t=from+average*(.65+Math.random()*.7);
+    if(db.fragmentLock){const step=60/state.tempo/4,tr=state.transport,anchor=tr&&tr.running?Number(tr.origin)||0:0;t=anchor+Math.ceil((t-anchor)/step-1e-6)*step;}
+    return t;
+  }
   function scheduleNextFragment() {
     const db = state.daybreak;
-    if (!db.fragmentLayer || !db.delayEnabled || !db.ring) return;
-    const average = 60000 / Math.max(1, db.density);
-    const wait=average * (0.65 + Math.random() * .7);
-    db.fragmentDue=performance.now()+wait;
-    db.fragmentTimer = setTimeout(() => {
-      db.fragmentTimer=null;
-      triggerDaybreakGrain();
-      scheduleNextFragment();
-    }, wait);
+    clearTimeout(db.fragmentTimer); db.fragmentTimer = null;
+    if (!db.fragmentLayer || !db.delayEnabled || !db.ring || !state.ctx) return;
+    const c = state.ctx;
+    db.nextFragmentAt = daybreakNextFragmentTime(c.currentTime + .03);
+    const tick = () => {
+      db.fragmentTimer = null;
+      if (!db.fragmentLayer || !db.delayEnabled || !db.ring) return;
+      const now = c.currentTime;
+      let guard = 0;
+      while (db.nextFragmentAt < now + .15 && guard++ < 8) {
+        if (db.nextFragmentAt >= now - .05) triggerDaybreakGrain(db.nextFragmentAt);
+        db.nextFragmentAt = daybreakNextFragmentTime(Math.max(db.nextFragmentAt, now - .05));
+      }
+      db.fragmentDue = performance.now() + Math.max(0, db.nextFragmentAt - now) * 1000;
+      db.fragmentTimer = setTimeout(tick, 40);
+    };
+    tick();
   }
 
-  function daybreakCrushCurve(amount){const a=clamp(amount,0,1),length=2048,steps=Math.max(6,Math.round(512*Math.pow(1-a,2.4))),curve=new Float32Array(length);for(let i=0;i<length;i++){const x=i/(length-1)*2-1;curve[i]=a<.005?x:Math.round(x*steps)/steps;}return curve;}
+  const DAYBREAK_CRUSH_CACHE=new Map();function daybreakCrushCurve(amount){const key=Math.round(clamp(amount,0,1)*200);let curve=DAYBREAK_CRUSH_CACHE.get(key);if(!curve){curve=daybreakCrushCurveBuild(key/200);DAYBREAK_CRUSH_CACHE.set(key,curve);}return curve;}
+  function daybreakCrushCurveBuild(amount){const a=clamp(amount,0,1),length=2048,steps=Math.max(6,Math.round(512*Math.pow(1-a,2.4))),curve=new Float32Array(length);for(let i=0;i<length;i++){const x=i/(length-1)*2-1;curve[i]=a<.005?x:Math.round(x*steps)/steps;}return curve;}
 
-  function triggerDaybreakGrain() {
+  function triggerDaybreakGrain(baseWhen) {
     const db = state.daybreak;
     if (!db.fragmentLayer || !db.delayEnabled || !db.ring || !db.outputBus) return;
     const c = state.ctx, v=clamp(db.character,0,1), shred=clamp(db.shred,0,1), crush=clamp(db.crush,0,1), ringAmount=clamp(db.ringMod,0,1), burstCount=Math.max(1+(v>.68?1:0)+(v>.9?1:0),clamp(Math.round(db.burstCount||1),1,6));
@@ -7432,20 +7486,20 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       const offsetBack = Math.floor(Math.random() * Math.max(1, recentWindow) * db.scatter);
       const start = (db.writeIndex - size - offsetBack + db.ring.length) % db.ring.length;
       const buffer = c.createBuffer(1, size, c.sampleRate), data = buffer.getChannelData(0);
-      for (let i = 0; i < size; i++) data[i] = db.ring[(start + i) % db.ring.length];
+      if(start+size<=db.ring.length)data.set(db.ring.subarray(start,start+size));else for (let i = 0; i < size; i++) data[i] = db.ring[(start + i) % db.ring.length];
       const reverse=db.allowReverse&&Math.random()<(.12+db.scatter*.55);if(reverse)data.reverse();
-      const source = c.createBufferSource(), filter = c.createBiquadFilter(), crusher=c.createWaveShaper(), ringGain=c.createGain(), ringOsc=c.createOscillator(), ringDepth=c.createGain(), gain = c.createGain(), panner = c.createStereoPanner ? c.createStereoPanner() : null;
+      const useCrush=crush>.005,useRing=ringAmount>.005,source = c.createBufferSource(), filter = c.createBiquadFilter(), crusher=useCrush?c.createWaveShaper():null, ringGain=useRing?c.createGain():null, ringOsc=useRing?c.createOscillator():null, ringDepth=useRing?c.createGain():null, gain = c.createGain(), panner = c.createStereoPanner ? c.createStereoPanner() : null;
       source.buffer = buffer;
-      const constrained=[-24,-19,-12,-7,-5,0,5,7,12,19,24],range=Math.max(1,db.pitchVariation),candidates=constrained.filter(n=>Math.abs(n)<=range+.5),pitch=(candidates.length?candidates[Math.floor(Math.random()*candidates.length)]:(Math.random()*2-1)*range)*(0.35+db.scatter*.65);
+      const constrained=[-24,-19,-12,-7,-5,0,5,7,12,19,24],range=Math.max(1,db.pitchVariation),candidates=constrained.filter(n=>Math.abs(n)<=range+.5),pitch=candidates.length&&Math.random()<(.3+db.scatter*.7)?candidates[Math.floor(Math.random()*candidates.length)]:0;
       source.playbackRate.value = semitoneRate(pitch);
       const stutter=Math.random()<clamp(v*.45+shred*.72,0,.96);source.loop=stutter;if(stutter){source.loopStart=0;source.loopEnd=Math.min(buffer.duration,.008+(1-Math.max(v,shred))*.12+Math.random()*.04);}
       filter.type=v>.72&&Math.random()<.45?"bandpass":"lowpass";filter.frequency.value=clamp(15500-db.colour*10800+(Math.random()-.5)*2300,450,17000);filter.Q.value=.7+v*8;
-      const when=c.currentTime+burstIndex*(.018+(1-v)*.09)+Math.random()*.045*db.scatter,duration=stutter?Math.min(1.15,.18+v*.75):buffer.duration/Math.max(.08,source.playbackRate.value);
+      const when=Math.max(c.currentTime,Number(baseWhen)||0)+burstIndex*(.018+(1-v)*.09)+(db.fragmentLock&&burstIndex===0?0:Math.random()*.045*db.scatter),duration=stutter?Math.min(1.15,.18+v*.75):buffer.duration/Math.max(.08,source.playbackRate.value);
       gain.gain.setValueAtTime(.0001,when);gain.gain.exponentialRampToValueAtTime(.36+v*.42+shred*.12,when+.008);gain.gain.setTargetAtTime(.0001,when+Math.max(.025,duration-.035),.012);
-      crusher.curve=daybreakCrushCurve(crush);crusher.oversample=crush>.45?"4x":"2x";ringGain.gain.value=1-ringAmount*.72;ringOsc.type=ringAmount>.62?"square":"sine";ringOsc.frequency.value=28+ringAmount*430+Math.random()*90*ringAmount;ringDepth.gain.value=ringAmount*.92;ringOsc.connect(ringDepth).connect(ringGain.gain);
-      source.connect(filter).connect(crusher).connect(ringGain).connect(gain);
+      if(crusher){crusher.curve=daybreakCrushCurve(crush);crusher.oversample=crush>.45?"4x":"2x";}if(useRing){ringGain.gain.value=1-ringAmount*.72;ringOsc.type=ringAmount>.62?"square":"sine";ringOsc.frequency.value=28+ringAmount*430+Math.random()*90*ringAmount;ringDepth.gain.value=ringAmount*.92;ringOsc.connect(ringDepth).connect(ringGain.gain);}
+      {let node=source.connect(filter);if(crusher)node=node.connect(crusher);if(ringGain)node=node.connect(ringGain);node.connect(gain);}
       if(panner){gain.connect(panner);panner.pan.value=(Math.random()*2-1)*db.stereo*(.45+db.scatter*.55);panner.connect(db.transformGain||db.outputBus);}else gain.connect(db.transformGain||db.outputBus);
-      ringOsc.start(when);ringOsc.stop(when+duration+.09);source.start(when);source.stop(when+duration+.08);
+      if(ringOsc){ringOsc.start(when);ringOsc.stop(when+duration+.09);}source.start(when);source.stop(when+duration+.08);
       const envN=56,env=new Float32Array(envN),seg=Math.max(1,Math.floor(size/envN));let envMax=1e-6;for(let k=0;k<envN;k++){let m=0;for(let j=k*seg,e=Math.min(size,(k+1)*seg);j<e;j++){const a=Math.abs(data[j]);if(a>m)m=a;}env[k]=m;if(m>envMax)envMax=m;}for(let k=0;k<envN;k++)env[k]/=envMax;
       expFragmentEvents.push({when,duration,reverse,pitch,stutter,pan:panner?.pan.value||0,env,level:Math.min(1,envMax*3),sourceAgo:(size+offsetBack)/c.sampleRate,loopFrac:stutter?Math.min(1,(source.loopEnd||.05)/Math.max(.01,buffer.duration)):1,band:filter.type==="bandpass",burst:burstIndex});
       if(expFragmentEvents.length>48)expFragmentEvents.shift();
@@ -8322,6 +8376,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const name=$("daybreakCharacterName");if(name&&n)name.textContent=`${daybreakCharacterStage(db.character).name} · Custom`;
     const details=document.querySelector(".transform-details");if(details)details.classList.toggle("layer-off",!db.fragmentLayer);
     const note=$("daybreakLayerNote");if(note)note.hidden=!!db.fragmentLayer;
+    daybreakEngineSync();
   }
   function daybreakAudition(){
     const db=state.daybreak;
@@ -8359,6 +8414,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     $("daybreakSlope24")?.addEventListener("click",ev=>{ev.preventDefault();state.daybreak.toneSlope=24;updateDaybreakGraph();});
     // hold switches off when the delay stops
     $("daybreakDelayBtn")?.addEventListener("click",()=>setTimeout(()=>{if(!state.daybreak.delayEnabled&&state.daybreak.hold){state.daybreak.hold=false;updateDaybreakGraph();}},0));
+    initDaybreakEngineControls();
     if(db.toneSlope!==24)db.toneSlope=12;db.toneRes=clamp(Number(db.toneRes)||0,0,1);db.characterLocks=db.characterLocks&&typeof db.characterLocks==="object"?db.characterLocks:{};
     daybreakProSync();
   }
@@ -8393,11 +8449,55 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
   // Daybreak repeat-tone response (what each echo passes through)
   function daybreakToneResponse(f){
-    const db=state.daybreak,fs=state.ctx?.sampleRate||48000,steep=Number(db.toneSlope)===24,qRes=.707+clamp(Number(db.toneRes)||0,0,1)*9.3;
+    const db=state.daybreak,fs=state.ctx?.sampleRate||48000,steep=Number(db.toneSlope)===24,qRes=daybreakToneQ(),qb=DB_QBASE;
     const hp=clamp(db.hpfHz,20,2000),lp=clamp(db.lpfHz,Math.max(500,hp*1.05),20000);
-    let m=biquadMag('highpass',hp,.707,f,fs)*biquadMag('lowpass',lp,steep?.707:qRes,f,fs);
-    if(steep)m*=biquadMag('highpass',hp,.707,f,fs)*biquadMag('lowpass',lp,qRes,f,fs);
+    let m=biquadMag('highpass',hp,qb,f,fs)*biquadMag('lowpass',lp,steep?qb:qRes,f,fs);
+    if(steep)m*=biquadMag('highpass',hp,qb,f,fs)*biquadMag('lowpass',lp,qRes,f,fs);
     return m;
+  }
+  /* ===== EXP 0.3.16 engine helpers ===== */
+  const DB_QBASE=-3.0103;      // true Butterworth for Web Audio LP/HP (Q is in dB): no hidden peak in the loop
+  const DB_LFO_OCTAVES=2.4;    // Auto Filter LFO sweep at full depth, in octaves either side
+  function daybreakToneQ(){return DB_QBASE+clamp(Number(state.daybreak.toneRes)||0,0,1)*13;}
+  function daybreakTonePeak(){let p=1e-6;for(let i=0;i<=160;i++){const f=20*Math.pow(1000,i/160);p=Math.max(p,daybreakToneResponse(f));}return Math.max(1,p);}
+  function daybreakStereoChain(ctx,wet,bus){
+    const centre=ctx.createGain(),leftIn=ctx.createGain(),side=ctx.createDelay(4.1),merger=ctx.createChannelMerger(2),width=ctx.createGain();
+    centre.gain.value=1;width.gain.value=0;side.delayTime.value=.018;
+    wet.connect(centre).connect(bus);wet.connect(leftIn).connect(merger,0,0);wet.connect(side).connect(merger,0,1);merger.connect(width).connect(bus);
+    return{centre,leftIn,side,merger,width};
+  }
+  function setDaybreakStereo(st,now){
+    if(!st)return;const db=state.daybreak,s=clamp(Number(db.stereoSpread)||0,0,1),t=db.pingPong?clamp(daybreakDelaySeconds()/2,.01,4):.018;
+    if(now==null){st.centre.gain.value=1-s;st.width.gain.value=s;st.side.delayTime.value=t;return;}
+    st.centre.gain.setTargetAtTime(1-s,now,.02);st.width.gain.setTargetAtTime(s,now,.02);st.side.delayTime.setTargetAtTime(t,now,.04);
+  }
+  function daybreakApplyExtras(now){
+    const db=state.daybreak;
+    db.fragmentFeed?.gain.setTargetAtTime(db.delayEnabled?clamp(Number(db.fragmentFeedAmt)||0,0,1)*.8:0,now,.02);
+    db.captureEchoGain?.gain.setTargetAtTime(db.fragmentSource==="both"?.8:0,now,.02);
+    setDaybreakStereo(db.stereoChain,now);
+  }
+  let daybreakEchoBuf=null;
+  function daybreakEchoRms(fallback){
+    const a=state.daybreak.echoEnvAnalyser;if(!a)return fallback;
+    if(!daybreakEchoBuf||daybreakEchoBuf.length!==a.fftSize)daybreakEchoBuf=new Float32Array(a.fftSize);
+    a.getFloatTimeDomainData(daybreakEchoBuf);let s=0;for(let i=0;i<daybreakEchoBuf.length;i++)s+=daybreakEchoBuf[i]*daybreakEchoBuf[i];
+    return Math.sqrt(s/daybreakEchoBuf.length);
+  }
+  function initDaybreakEngineControls(){
+    const on=(id,ev,fn)=>$(id)?.addEventListener(ev,fn);
+    on("fragmentFeed","input",e=>{state.daybreak.fragmentFeedAmt=Number(e.target.value)/100;updateDaybreakGraph();});
+    on("fragmentSource","change",e=>{state.daybreak.fragmentSource=e.target.value==="both"?"both":"input";updateDaybreakGraph();});
+    on("fragmentLock","change",e=>{state.daybreak.fragmentLock=!!e.target.checked;if(state.daybreak.fragmentLayer&&state.daybreak.delayEnabled)scheduleNextFragment();});
+    on("daybreakSpread","input",e=>{state.daybreak.stereoSpread=Number(e.target.value)/100;updateDaybreakGraph();});
+    on("daybreakPingPong","change",e=>{state.daybreak.pingPong=!!e.target.checked;updateDaybreakGraph();});
+  }
+  function daybreakEngineSync(){
+    const db=state.daybreak,setIf=(id,val)=>{const el=$(id);if(el&&String(el.value)!==String(val))el.value=val;};
+    setIf("fragmentFeed",Math.round(clamp(Number(db.fragmentFeedAmt)||0,0,1)*100));if($("fragmentFeedValue"))$("fragmentFeedValue").textContent=`${Math.round(clamp(Number(db.fragmentFeedAmt)||0,0,1)*100)}%`;
+    setIf("fragmentSource",db.fragmentSource==="both"?"both":"input");if($("fragmentLock"))$("fragmentLock").checked=!!db.fragmentLock;
+    setIf("daybreakSpread",Math.round(clamp(Number(db.stereoSpread)||0,0,1)*100));if($("daybreakSpreadValue"))$("daybreakSpreadValue").textContent=`${Math.round(clamp(Number(db.stereoSpread)||0,0,1)*100)}%${db.pingPong?' · ping-pong':''}`;
+    if($("daybreakPingPong"))$("daybreakPingPong").checked=!!db.pingPong;
   }
 
   function init() {
@@ -8696,7 +8796,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
 
   /* ---- Stage 2: knobs for key Daybreak sliders (the range input stays the real control) ---- */
-  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakToneRes','sm'],['daybreakInputTrim','sm'],['sampleCoarse','cell'],['sampleFine','cell'],['sampleGlideTime','cell'],['sampleAttack','cell'],['sampleDecay','cell'],['sampleSustain','cell'],['sampleRelease','cell'],['sampleCutoff','cell'],['sampleQ','cell'],['sampleFilterEnv','cell'],['sampleVelocity','cell'],['sampleLevel','cell'],['samplePosition','cell'],['sampleSend','cell'],['synthGlideTime','cell'],['synthAttack','cell'],['synthDecay','cell'],['synthSustain','cell'],['synthRelease','cell'],['synthCutoff','cell'],['synthRes','cell'],['synthEnvAmount','cell'],['synthDetune','cell'],['synthLfoRate','cell'],['synthLfoDepth','cell'],['synthLevel','cell'],['synthSend','cell']];
+  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakToneRes','sm'],['daybreakSpread','sm'],['daybreakInputTrim','sm'],['sampleCoarse','cell'],['sampleFine','cell'],['sampleGlideTime','cell'],['sampleAttack','cell'],['sampleDecay','cell'],['sampleSustain','cell'],['sampleRelease','cell'],['sampleCutoff','cell'],['sampleQ','cell'],['sampleFilterEnv','cell'],['sampleVelocity','cell'],['sampleLevel','cell'],['samplePosition','cell'],['sampleSend','cell'],['synthGlideTime','cell'],['synthAttack','cell'],['synthDecay','cell'],['synthSustain','cell'],['synthRelease','cell'],['synthCutoff','cell'],['synthRes','cell'],['synthEnvAmount','cell'],['synthDetune','cell'],['synthLfoRate','cell'],['synthLfoDepth','cell'],['synthLevel','cell'],['synthSend','cell']];
   function knobVisual(btn,input){
     const min=+input.min||0,max=+input.max||100,v=+input.value,pct=Math.min(1,Math.max(0,(v-min)/((max-min)||1)));
     btn.style.setProperty('--rotary-fill',(pct*270)+'deg'); btn.style.setProperty('--rotary-turn',(-135+pct*270)+'deg');
