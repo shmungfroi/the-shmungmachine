@@ -2,6 +2,11 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.14 — STUDIO LOOK, STAGE 1 (13 Nov 2026)
+Parent: EXP 0.3.13.1. Visual layer only: new default "Studio" Look (charcoal, rainbow module colours, flat 3-4px shapes,
+compact top bar + tab strip, help text moved to ? tooltips, dismissible first-run tip). Old Looks remain in the picker.
+Audio engine and all functions unchanged.
+
 EXP 0.3.13.1 — AUDIO STABILITY FIX (13 Nov 2026)
 Parent: Shmung_Machine_EXP_0_3_13_CORRECTIONS.html. Audio engine only; no UI or feature changes.
 A1 Effect sends are created only while turned up (473 -> 141 audio nodes; idle audio CPU about 4x lower). Cause of crackling on slower devices.
@@ -2331,7 +2336,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.13.1</title>
+  <title>Shmung Machine — EXP 0.3.14 Studio</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -2859,6 +2864,436 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 .daybreak-tempo-mirror input{width:68px}
 @media(max-width:520px){.daybreak-tempo-mirror{width:100%;margin-right:0}}
 </style>
+<style id="studio-pro-theme">
+/* ===== STUDIO (pro) LOOK — Stage 1: tokens, shapes, type, shell. Layout applies to every Look; colours come from role tokens. ===== */
+:root[data-theme="pro"]{
+  --ink:#e4e4e7;--muted:#8d8d96;--paper:#141416;--panel:#1b1b1e;--line:#2e2e33;--line-strong:#3c3c43;
+  --gold:#f0a92e;--gold-deep:#f0a92e;--mint:#22302d;--purple:#9b84e8;--coral:#f0584e;--teal:#3fc7b4;
+  --shadow:none;--radius:4px;--control-radius:3px;
+  --app-bg:#111113;--surface-1:#1b1b1e;--surface-2:#222226;--surface-3:#28282d;
+  --control-bg:#26262b;--control-hover:#2f2f35;--panel-border:#2e2e33;
+  --visual-bg:#0d0d0f;--meter-track:#2a2a2f;
+  --knob-face-a:#3a3a41;--knob-face-b:#232327;--key-white-a:#e9e9ec;--key-white-b:#c9c9cf;
+  --canvas-top:#151518;--canvas-bottom:#0f0f11;--canvas-grid:rgba(255,255,255,.06);--canvas-midline:rgba(255,255,255,.14);--canvas-empty:rgba(228,228,231,.45);--canvas-trim:rgba(240,88,78,.20);--canvas-fade:rgba(240,169,46,.16);
+  /* rainbow module palette */
+  --c-red:#f0584e;--c-orange:#f08a2e;--c-yellow:#f2c230;--c-green:#5fcf5a;--c-teal:#2fc7b4;--c-blue:#3d9cf0;--c-violet:#9b84e8;--c-pink:#e866b8;
+  --module:var(--c-blue);
+  color-scheme:dark;
+}
+:root #tab-daybreak{--module:var(--c-blue)}
+:root #tab-pads{--module:var(--c-red)}
+:root #tab-keyboard{--module:var(--c-orange)}
+:root #tab-synth{--module:var(--c-yellow)}
+:root #tab-sequencer{--module:var(--c-green)}
+:root #tab-mixer{--module:var(--c-teal)}
+:root #tab-effects{--module:var(--c-violet)}
+:root #tab-guide{--module:var(--c-pink)}
+
+
+/* ===== ROLE TOKENS: every Look derives the Studio layout's colours from its own ink/paper/accent ===== */
+:root{
+  --s-bg:var(--paper);
+  --s-bar:color-mix(in srgb,var(--ink) 5%,var(--paper));
+  --s-1:color-mix(in srgb,var(--ink) 4%,var(--paper));
+  --s-2:color-mix(in srgb,var(--ink) 8%,var(--paper));
+  --s-3:color-mix(in srgb,var(--ink) 12%,var(--paper));
+  --s-ctl:color-mix(in srgb,var(--ink) 9%,var(--paper));
+  --s-ctl-hover:color-mix(in srgb,var(--ink) 15%,var(--paper));
+  --s-line:color-mix(in srgb,var(--ink) 15%,var(--paper));
+  --s-line-strong:color-mix(in srgb,var(--ink) 25%,var(--paper));
+  --s-hi:color-mix(in srgb,var(--ink) 38%,var(--paper));
+  --s-active:color-mix(in srgb,var(--ink) 20%,var(--paper));
+  --s-strong:var(--ink);
+  --s-muted-dim:color-mix(in srgb,var(--ink) 35%,var(--paper));
+  --s-menu:color-mix(in srgb,var(--ink) 3%,var(--paper));
+  --s-pad:color-mix(in srgb,var(--ink) 7%,var(--paper));
+  --s-pad-hover:color-mix(in srgb,var(--ink) 11%,var(--paper));
+  --s-pad-line:color-mix(in srgb,var(--ink) 20%,var(--paper));
+  --s-step:color-mix(in srgb,var(--ink) 6%,var(--paper));
+  --s-step-line:color-mix(in srgb,var(--ink) 16%,var(--paper));
+  --s-well:color-mix(in srgb,var(--ink) 10%,var(--paper));
+  --s-thumb:var(--ink);
+  --s-tip:var(--ink);--s-tip-text:var(--paper);
+  --s-on-accent:#141416;
+  --shadow:none;
+  /* surfaces the original markup reads */
+  --surface-1:var(--s-1);--surface-2:var(--s-2);--surface-3:var(--s-3);--control-bg:var(--s-ctl);--control-hover:var(--s-ctl-hover);
+  --line:var(--s-line);--line-strong:var(--s-line-strong);--panel:var(--s-1);--panel-border:var(--s-line);--meter-track:var(--s-line);
+  /* rainbow module colours (deeper set for light Looks) */
+  --c-red:#d93a30;--c-orange:#df6f12;--c-yellow:#c99a00;--c-green:#2e9d3a;--c-teal:#11968a;--c-blue:#1f74d1;--c-violet:#6f52cc;--c-pink:#c43c94;
+  --module:var(--c-blue);
+}
+/* dark Looks: wells sink below the background, rainbow brightens */
+:root[data-theme="pro"],:root[data-theme="dark"],:root[data-theme="storm"],:root[data-theme="reggae"],:root[data-theme="regal"]{
+  --s-well:color-mix(in srgb,#000 40%,var(--paper));
+  --s-step:color-mix(in srgb,var(--ink) 5%,var(--paper));
+  --s-tip:color-mix(in srgb,var(--ink) 14%,var(--paper));--s-tip-text:var(--ink);
+  --c-red:#f0584e;--c-orange:#f08a2e;--c-yellow:#f2c230;--c-green:#5fcf5a;--c-teal:#2fc7b4;--c-blue:#3d9cf0;--c-violet:#9b84e8;--c-pink:#e866b8;
+}
+:root[data-theme="swiss"]{--s-on-accent:#fff}
+:root[data-theme="primary"]{--s-on-accent:#111}
+/* Studio keeps its exact charcoal values */
+:root[data-theme="pro"]{
+  --s-bg:#111113;--s-bar:#18181b;--s-1:#1b1b1e;--s-2:#222226;--s-3:#28282d;--s-ctl:#26262b;--s-ctl-hover:#2f2f35;--s-line:#2e2e33;--s-line-strong:#3c3c43;
+  --s-hi:#4a4a52;--s-active:#3a3a42;--s-strong:#fff;--s-muted-dim:#55555d;--s-menu:#1f1f23;--s-pad:#232327;--s-pad-hover:#29292e;--s-pad-line:#34343a;
+  --s-step:#1d1d21;--s-step-line:#2c2c32;--s-well:#0b0b0d;--s-thumb:#e9e9ec;--s-tip:#2a2a30;--s-tip-text:#e4e4e7;--s-on-accent:#141416;
+}
+/* --- canvas: flat dark, no ambient blobs --- */
+:root body{background:var(--s-bg)!important;color:var(--ink);font-feature-settings:"tnum" 1;letter-spacing:0}
+:root .ambient{display:none!important}
+
+/* --- global shape language: small radii, no shadows, no gradients on containers --- */
+:where(:root body *:not(.mixer-rotary):not(.fx-knob):not([class*="knob"]):not([class*="rotary"]):not(.status-dot):not([class*="dot"]):not(input[type="range"]):not([class*="led"])){
+  border-radius:4px!important;
+  box-shadow:none!important;text-shadow:none!important;
+}
+:root *::before,:root *::after{box-shadow:none!important}
+
+/* containers: every panel/card becomes a flat dark surface */
+:root .panel,
+:root .tab-page>.panel,
+:root [class*="-card"],
+:root [class*="-panel"]:not(.theme-picker):not(.system-menu-panel),
+:root .core-control,
+:root .toggle-row,
+:root .sequence-toolbar,
+:root .sample-editor-toolbar,
+:root .mixer-strip,
+:root .mixer-map-segment,
+:root .mixer-map-status,
+:root .mixer-level-core,
+:root .mixer-send-bank summary,
+:root .mixer-send-row,
+:root .computer-keyboard-control,
+:root .metronome-global,
+:root .pad-quick-controls,
+:root .pad-accordion,
+:root .daybreak-return-control,
+:root .auto-filter-motion,
+:root .daybreak-performance-header,
+:root [class*="daybreak-"][class*="-control"],
+:root details,
+:root fieldset{
+  background:var(--surface-1)!important;background-image:none!important;
+  border:1px solid var(--line)!important;color:var(--ink);
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+/* nested surfaces step one shade lighter so hierarchy reads without shadows */
+:root .panel .panel,
+:root .panel [class*="-card"],
+:root .panel .core-control,
+:root .panel [class*="-panel"]:not(.theme-picker):not(.system-menu-panel),
+:root .panel .toggle-row,
+:root .panel details,
+:root .panel .mixer-strip{background:var(--surface-2)!important}
+:root .panel .panel .toggle-row,
+:root [class*="-card"] .toggle-row,
+:root .core-control .toggle-row{background:var(--surface-3)!important}
+
+/* outer page panels: flush, the workspace is the background */
+:root main,:root .app,:root .tab-page>.panel:first-child{background-color:transparent}
+
+/* --- typography: small, tight, utilitarian --- */
+:root body{font-family:"Inter","SF Pro Text","Segoe UI",system-ui,-apple-system,sans-serif;font-size:13px}
+:root h1,:root h2,:root h3,:root h4{letter-spacing:-.005em;font-weight:600;color:var(--ink)}
+:root .tab-page h2{font-size:15px!important;line-height:1.25!important;margin:0!important}
+:root .tab-page h3{font-size:13px!important;line-height:1.3!important}
+:root .tab-page h4,:root .tab-page strong{font-weight:600}
+:root .eyebrow{font-size:10px!important;letter-spacing:.12em!important;font-weight:600!important;color:var(--module,var(--muted))!important;text-transform:uppercase}
+:root label,
+:root .tab-page label>span:first-child,
+:root [class*="label"]:not(.toggle-row):not(.pad-label){
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+:root label input,:root label select,:root label output,:root label strong,:root label button,:root label [id$="Value"],:root label [class*="cue"],:root label [class*="switch"],:root label [class*="panel"]{text-transform:none;letter-spacing:0}
+:root .toggle-row{text-transform:none!important;letter-spacing:.01em!important;font-size:12px!important;font-weight:550!important;color:var(--ink)!important}
+:root .core-control>strong{display:block;font-size:20px!important;font-weight:500!important;color:var(--s-strong)!important;font-variant-numeric:tabular-nums;margin:4px 0 8px!important;letter-spacing:-.01em}
+:root [class*="cue"] span{font-size:11px;font-weight:550;color:var(--muted)}
+:root output,:root [class*="value"],:root [class*="readout"]{font-variant-numeric:tabular-nums;color:var(--ink)}
+:root small{color:var(--muted)}
+
+/* --- controls --- */
+:root .button,
+:root button.button,
+:root input[type="text"],
+:root input[type="number"],
+:root select,
+:root .system-menu>summary{
+  background:var(--control-bg)!important;background-image:none!important;color:var(--ink)!important;
+  border:1px solid var(--line-strong)!important;border-radius:3px!important;
+  font-size:12px!important;font-weight:550!important;letter-spacing:.01em;min-height:30px;
+}
+:root .button:hover:not(:disabled),:root select:hover,:root .system-menu>summary:hover{background:var(--control-hover)!important;border-color:var(--s-hi)!important}
+:root .button:disabled{opacity:.38}
+:root .button.primary{background:var(--gold)!important;border-color:var(--gold)!important;color:var(--s-on-accent)!important;font-weight:650!important}
+:root .button.primary:hover:not(:disabled){background:color-mix(in srgb,var(--gold) 85%,#fff)!important}
+:root .button:focus-visible,:root select:focus-visible,:root input:focus-visible{outline:1px solid var(--gold)!important;outline-offset:1px}
+:root select{color-scheme:dark}
+/* checkbox toggles read as LED buttons */
+:root input[type="checkbox"]{accent-color:var(--c-green)}
+/* segmented choices (tempo sync / free, focus / full machine) */
+:root [class*="segment"],:root [class*="-switch"]{background:var(--surface-3)!important;border:1px solid var(--line)!important}
+:root .timing-mode-button.active,
+:root .slice-mode-button.active,
+:root .computer-keyboard-button.active,
+:root [aria-pressed="true"].button,
+:root [class*="mode"] .active:not(.tab),
+:root .active.button{background:var(--s-active)!important;color:var(--s-strong)!important;border-color:var(--module,var(--gold))!important;box-shadow:inset 0 -2px 0 var(--module,var(--gold))!important}
+
+/* range sliders: thin track, module-coloured fill, flat thumb (mixer faders keep native vertical behaviour) */
+:root input[type="range"]{accent-color:var(--module,var(--gold))!important}
+:root input[type="range"]:not(.mixer-fader){-webkit-appearance:none;appearance:none;height:18px;min-height:18px;background:transparent!important;--fill:0%}
+:root input[type="range"]:not(.mixer-fader)::-webkit-slider-runnable-track{height:3px;border-radius:2px;border:0;background:linear-gradient(90deg,var(--module,var(--gold)) 0 var(--fill),var(--meter-track) var(--fill) 100%)}
+:root input[type="range"]:not(.mixer-fader)::-moz-range-track{height:3px;border-radius:2px;border:0;background:var(--meter-track)}
+:root input[type="range"]:not(.mixer-fader)::-moz-range-progress{height:3px;background:var(--module,var(--gold))}
+:root input[type="range"]:not(.mixer-fader)::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:9px;height:15px;border-radius:2px;background:var(--s-thumb);border:1px solid var(--s-well);margin-top:-6px;cursor:pointer}
+:root input[type="range"]:not(.mixer-fader)::-moz-range-thumb{width:9px;height:15px;border-radius:2px;background:var(--s-thumb);border:1px solid var(--s-well);cursor:pointer}
+:root input[type="range"]:not(.mixer-fader):hover::-webkit-slider-thumb{background:var(--s-strong)}
+:root input[type="range"]:disabled{opacity:.4}
+
+/* knobs */
+:root .fx-knob::before,:root .mixer-rotary::before{background:linear-gradient(160deg,var(--knob-face-a),var(--knob-face-b))!important;border-color:var(--s-hi)!important}
+
+/* status pills become small status labels with an LED */
+:root .status-pill{background:var(--surface-3)!important;color:var(--muted)!important;border:1px solid var(--line)!important;border-radius:3px!important;font-size:10.5px!important;letter-spacing:.06em;text-transform:uppercase;font-weight:600!important;padding:4px 8px!important}
+:root .status-pill.ready{color:var(--c-green)!important}
+:root .status-pill.ready::before,:root .status-pill.neutral::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%!important;margin-right:6px;vertical-align:1px;background:currentColor}
+:root .status-pill.neutral::before{background:var(--s-muted-dim)}
+
+/* ===== SHELL: compact top bar + flat tab strip ===== */
+:root .topbar{background:var(--s-bar)!important;border-bottom:1px solid var(--line)!important;padding:8px 16px!important;margin:0!important;min-height:0!important;align-items:center!important;position:sticky;top:0;z-index:50}
+:root .topbar h1{font-size:14px!important;font-weight:650!important;letter-spacing:.02em!important;line-height:1.2!important;margin:0!important}
+:root .topbar .eyebrow{font-size:9.5px!important;color:var(--muted)!important;margin:0 0 1px!important}
+:root .topbar .subtitle{display:none!important}
+:root .top-actions{gap:6px!important;align-items:center!important;flex-wrap:nowrap}
+:root .top-actions .button,:root .top-actions .system-menu>summary{min-height:28px!important;padding:4px 10px!important;font-size:11.5px!important}
+:root .system-menu-panel,:root .theme-picker{background:var(--s-menu)!important;border:1px solid var(--line-strong)!important;box-shadow:0 12px 32px rgba(0,0,0,.55)!important;color:var(--ink)}
+:root .theme-choice{background:transparent!important;color:var(--ink)!important;border:1px solid transparent!important}
+:root .theme-choice:hover,:root .theme-choice.active{background:var(--surface-3)!important;border-color:var(--line-strong)!important}
+.theme-choice[data-theme-choice="pro"] i:nth-child(1){background:#141416}
+.theme-choice[data-theme-choice="pro"] i:nth-child(2){background:#2e2e33}
+.theme-choice[data-theme-choice="pro"] i:nth-child(3){background:#f0a92e}
+.theme-choice[data-theme-choice="pro"] i:nth-child(4){background:linear-gradient(90deg,#f0584e,#f2c230,#5fcf5a,#3d9cf0,#9b84e8)}
+
+:root .tabs{background:var(--s-bar)!important;border-bottom:1px solid var(--line)!important;padding:0 12px!important;gap:0!important;margin:0 0 14px!important;position:sticky;top:var(--pro-topbar-h,45px);z-index:49;flex-wrap:nowrap;overflow-x:auto}
+:root .tab{background:transparent!important;border:0!important;border-radius:0!important;color:var(--muted)!important;font-size:11px!important;font-weight:600!important;letter-spacing:.08em!important;text-transform:uppercase;padding:11px 14px 9px!important;min-height:0!important;border-bottom:2px solid transparent!important;white-space:nowrap}
+:root .tab:hover{color:var(--ink)!important}
+:root .tab.active{color:var(--s-strong)!important;background:transparent!important;border-bottom-color:var(--tab-c,var(--gold))!important}
+:root .tab::before{content:"";display:inline-block;width:6px;height:6px;border-radius:1px!important;margin-right:8px;vertical-align:1px;background:var(--tab-c,var(--s-muted-dim));opacity:.55}
+:root .tab.active::before{opacity:1}
+:root .tab[data-tab="daybreak"]{--tab-c:var(--c-blue)}
+:root .tab[data-tab="pads"]{--tab-c:var(--c-red)}
+:root .tab[data-tab="keyboard"]{--tab-c:var(--c-orange)}
+:root .tab[data-tab="synth"]{--tab-c:var(--c-yellow)}
+:root .tab[data-tab="sequencer"]{--tab-c:var(--c-green)}
+:root .tab[data-tab="mixer"]{--tab-c:var(--c-teal)}
+:root .tab[data-tab="effects"]{--tab-c:var(--c-violet)}
+:root .tab[data-tab="guide"]{--tab-c:var(--c-pink)}
+
+/* tighter rhythm overall */
+:root .panel{padding:14px!important}
+:root .panel .panel{padding:12px!important}
+:root .core-control{padding:12px!important;min-height:0!important}
+:root .daybreak-performance-grid .core-control{min-height:0!important}
+
+/* footer */
+:root footer{color:var(--muted)!important;border-color:var(--line)!important;font-size:10.5px!important}
+
+/* ===== help text → "?" tooltips ===== */
+:root .pro-help-src{display:none!important}
+.pro-help{display:none}
+:root .pro-help{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;margin-left:7px;padding:0;border:1px solid var(--s-hi);border-radius:50%!important;background:transparent;color:var(--muted);font:600 9.5px/1 system-ui,sans-serif;cursor:help;vertical-align:2px;position:relative;flex:0 0 auto}
+:root .pro-help:hover,:root .pro-help:focus-visible,:root .pro-help[aria-expanded="true"]{color:var(--s-strong);border-color:var(--module,var(--gold));outline:0}
+.pro-tip{position:fixed;z-index:9999;max-width:300px;padding:8px 10px;background:var(--s-tip);color:var(--s-tip-text);border:1px solid var(--s-hi);border-radius:4px;font:400 12px/1.45 "Inter",system-ui,sans-serif;letter-spacing:0;text-transform:none;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none}
+
+/* ===== first-run tip (replaces the "Begin with one effect" banner) ===== */
+:root .daybreak-focus-guide{background:var(--surface-1)!important;border:1px solid var(--line)!important;border-left:3px solid var(--c-blue)!important;padding:10px 40px 10px 14px!important;margin:0 auto 12px!important;position:relative}
+:root .daybreak-focus-guide h2,:root .daybreak-focus-guide .daybreak-focus-guide-copy>*:first-child{font-size:12px!important;font-weight:650!important;margin:0 0 3px!important;letter-spacing:.06em;text-transform:uppercase;color:var(--c-blue)!important}
+:root .daybreak-focus-guide p,:root .daybreak-focus-guide-copy>span{display:block;font-size:12.5px!important;font-weight:450!important;margin:0!important;color:var(--ink)!important;line-height:1.45!important}
+:root .daybreak-focus-guide hr,:root .daybreak-focus-guide .daybreak-guidance-invitation{display:none!important}
+:root .daybreak-focus-guide .theme-picker-wrap{display:none!important}
+.pro-tip-close{display:none}
+:root .pro-tip-close{display:block;position:absolute;top:8px;right:8px;width:22px;height:22px;border:0;background:transparent;color:var(--muted);font-size:16px;line-height:1;cursor:pointer}
+:root .pro-tip-close:hover{color:var(--s-strong)}
+:root body.pro-tip-dismissed .daybreak-focus-guide{display:none!important}
+
+/* ===== canvases / visual displays read as screens ===== */
+:root canvas{background-color:transparent}
+:root [class*="visual"]:not(.metronome-visual),:root [class*="scope"],:root [class*="echo-model"]{background:var(--s-well)!important;background-image:none!important;border-color:var(--line)!important}
+
+/* pads: dark, module-red edge on hit */
+:root .pad{background:var(--s-pad)!important;background-image:none!important;border:1px solid var(--s-pad-line)!important;border-radius:4px!important;transform:none!important;color:var(--ink)}
+:root .pad:hover{background:#2a2a2f!important}
+:root .pad.selected{border-color:var(--c-red)!important;box-shadow:inset 0 0 0 1px var(--c-red)!important}
+:root .pad:active,:root .pad.playing{background:color-mix(in srgb,var(--c-red) 55%,var(--s-pad))!important;border-color:var(--c-red)!important}
+
+/* piano keys stay legible */
+:root .key.white{background:linear-gradient(#ececef,#c9c9cf)!important;color:#1a1a1d!important;border-radius:0 0 3px 3px!important}
+:root .key.black{background:#0e0e10!important;border-radius:0 0 2px 2px!important}
+
+/* toasts */
+:root .toast,:root [class*="toast"]{background:var(--s-tip)!important;color:var(--s-tip-text)!important;border:1px solid var(--s-hi)!important}
+
+/* links */
+:root a{color:var(--c-blue)}
+
+/* Daybreak Focus mode in Studio: same compact shell, Look picker lives in the top bar */
+:root body.daybreak-focus-mode .topbar{width:auto!important;padding:8px 16px!important;align-items:center!important}
+:root body.daybreak-focus-mode .topbar h1{font-size:14px!important}
+:root body.daybreak-focus-mode .top-actions>#themePickerWrap{display:block!important}
+:root body.daybreak-focus-mode main{padding-top:14px}
+:root body.daybreak-focus-mode .daybreak-focus-guide{margin-top:14px!important}
+:root body.daybreak-focus-mode .daybreak-performance-grid .core-control{min-height:0!important}
+/* status lines stay visible but quiet */
+:root #daybreakStatus,:root #daybreakInputSafety{background:transparent!important;border:0!important;border-left:2px solid var(--line-strong)!important;color:var(--muted)!important;font-size:11.5px!important;padding:2px 0 2px 10px!important;margin-top:10px!important}
+
+/* level meters: dark well, green→amber→red */
+:root .meter-wrap{background:var(--s-well)!important;border:1px solid var(--line)!important;height:6px!important;border-radius:1px!important;overflow:hidden}
+:root .meter-bar{background:linear-gradient(90deg,#4cc94a 0 65%,#e8c23a 65% 85%,#f0584e 85% 100%)!important;background-size:var(--meter-full,100%) 100%;border-radius:0!important}
+:root .daybreak-meter>span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+/* Look picker always reachable in the top bar */
+:root body.daybreak-focus-mode .top-actions>#themePickerWrap:not(#x1):not(#x2):not(#x3){display:block!important}
+
+/* light-glass surfaces that weren't panels */
+:root .global-transport-dock,
+:root .velocity-legend,
+:root .sequencer-grid,
+:root .guide-grid>div,
+:root .exp-sequence-navigation,
+:root .mixer-console-legend,
+:root .sample-editor-legend,
+:root .sampler-wave-legend{background:var(--surface-2)!important;background-image:none!important;border:1px solid var(--line)!important;color:var(--ink)!important}
+:root .sequencer-grid{background:var(--s-well)!important}
+:root .guide-grid>div{padding:14px!important}
+:root .guide-grid li{color:var(--ink)}
+/* top bar never wraps */
+:root .topbar{display:flex!important;justify-content:space-between!important;gap:12px}
+:root .top-actions{display:flex!important;flex-wrap:nowrap!important}
+:root .top-actions>*{flex:0 0 auto}
+:root .top-actions{margin-left:auto!important}
+/* values inside labels keep their real casing */
+:root label span,:root label b,:root label em,:root label i{text-transform:none;letter-spacing:0}
+/* mixer: compact send labels, channel colour on faders */
+:root .mixer-strip [class*="label"],:root .mixer-strip small{letter-spacing:0!important;font-size:9px!important;text-transform:uppercase}
+:root .core-control{position:relative}
+:root .core-control>.pro-help{position:absolute;top:11px;right:11px;margin:0}
+:root #daybreakStatus,:root #daybreakInputSafety{border-radius:0!important}
+
+:root #globalTransportDock#globalTransportDock{background:var(--surface-2)!important;background-image:none!important;border:1px solid var(--line)!important}
+:root .mixer-mini{background:var(--control-bg)!important;color:var(--ink)!important;border:1px solid var(--line-strong)!important;font-weight:600!important;font-size:10.5px!important}
+:root .mixer-mini.active.mute{background:var(--c-red)!important;color:#fff!important;border-color:var(--c-red)!important}
+:root .mixer-mini.active.solo{background:var(--c-yellow)!important;color:var(--s-on-accent)!important;border-color:var(--c-yellow)!important}
+:root .mixer-group-marker{background:var(--surface-2)!important;background-image:none!important;border:1px solid var(--line)!important}
+:root .mixer-group-marker span{color:var(--muted)!important}
+:root .mixer-meter{background:var(--s-well)!important}
+:root .prepost-switch{background:var(--surface-3)!important}
+:root .prepost-switch button.active{background:var(--s-active)!important;color:var(--s-strong)!important}
+
+/* ===================== STAGE 2 — DAYBREAK / PADS / MIXER LAYOUTS (Studio only) ===================== */
+.pro-knob{display:none}
+:root .pro-knob{display:block;width:56px;height:56px;padding:3px;--knob-accent:var(--module,var(--c-blue))}
+:root .pro-knob.sm{width:40px;height:40px}
+:root .pro-knobbed{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden;clip:rect(0 0 0 0)}
+:root .fx-knob,:root .mixer-rotary{background:conic-gradient(from 225deg,var(--knob-accent,var(--module,var(--teal))) 0deg var(--rotary-fill),var(--s-step-line) var(--rotary-fill) 270deg,transparent 270deg)!important;border-radius:50%!important}
+:root .fx-knob i,:root .mixer-rotary i{background:var(--s-strong)!important;width:2px!important}
+:root .pro-knob:focus-visible{outline:1px solid var(--module,var(--gold))!important;outline-offset:2px;border-radius:50%!important}
+
+/* --- Daybreak header: one tidy row instead of an empty left column --- */
+:root .daybreak-performance-header{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;padding:12px 14px!important}
+:root .daybreak-header-copy{display:flex!important;align-items:baseline;flex-wrap:wrap;gap:4px 12px;max-width:none!important}
+:root .daybreak-header-copy .eyebrow{width:100%;margin:0!important}
+:root .daybreak-header-copy h2{display:inline-flex;align-items:center}
+:root .daybreak-action-row .button,:root .daybreak-action-row .toggle-row{min-height:32px!important}
+
+/* core cards: label + big readout on the left, knob on the right */
+:root .core-control.has-pro-knob{padding-right:86px!important;min-height:96px!important}
+:root .core-control.has-pro-knob>.pro-knob{position:absolute;right:16px;top:50%;transform:translateY(-50%)}
+:root .core-control.has-pro-knob>.pro-help{right:auto;left:auto;top:11px;right:84px}
+:root .daybreak-performance-grid{gap:8px!important;align-items:stretch}
+:root .daybreak-performance-grid .core-control{min-height:96px!important}
+:root .daybreak-feedback-cue{margin-top:2px}
+:root .timing-mode-switch{margin:4px 0 6px!important}
+
+/* small knob controls (filters, trim, return) */
+:root label.has-pro-knob:not(.core-control):not(.knob-cell){position:relative;display:grid!important;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:10px;padding-right:0!important;min-height:44px}
+:root label.has-pro-knob:not(.core-control):not(.knob-cell)>.pro-knob{grid-column:2;grid-row:1/3}
+:root label.has-pro-knob:not(.core-control):not(.knob-cell)>strong,:root label.has-pro-knob:not(.core-control):not(.knob-cell)>span:not(.pro-knob){grid-column:1;font-size:13px!important;color:var(--s-strong)!important;font-weight:500!important;text-align:left!important;justify-self:start}
+:root .input-filter-strip{display:grid!important;grid-template-columns:minmax(150px,1fr) minmax(150px,200px) minmax(150px,200px)!important;gap:8px 18px!important;align-items:center!important;padding:10px 14px!important}
+:root .daybreak-return-control.has-pro-knob{min-width:150px}
+
+/* echo display: a proper dark scope */
+:root #tab-daybreak [class*="visual"],:root #tab-daybreak canvas{background:var(--s-well)!important}
+
+/* --- PADS: square, dark, colour edge per row, glow when struck --- */
+:root .pad{--pc:var(--c-red);aspect-ratio:1/1!important;border-top:3px solid color-mix(in srgb,var(--pc) 70%,var(--s-pad))!important;display:flex!important;flex-direction:column;justify-content:space-between;padding:8px 9px!important;transition:background-color .06s linear,border-color .06s linear!important;min-height:0!important}
+:root .pad:nth-child(n+5){--pc:var(--c-orange)}
+:root .pad:nth-child(n+9){--pc:var(--c-blue)}
+:root .pad:nth-child(n+13){--pc:var(--c-violet)}
+:root .pad:hover{background:var(--s-pad-hover)!important}
+:root .pad.selected{border-color:var(--s-hi)!important;border-top-color:var(--pc)!important;outline:1px solid var(--pc);outline-offset:-1px}
+:root .pad:active,:root .pad.playing{background:color-mix(in srgb,var(--pc) 62%,var(--s-pad))!important;border-color:var(--pc)!important}
+:root .pad-grid,:root .compact-pad-grid{gap:6px!important}
+:root .pad *{color:inherit}
+:root .pad [class*="num"],:root .pad small{font-size:10px!important;letter-spacing:.08em;color:var(--muted)!important}
+:root #tab-pads>.small-note,:root #tab-pads .small-note[style]{background:transparent!important;border:0!important;color:var(--muted)!important;font-size:10.5px!important;letter-spacing:.14em;text-transform:uppercase;font-weight:600!important}
+
+/* --- MIXER: channel colour cap, channel-coloured faders and pan rings --- */
+:root .mixer-strip{--chan:var(--c-teal);border-top:3px solid var(--chan)!important;padding-top:8px!important}
+:root .mixer-strip .mixer-channel-colour{background:var(--chan)!important;width:3px!important}
+:root .mixer-strip .mixer-fader{accent-color:var(--chan)!important}
+:root .mixer-strip .mixer-rotary.mix-pan-knob{--knob-accent:var(--chan)!important}
+:root .mixer-strip.is-focused,:root .mixer-strip.selected{background:var(--s-ctl)!important}
+:root .mixer-meter{border:1px solid var(--line)!important}
+:root .mixer-meter i{background:linear-gradient(0deg,#4cc94a 0 65%,#e8c23a 65% 85%,#f0584e 85% 100%)!important;background-size:100% var(--meter-h,100%)!important;background-position:bottom!important}
+:root .mixer-readout{font-size:11px!important;color:var(--s-strong)!important;font-variant-numeric:tabular-nums}
+:root .mixer-fader-wrap{background:var(--s-well)!important;border:1px solid var(--line)!important;background-image:linear-gradient(0deg,transparent calc(83.3% - 1px),var(--s-line-strong) calc(83.3% - 1px) 83.3%,transparent 83.3%)!important}
+:root .mixer-channel-head b{font-size:11.5px!important;font-weight:600!important}
+:root .mixer-channel-head small{font-size:9.5px!important}
+
+/* ===================== STAGE 3 — SAMPLER / SYNTH / SEQUENCER / EFFECTS (Studio only) ===================== */
+/* instrument parameter grids: selects and toggles first, then a row of knob cells */
+:root .instrument-controls{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(86px,1fr))!important;gap:8px!important;align-items:stretch}
+:root .instrument-controls>label:not(.knob-cell){grid-column:span 2;order:0}
+:root .instrument-controls>label.knob-cell{order:1}
+:root label.knob-cell{display:flex!important;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;padding:8px 4px 7px!important;background:var(--surface-2)!important;border:1px solid var(--line)!important;text-align:center;font-size:9.5px!important;letter-spacing:.08em;min-height:0!important}
+:root label.knob-cell>.pro-knob{order:1;width:44px!important;height:44px!important;margin:0}
+:root label.knob-cell>span[id$="Value"]{order:2;text-transform:none!important;font-size:11px!important;color:var(--s-strong)!important;font-weight:500!important;letter-spacing:0;white-space:nowrap}
+:root label.knob-cell:hover{border-color:var(--s-hi)!important}
+
+/* sequencer: dark steps, row colours, velocity as brightness, white playhead */
+:root .sequencer-grid .seq-row{--pc:var(--c-red)}
+:root .sequencer-grid.melodic-grid .seq-row,:root .melodic-grid .seq-row{--pc:var(--c-green)}
+:root .seq-step{background:var(--s-step)!important;border:1px solid var(--s-step-line)!important;border-radius:2px!important;height:30px!important;min-height:30px!important;transform:none!important;filter:none!important}
+:root .seq-step:hover:not(.disabled-step){background:var(--s-ctl)!important}
+:root .seq-step.beat,:root .seq-step.group-start{border-left:2px solid var(--s-hi)!important}
+:root .seq-step.on,:root .seq-step[data-velocity="1"]{background:color-mix(in srgb,var(--pc) 72%,var(--s-step))!important;border-color:var(--pc)!important}
+:root .seq-step[data-velocity="0.65"]{background:color-mix(in srgb,var(--pc) 38%,var(--s-step))!important;border-color:color-mix(in srgb,var(--pc) 55%,var(--s-step))!important}
+:root .seq-step[data-velocity="1.25"]{background:var(--pc)!important;border-color:var(--s-strong)!important}
+:root .seq-step.note-on{background:color-mix(in srgb,var(--pc) 80%,var(--s-step))!important;border-color:var(--pc)!important}
+:root .seq-step.current{outline:1px solid var(--s-strong);outline-offset:-1px}
+:root .seq-step.current::after{border:0!important;inset:0!important;background:color-mix(in srgb,var(--s-strong) 8%,transparent)!important;border-radius:0!important}
+:root .seq-label{background:var(--s-2)!important;border:1px solid var(--s-step-line)!important;border-left:3px solid var(--pc)!important;border-radius:2px!important;font-size:11px}
+:root .seq-header{color:var(--muted)!important;font-size:10px!important}
+:root .velocity-dot.soft{background:color-mix(in srgb,var(--c-red) 38%,var(--s-step))!important}
+:root .velocity-dot.medium{background:color-mix(in srgb,var(--c-red) 72%,var(--s-step))!important}
+:root .velocity-dot.hard{background:var(--c-red)!important;box-shadow:0 0 0 1px var(--s-strong)!important}
+
+/* pads: glow strength follows hit velocity */
+:root .pad.playing{background:color-mix(in srgb,var(--pc) calc(22% + var(--vel,1) * 48%),var(--s-pad))!important}
+
+/* effects: each unit gets its own colour */
+:root .functional-effect-card[data-effect-key="filter"]{--module:var(--c-teal)}
+:root .functional-effect-card[data-effect-key="autoFilter"]{--module:var(--c-orange)}
+:root .functional-effect-card[data-effect-key="distortion"]{--module:var(--c-red)}
+:root .functional-effect-card[data-effect-key="chorus"]{--module:var(--c-violet)}
+:root .functional-effect-card[data-effect-key="delay"]{--module:var(--c-blue)}
+:root .functional-effect-card[data-effect-key="reverb"]{--module:var(--c-pink)}
+:root .functional-effect-card[data-effect-key="compression"]{--module:var(--c-green)}
+:root .functional-effect-card[data-effect-key="daybreak"]{--module:var(--c-blue)}
+:root .functional-effect-card{border-top:3px solid var(--module)!important}
+:root .functional-effect-card .fx-knob{--knob-accent:var(--module)!important}
+:root .functional-effect-card h3,:root .functional-effect-card h3 *{color:var(--s-strong)}
+</style>
+
 </head>
 <body class="daybreak-focus-mode">
   <div class="ambient ambient-a"></div>
@@ -2866,7 +3301,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.13.1</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.14 STUDIO</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -2926,6 +3361,9 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
         <button id="lookBtn" class="button ghost theme-picker-trigger" type="button" aria-haspopup="true" aria-expanded="false">Look: Sky</button>
         <div id="themePicker" class="theme-picker" role="menu" aria-label="Choose visual theme" hidden>
           <div class="theme-picker-heading"><strong>Colour scheme</strong><span>Saved on this device</span></div>
+          <button class="theme-choice" type="button" role="menuitemradio" aria-checked="false" data-theme-choice="pro">
+            <span class="theme-choice-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>Studio</b><small>Charcoal console with rainbow channels</small></span>
+          </button>
           <button class="theme-choice" type="button" role="menuitemradio" aria-checked="true" data-theme-choice="sky">
             <span class="theme-choice-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>Sky</b><small>Airy cream, mint and gold</small></span>
           </button>
@@ -2979,6 +3417,9 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
           <button id="daybreakLookBtn" class="button ghost theme-picker-trigger" type="button" aria-haspopup="true" aria-expanded="false">Look: Sky</button>
           <div id="daybreakThemePicker" class="theme-picker" role="menu" aria-label="Choose visual theme from Daybreak" hidden>
             <div class="theme-picker-heading"><strong>Colour scheme</strong><span>Saved on this device</span></div>
+          <button class="theme-choice" type="button" role="menuitemradio" aria-checked="false" data-theme-choice="pro">
+            <span class="theme-choice-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>Studio</b><small>Charcoal console with rainbow channels</small></span>
+          </button>
           <button class="theme-choice" type="button" role="menuitemradio" aria-checked="true" data-theme-choice="sky">
             <span class="theme-choice-swatches" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>Sky</b><small>Airy cream, mint and gold</small></span>
           </button>
@@ -3670,7 +4111,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
           <div class="exp-view-heading"><strong>Inside the echoes</strong><span id="expEchoSummary"></span></div>
           <canvas id="expEchoCanvas" width="900" height="150" role="img" aria-label="Echo spacing and decay model, with live fragment events"></canvas>
           <p id="expCharacterReadout"></p>
-          <small>Upper lane: repeat model · Lower lane: scheduled fragments (may contain silence) · Input and Return meters above show signal level.</small>
+          <small class="pro-help-small">Upper lane: repeat model · Lower lane: scheduled fragments (may contain silence) · Input and Return meters above show signal level.</small>
         </div>
         <p id="daybreakStatus" class="delay-instruction">Enable one shared input, choose its channel, then monitor or record it dry. Start the delay only when you want echoes.</p>
 
@@ -3762,7 +4203,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.13.1</span>
+    <span>Shmung Machine · EXP 0.3.14 Studio</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -5342,7 +5783,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     }
     pad.activeSources.add(source);
     source.onended = () => {pad.activeSources.delete(source);state.padVoiceData.delete(source);if(state.sampleEditorPlayhead?.source===source){state.sampleEditorPlayhead=null;drawWaveform(state.pads[state.selectedPad]);}if(typeof options.onended==="function")options.onended();};
-    flashPad(index, t);
+    flashPad(index, t, velocity);
     return source;
   }
 
@@ -5351,11 +5792,12 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     state.pads[index].activeSources.clear();
   }
 
-  function flashPad(index, when) {
+  function flashPad(index, when, velocity = 1) {
     const delayMs = Math.max(0, (when - state.ctx.currentTime) * 1000);
     setTimeout(() => {
       const el = document.querySelector(`.pad[data-pad="${index}"]`);
       if (!el) return;
+      el.style.setProperty("--vel", String(velocity));
       el.classList.add("playing");
       clearTimeout(state.padFlashTimers.get(index));
       state.padFlashTimers.set(index,setTimeout(() => {el.classList.remove("playing");state.padFlashTimers.delete(index);},115));
@@ -6895,7 +7337,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     for(let i=0;i<burstCount;i++)spawn(i);
   }
 
-  const themeOrder = ["sky","neon","dark","storm","reggae","primary","swiss","regal"];
+  const themeOrder = ["pro","sky","neon","dark","storm","reggae","primary","swiss","regal"];
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
@@ -7205,7 +7647,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&state.sampleEditorDrag){ev.preventDefault();finish(null,true);}});
   }
 
-  const themeLabels = {sky:"Sky",neon:"Neon",dark:"Dark",storm:"Storm",reggae:"Reggae",primary:"Primary",swiss:"Swiss",regal:"Regal"};
+  const themeLabels = {pro:"Studio",sky:"Sky",neon:"Neon",dark:"Dark",storm:"Storm",reggae:"Reggae",primary:"Primary",swiss:"Swiss",regal:"Regal"};
   let activeThemeTrigger = null;
   function currentTheme(){return document.documentElement.dataset.theme || "sky";}
   function themePickerWraps(){return [...document.querySelectorAll(".theme-picker-wrap")].filter(w=>w.querySelector(".theme-picker")&&w.querySelector(".theme-picker-trigger"));}
@@ -7231,7 +7673,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     document.querySelectorAll(".theme-choice").forEach(choice=>{
       const active=choice.dataset.themeChoice===safe;choice.classList.toggle("active",active);choice.setAttribute("aria-checked",String(active));
     });
-    try { localStorage.setItem("shmungTheme", safe); } catch (_) {}
+    try { localStorage.setItem("shmungThemeV2", safe); } catch (_) {}
     if(typeof drawWaveform==="function"){
       drawWaveform(state.pads[state.selectedPad]);
       drawSamplerProgramWaveform();
@@ -7741,8 +8183,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   function init() {
     const sliceStart=$("sliceStartPad");for(let i=0;i<16;i++){const option=document.createElement("option");option.value=i;option.textContent=`Pad ${String(i+1).padStart(2,"0")}`;sliceStart.appendChild(option);}
-    let savedTheme = "sky";
-    try { savedTheme = localStorage.getItem("shmungTheme") || "sky"; } catch (_) {}
+    let savedTheme = "pro";
+    try { savedTheme = localStorage.getItem("shmungThemeV2") || "pro"; } catch (_) {}
     applyTheme(savedTheme);
     populateNoteSelect();
     ensureMeterSequenceShape();
@@ -7972,6 +8414,121 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   document.fonts?.ready?.then(schedulePadFit);
   schedulePadFit();
+})();
+</script>
+
+<script id="studio-pro-shell">
+(()=>{
+  const HELP_SEL=['.tab-page p.lead','.daybreak-core-caption','.input-filter-title>span','.pro-help-small','.velocity-legend small','.exp-sequence-navigation>small','.sampler-independent-note','.exp-wave-help','.key-map'];
+  let tip=null;
+  function showTip(btn,src){
+    const srcs=btn._srcs||[src]; const text=srcs.map(s=>(s.textContent||'').trim()).filter(Boolean).join('\n\n'); if(!text)return;
+    hideTip(); tip=document.createElement('div'); tip.className='pro-tip'; tip.style.whiteSpace='pre-line'; tip.textContent=text; document.body.appendChild(tip);
+    const r=btn.getBoundingClientRect(), w=tip.offsetWidth, h=tip.offsetHeight;
+    let x=Math.min(Math.max(8,r.left+r.width/2-w/2),innerWidth-w-8), y=r.bottom+8; if(y+h>innerHeight-8)y=r.top-h-8;
+    tip.style.left=x+'px'; tip.style.top=y+'px'; btn.setAttribute('aria-expanded','true');
+  }
+  function hideTip(){ if(tip){tip.remove();tip=null;} document.querySelectorAll('.pro-help[aria-expanded="true"]').forEach(b=>b.setAttribute('aria-expanded','false')); }
+  function headingFor(src){
+    const prev=src.previousElementSibling;
+    if(prev&&/^(H1|H2|H3|H4|STRONG|B)$/.test(prev.tagName))return prev;
+    let node=src.parentElement;
+    for(let i=0;i<4&&node;i++,node=node.parentElement){
+      const h=node.querySelector(':scope>h1,:scope>h2,:scope>h3,:scope>h4,:scope>strong:not([id]),:scope>div>h2,:scope>div>h3,:scope>div>strong:not([id])');
+      if(h&&h!==src&&!h.contains(src))return h;
+    }
+    return null;
+  }
+  function wire(){
+    const seen=new Set();
+    HELP_SEL.forEach(sel=>document.querySelectorAll(sel).forEach(src=>{
+      if(seen.has(src)||src.dataset.proHelp)return; seen.add(src); src.dataset.proHelp='1'; src.classList.add('pro-help-src');
+      let host=headingFor(src), mode='append';
+      if(!host){
+        if(src.parentElement.classList.contains('core-control')){host=src.parentElement;}
+        else { const box=src.closest('.panel,[class*="-card"]'); const hh=box&&box.querySelector('h2,h3'); if(hh&&!hh.contains(src))host=hh; else {host=src;mode='before';} }
+      }
+      const existing=mode==='append'&&host.querySelector(':scope>.pro-help');
+      if(existing){existing._srcs.push(src);return;}
+      const btn=document.createElement('button'); btn._srcs=[src]; btn.type='button'; btn.className='pro-help'; btn.textContent='?';
+      btn.setAttribute('aria-label','Help'); btn.setAttribute('aria-expanded','false');
+      btn.addEventListener('mouseenter',()=>showTip(btn,src)); btn.addEventListener('mouseleave',hideTip);
+      btn.addEventListener('focus',()=>showTip(btn,src)); btn.addEventListener('blur',hideTip);
+      btn.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation(); btn.getAttribute('aria-expanded')==='true'?hideTip():showTip(btn,src);});
+      if(mode==='append')host.appendChild(btn); else host.parentElement.insertBefore(btn,host);
+    }));
+  }
+  function tipClose(){
+    const guide=document.getElementById('daybreakFocusGuide'); if(!guide||guide.querySelector('.pro-tip-close'))return;
+    const b=document.createElement('button'); b.type='button'; b.className='pro-tip-close'; b.setAttribute('aria-label','Dismiss tip'); b.textContent='×';
+    b.addEventListener('click',()=>{document.body.classList.add('pro-tip-dismissed'); try{localStorage.setItem('shmungTipDismissed','1')}catch(_){} });
+    guide.appendChild(b);
+    try{ if(localStorage.getItem('shmungTipDismissed')==='1')document.body.classList.add('pro-tip-dismissed'); }catch(_){}
+  }
+  function fill(r){ const min=+r.min||0,max=+r.max||100,v=+r.value; r.style.setProperty('--fill',((v-min)/((max-min)||1)*100)+'%'); if(r._proKnob)knobVisual(r._proKnob,r); }
+  function fills(){
+    document.querySelectorAll('input[type=range]').forEach(fill);
+    document.addEventListener('input',ev=>{if(ev.target.matches?.('input[type=range]'))fill(ev.target);},true);
+    // values set from code (presets, loads, undo) — catch them by watching the value property
+    const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+    Object.defineProperty(HTMLInputElement.prototype,'value',{configurable:true,enumerable:d.enumerable,get(){return d.get.call(this);},set(v){d.set.call(this,v);if(this.type==='range')fill(this);}});
+    let raf=0; new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType!==1)return; if(n.matches('input[type=range]'))fill(n); n.querySelectorAll?.('input[type=range]').forEach(fill);})); if(!raf)raf=requestAnimationFrame(()=>{raf=0;colourStrips();}); }).observe(document.body,{childList:true,subtree:true});
+  }
+
+  /* ---- Stage 2: knobs for key Daybreak sliders (the range input stays the real control) ---- */
+  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakReturnLevel','sm'],['daybreakInputTrim','sm'],['sampleCoarse','cell'],['sampleFine','cell'],['sampleGlideTime','cell'],['sampleAttack','cell'],['sampleDecay','cell'],['sampleSustain','cell'],['sampleRelease','cell'],['sampleCutoff','cell'],['sampleQ','cell'],['sampleFilterEnv','cell'],['sampleVelocity','cell'],['sampleLevel','cell'],['samplePosition','cell'],['sampleSend','cell'],['synthGlideTime','cell'],['synthAttack','cell'],['synthDecay','cell'],['synthSustain','cell'],['synthRelease','cell'],['synthCutoff','cell'],['synthRes','cell'],['synthEnvAmount','cell'],['synthDetune','cell'],['synthLfoRate','cell'],['synthLfoDepth','cell'],['synthLevel','cell'],['synthSend','cell']];
+  function knobVisual(btn,input){
+    const min=+input.min||0,max=+input.max||100,v=+input.value,pct=Math.min(1,Math.max(0,(v-min)/((max-min)||1)));
+    btn.style.setProperty('--rotary-fill',(pct*270)+'deg'); btn.style.setProperty('--rotary-turn',(-135+pct*270)+'deg');
+    btn.setAttribute('aria-valuenow',String(v));
+  }
+  function snap(input,v){const min=+input.min||0,max=+input.max||100,step=+input.step||1;return Math.round((Math.min(max,Math.max(min,v))-min)/step)*step+min;}
+  function beginHist(input){try{input.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,composed:true}));}catch(_){}}
+  function setVal(input,v,change){input.value=String(snap(input,v));input.dispatchEvent(new Event('input',{bubbles:true}));if(change)input.dispatchEvent(new Event('change',{bubbles:true}));}
+  function knobify(){
+    KNOBS.forEach(([id,size])=>{
+      const input=document.getElementById(id); if(!input||input.dataset.proKnob)return; input.dataset.proKnob='1';
+      const host=input.closest('label')||input.parentElement;
+      const btn=document.createElement('button'); btn.type='button'; btn.className='fx-knob pro-knob'+(size&&size!=='cell'?' '+size:'');
+      btn.innerHTML='<i></i>'; btn.setAttribute('role','slider');
+      const name=(input.getAttribute('aria-label')||(host.firstChild&&host.firstChild.textContent)||id).trim();
+      btn.setAttribute('aria-label',name); btn.setAttribute('aria-valuemin',input.min||'0'); btn.setAttribute('aria-valuemax',input.max||'100');
+      btn.title='Drag up/down · double-click to reset';
+      input.classList.add('pro-knobbed'); host.classList.add('has-pro-knob'); if(size==='cell')host.classList.add('knob-cell'); input.insertAdjacentElement('beforebegin',btn); input._proKnob=btn; knobVisual(btn,input);
+      input.addEventListener('input',()=>knobVisual(btn,input));
+      let drag=null;
+      btn.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();beginHist(input);btn.setPointerCapture?.(ev.pointerId);drag={id:ev.pointerId,y:ev.clientY,x:ev.clientX,start:+input.value,fine:ev.shiftKey};});
+      btn.addEventListener('pointermove',ev=>{if(!drag||drag.id!==ev.pointerId)return;const d=(drag.y-ev.clientY)+(ev.clientX-drag.x)*.34;const span=(+input.max)-(+input.min);setVal(input,drag.start+d/(ev.shiftKey?480:140)*span,false);});
+      const end=ev=>{if(!drag||drag.id!==ev.pointerId)return;drag=null;input.dispatchEvent(new Event('change',{bubbles:true}));};
+      btn.addEventListener('pointerup',end); btn.addEventListener('pointercancel',end);
+      btn.addEventListener('click',ev=>ev.preventDefault());
+      btn.addEventListener('dblclick',ev=>{ev.preventDefault();beginHist(input);setVal(input,+(input.dataset.default??input.getAttribute('value')??input.min),true);});
+      btn.addEventListener('wheel',ev=>{ev.preventDefault();beginHist(input);const step=+input.step||1;setVal(input,+input.value+(ev.deltaY<0?step:-step)*(ev.shiftKey?1:2),true);},{passive:false});
+      btn.addEventListener('keydown',ev=>{const step=+input.step||1;let n=null;if(ev.key==='ArrowUp'||ev.key==='ArrowRight')n=+input.value+step;if(ev.key==='ArrowDown'||ev.key==='ArrowLeft')n=+input.value-step;if(ev.key==='Home')n=+input.min;if(ev.key==='End')n=+input.max;if(n==null)return;ev.preventDefault();beginHist(input);setVal(input,n,true);});
+    });
+  }
+  /* ---- Stage 2: mixer channel colours (match tab and pad-row colours) ---- */
+  const CHAN={master:'var(--s-strong)','drum bus':'var(--c-red)',sampler:'var(--c-orange)',synth:'var(--c-yellow)','live input':'var(--c-green)',daybreak:'var(--c-blue)'};
+  const PAD_ROW=['var(--c-red)','var(--c-orange)','var(--c-blue)','var(--c-violet)'];
+  function colourRows(){
+    const melodic=!!document.querySelector('.sequencer-grid.melodic-grid,.melodic-grid');
+    document.querySelectorAll('.sequencer-grid .seq-row').forEach((row,i)=>{
+      const n=parseInt(row.querySelector('.seq-label strong')?.textContent||'',10);
+      const c=melodic||!(n>=1&&n<=16)?'var(--c-green)':PAD_ROW[Math.floor((n-1)/4)];
+      if(row.style.getPropertyValue('--pc')!==c)row.style.setProperty('--pc',c);
+    });
+  }
+  function colourStrips(){ colourRows();
+    document.querySelectorAll('.mixer-strip').forEach(strip=>{
+      const t=(strip.querySelector('.mixer-channel-head b')?.textContent||'').trim().toLowerCase(); let c=null;
+      const m=t.match(/^pad\s+(\d+)/); if(m)c=PAD_ROW[Math.min(3,Math.floor((+m[1]-1)/4))];
+      else for(const k in CHAN){if(t.startsWith(k)){c=CHAN[k];break;}}
+      if(c&&strip.style.getPropertyValue('--chan')!==c)strip.style.setProperty('--chan',c);
+    });
+  }
+  function topbarH(){ const t=document.querySelector('.topbar'); if(t)document.documentElement.style.setProperty('--pro-topbar-h',t.offsetHeight+'px'); }
+  function start(){ knobify(); wire(); fills(); colourStrips(); tipClose(); topbarH(); addEventListener('resize',topbarH); addEventListener('scroll',hideTip,{passive:true}); document.addEventListener('pointerdown',ev=>{if(!ev.target.closest('.pro-help'))hideTip();}); new ResizeObserver(topbarH).observe(document.querySelector('.topbar')); }
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start):start();
 })();
 </script>
 
