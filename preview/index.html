@@ -3353,6 +3353,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .daybreak-space-strip{grid-template-columns:minmax(130px,1fr) minmax(130px,180px) auto!important;margin-top:8px}
 :root .daybreak-space-strip .toggle-row{align-self:center}
 :root .daybreak-fragment-routing{margin-top:8px}
+:root .auto-filter-placement{grid-column:1/-1}
 </style>
 
 </head>
@@ -4160,7 +4161,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
           <label id="daybreakAutoFilterSyncWrap" class="daybreak-auto-rate-wrap">Rate<select id="daybreakAutoFilterSubdivision"><option value="0.25">1/16</option><option value="0.5">1/8</option><option value="1">1/4</option><option value="2" selected>1/2</option><option value="4">1 bar</option><option value="8">2 bars</option></select></label>
           <label id="daybreakAutoFilterFreeWrap" class="daybreak-auto-rate-wrap" hidden>Rate <span id="daybreakAutoFilterRateValue">0.35 Hz</span><input id="daybreakAutoFilterRate" type="range" min="0.05" max="8" step="0.05" value="0.35" /></label>
           <label>Resonance <span id="daybreakAutoFilterQValue">1.4</span><input id="daybreakAutoFilterQ" type="range" min="0.1" max="16" step="0.1" value="1.4" /></label>
-          <label>Position<select id="daybreakAutoFilterPosition"><option value="return" selected>On echo return</option><option value="pre">Before echoes</option></select></label>
+          <label>Position<select id="daybreakAutoFilterPosition"><option value="pre">Before Daybreak (into the delay)</option><option value="return" selected>Echo return only</option><option value="post">After Daybreak (echoes + fragments)</option></select></label>
           <label>Direction<select id="daybreakAutoFilterDirection"><option value="alternate" selected>Alternating</option><option value="up">Upward</option><option value="down">Downward</option></select></label>
         </div>
 
@@ -4706,7 +4707,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     if (!skip) { const ring = db.ring, len = ring.length; let w = db.writeIndex;
     for (let i = 0; i < input.length; i++) { ring[w] = input[i]; w = w + 1 === len ? 0 : w + 1; }
     db.writeIndex = w; }
-    applyDaybreakEnvelopeFilter(db.autoFilterPosition === "return" ? daybreakEchoRms(rms) : rms);
+    applyDaybreakEnvelopeFilter(db.autoFilterPosition === "pre" ? rms : daybreakEchoRms(rms));
   }
   // Effect sends are created only while a send is turned up. Previously every channel carried
   // 16 always-connected send nodes (352 idle nodes), which cost a large slice of the audio thread
@@ -6438,7 +6439,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     configureSafetyLimiter(daybreakOutputLimiter,.1);
     const dbAutoActive = !!state.daybreak.autoFilterEnabled;
     const dbAutoType = ["lowpass","highpass","bandpass"].includes(state.daybreak.autoFilterType) ? state.daybreak.autoFilterType : "lowpass";
-    const dbAutoPosition = state.daybreak.autoFilterPosition === "pre" ? "pre" : "return";
+    const dbAutoPosition = ["pre","return","post"].includes(state.daybreak.autoFilterPosition) ? state.daybreak.autoFilterPosition : "return";
     const dbAutoCenter = clamp(state.daybreak.autoFilterCenter,80,16000);
     const dbAutoDepth = clamp(state.daybreak.autoFilterDepth,0,1);
     daybreakAutoPre.type = dbAutoActive&&dbAutoPosition==="pre" ? dbAutoType : "allpass";
@@ -6449,13 +6450,14 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     daybreakAutoLfo.frequency.value = state.daybreak.autoFilterMode === "free" ? clamp(state.daybreak.autoFilterRate,.05,8) : 1/((60/state.tempo)*clamp(state.daybreak.autoFilterSubdivision,.125,16));
     const dbSweep = dbAutoDepth*DB_LFO_OCTAVES*1200;
     daybreakAutoLfoPreGain.gain.value = dbAutoActive&&dbAutoPosition==="pre"&&state.daybreak.autoFilterMode!=="envelope" ? autoFilterDirectionGain(state.daybreak.autoFilterDirection,dbSweep) : 0;
+    const daybreakAutoPost=off.createBiquadFilter(),daybreakAutoLfoPostGain=off.createGain();daybreakAutoPost.type=dbAutoActive&&dbAutoPosition==="post"?dbAutoType:"allpass";daybreakAutoPost.frequency.value=dbAutoCenter;daybreakAutoPost.Q.value=dbAutoActive&&dbAutoPosition==="post"?clamp(state.daybreak.autoFilterQ,.1,16):.0001;daybreakAutoLfoPostGain.gain.value=dbAutoActive&&dbAutoPosition==="post"&&state.daybreak.autoFilterMode!=="envelope"?autoFilterDirectionGain(state.daybreak.autoFilterDirection,dbSweep):0;
     daybreakAutoLfoReturnGain.gain.value = dbAutoActive&&dbAutoPosition==="return"&&state.daybreak.autoFilterMode!=="envelope" ? autoFilterDirectionGain(state.daybreak.autoFilterDirection,dbSweep) : 0;
     daybreakAutoLfo.connect(daybreakAutoLfoPreGain).connect(daybreakAutoPre.detune);
-    daybreakAutoLfo.connect(daybreakAutoLfoReturnGain).connect(daybreakAutoReturn.detune);
+    daybreakAutoLfo.connect(daybreakAutoLfoReturnGain).connect(daybreakAutoReturn.detune);daybreakAutoLfo.connect(daybreakAutoLfoPostGain).connect(daybreakAutoPost.detune);
     daybreakInput.connect(daybreakAutoPre).connect(daybreakDelay);
     daybreakDelay.connect(daybreakFeedbackHPF).connect(daybreakFeedbackLPF).connect(daybreakFeedbackHPF2).connect(daybreakFeedbackLPF2).connect(daybreakSaturatorPre).connect(daybreakFeedbackSaturator);
     daybreakFeedbackSaturator.connect(daybreakFeedback).connect(daybreakDelay);
-    daybreakFeedbackSaturator.connect(daybreakAutoReturn).connect(daybreakWet);daybreakOutputBus.connect(daybreakOutputLimiter).connect(daybreakReturnChannel.input);{const st=daybreakStereoChain(off,daybreakWet,daybreakOutputBus);setDaybreakStereo(st,null);}
+    daybreakFeedbackSaturator.connect(daybreakAutoReturn).connect(daybreakWet);daybreakOutputBus.connect(daybreakAutoPost).connect(daybreakOutputLimiter).connect(daybreakReturnChannel.input);{const st=daybreakStereoChain(off,daybreakWet,daybreakOutputBus);setDaybreakStereo(st,null);}
     daybreakAutoLfo.start(0);
 
     const nodesFor = desc => desc.key === "pad" ? offNodes.padChannels[desc.padIndex] : offNodes[desc.key];
@@ -6934,7 +6936,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     if(db.autoFilterDirection==="alternate")amount=amount*2-1;
     else if(db.autoFilterDirection==="down")amount=-amount;
     const hz=clamp(centre*Math.pow(2,amount*depth*2.8),30,19000);
-    const node=db.autoFilterPosition==="pre"?db.autoFilterPre:db.autoFilterReturn;
+    const node=db.autoFilterPosition==="pre"?db.autoFilterPre:db.autoFilterPosition==="post"?db.autoFilterPost:db.autoFilterReturn;
     node?.frequency.setTargetAtTime(hz,state.ctx.currentTime,.025);
   }
 
@@ -7076,7 +7078,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     if($("daybreakAutoFilterCenter"))$("daybreakAutoFilterCenter").value=logFrequencyToSlider(db.autoFilterCenter,120,12000);
     if($("daybreakAutoFilterDepth"))$("daybreakAutoFilterDepth").value=Math.round(db.autoFilterDepth*100);
     if($("daybreakAutoFilterQ"))$("daybreakAutoFilterQ").value=db.autoFilterQ;
-    db.autoFilterPosition=db.autoFilterPosition==="pre"?"pre":"return";
+    db.autoFilterPosition=(["pre","return","post"].includes(db.autoFilterPosition)?db.autoFilterPosition:"return");
     if($("daybreakAutoFilterPosition"))$("daybreakAutoFilterPosition").value=db.autoFilterPosition;
     if($("daybreakAutoFilterDirection"))$("daybreakAutoFilterDirection").value=db.autoFilterDirection;
     if($("daybreakAutoFilterSummary"))$("daybreakAutoFilterSummary").textContent=daybreakAutoFilterLabel();
@@ -7253,7 +7255,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     // Reset 1.19.0: clean recording taps remain pre-mixer, while audible live input enters the Live mixer channel.
     db.inputTrimNode.connect(db.padRecordDestination);
     db.inputTrimNode.connect(routeFor("live"));
-    db.outputBus.connect(db.outputLimiter).connect(db.outputAnalyser);db.outputLimiter.connect(routeFor("daybreakReturn"));
+    db.autoFilterPost=c.createBiquadFilter();db.autoFilterPost.type="allpass";db.autoFilterPost.frequency.value=1000;db.autoFilterPost.Q.value=.0001;db.outputBus.connect(db.autoFilterPost).connect(db.outputLimiter).connect(db.outputAnalyser);db.outputLimiter.connect(routeFor("daybreakReturn"));
     db.ring=new Float32Array(c.sampleRate*12);db.writeIndex=0;db.zeroGain=c.createGain();db.zeroGain.gain.value=0;
     if(c.__shmungCaptureReady){
       db.processor=new AudioWorkletNode(c,"shmung-capture",{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1],channelCount:1,channelCountMode:"explicit",channelInterpretation:"speakers"});
@@ -7275,9 +7277,10 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.feedbackSaturator=c.createWaveShaper();db.feedbackSaturator.curve=DAYBREAK_SATURATION_CURVE;db.feedbackSaturator.oversample="4x";
     db.feedbackGain = c.createGain(); db.wetGain = c.createGain();
     db.autoFilterPre=c.createBiquadFilter();db.autoFilterReturn=c.createBiquadFilter();
-    db.autoFilterLfo=c.createOscillator();db.autoFilterLfoGainPre=c.createGain();db.autoFilterLfoGainReturn=c.createGain();
+    db.autoFilterLfo=c.createOscillator();db.autoFilterLfoGainPre=c.createGain();db.autoFilterLfoGainReturn=c.createGain();db.autoFilterLfoGainPost=c.createGain();db.autoFilterLfoGainPost.gain.value=0;
     db.autoFilterLfo.connect(db.autoFilterLfoGainPre).connect(db.autoFilterPre.detune);
     db.autoFilterLfo.connect(db.autoFilterLfoGainReturn).connect(db.autoFilterReturn.detune);
+    if(db.autoFilterPost)db.autoFilterLfo.connect(db.autoFilterLfoGainPost).connect(db.autoFilterPost.detune);
     db.autoFilterLfo.start();
     db.delayInputGain.connect(db.autoFilterPre).connect(db.delayNode);
     db.delayNode.connect(db.feedbackHPF).connect(db.feedbackLPF).connect(db.feedbackHPF2).connect(db.feedbackLPF2).connect(db.feedbackSaturatorPre).connect(db.feedbackSaturator);
@@ -7294,7 +7297,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     try{db.autoFilterLfo?.stop();}catch(_){}
     try { if(oldPre) db.delayInputGain?.disconnect(oldPre); } catch (_) {}
     if(db.stereoChain)Object.values(db.stereoChain).forEach(n=>{try{n.disconnect();}catch(_){}});try{db.echoEnvAnalyser?.disconnect();}catch(_){}
-    [db.fragmentFeed,db.delayNode,db.feedbackHPF,db.feedbackLPF,db.feedbackHPF2,db.feedbackLPF2,db.feedbackSaturatorPre,db.feedbackSaturator,db.feedbackGain,db.wetGain,db.autoFilterPre,db.autoFilterReturn,db.autoFilterLfo,db.autoFilterLfoGainPre,db.autoFilterLfoGainReturn].forEach(node => { try { node?.disconnect(); } catch (_) {} });
+    [db.fragmentFeed,db.delayNode,db.feedbackHPF,db.feedbackLPF,db.feedbackHPF2,db.feedbackLPF2,db.feedbackSaturatorPre,db.feedbackSaturator,db.feedbackGain,db.wetGain,db.autoFilterPre,db.autoFilterReturn,db.autoFilterLfo,db.autoFilterLfoGainPre,db.autoFilterLfoGainReturn,db.autoFilterLfoGainPost].forEach(node => { try { node?.disconnect(); } catch (_) {} });
     connectDaybreakTail(); db.wetGain.gain.value=0; db.feedbackGain.gain.value=0; updateDaybreakGraph();
   }
 
@@ -7310,13 +7313,13 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     db.feedbackGain.gain.setTargetAtTime(db.delayEnabled ? effectiveFeedback : 0, now, 0.025);
     const effectiveHPF=clamp(db.hpfHz,20,2000),effectiveLPF=clamp(db.lpfHz,Math.max(500,effectiveHPF*1.05),20000),steep=Number(db.toneSlope)===24;
     const nyq=Math.min(20000,state.ctx.sampleRate/2-100),hpT=holding?10:effectiveHPF,lpT=holding?nyq:effectiveLPF;db.feedbackHPF.frequency.setTargetAtTime(hpT,now,.025);db.feedbackHPF.Q.setTargetAtTime(DB_QBASE,now,.025);db.feedbackLPF.frequency.setTargetAtTime(lpT,now,.025);db.feedbackLPF.Q.setTargetAtTime(holding||steep?DB_QBASE:toneQ,now,.025);if(db.feedbackHPF2){db.feedbackHPF2.frequency.setTargetAtTime(steep&&!holding?effectiveHPF:10,now,.025);db.feedbackHPF2.Q.setTargetAtTime(DB_QBASE,now,.025);db.feedbackLPF2.frequency.setTargetAtTime(steep&&!holding?effectiveLPF:nyq,now,.025);db.feedbackLPF2.Q.setTargetAtTime(steep&&!holding?toneQ:DB_QBASE,now,.025);}
-    const autoType=["lowpass","highpass","bandpass"].includes(db.autoFilterType)?db.autoFilterType:"lowpass",autoPosition=db.autoFilterPosition==="pre"?"pre":"return",autoCenter=clamp(db.autoFilterCenter,80,16000),autoQ=clamp(db.autoFilterQ,.1,16),autoDepth=clamp(db.autoFilterDepth,0,1),autoLfoActive=db.autoFilterEnabled&&db.autoFilterMode!=="envelope";
+    const autoType=["lowpass","highpass","bandpass"].includes(db.autoFilterType)?db.autoFilterType:"lowpass",autoPosition=(["pre","return","post"].includes(db.autoFilterPosition)?db.autoFilterPosition:"return"),autoCenter=clamp(db.autoFilterCenter,80,16000),autoQ=clamp(db.autoFilterQ,.1,16),autoDepth=clamp(db.autoFilterDepth,0,1),autoLfoActive=db.autoFilterEnabled&&db.autoFilterMode!=="envelope";
     setDaybreakAutoFilterNodeState(db.autoFilterPre,db.autoFilterEnabled&&autoPosition==="pre",autoType,autoCenter,autoQ);
-    setDaybreakAutoFilterNodeState(db.autoFilterReturn,db.autoFilterEnabled&&autoPosition==="return",autoType,autoCenter,autoQ);
+    setDaybreakAutoFilterNodeState(db.autoFilterReturn,db.autoFilterEnabled&&autoPosition==="return",autoType,autoCenter,autoQ);setDaybreakAutoFilterNodeState(db.autoFilterPost,db.autoFilterEnabled&&autoPosition==="post",autoType,autoCenter,autoQ);
     if(db.autoFilterLfo){db.autoFilterLfo.type=db.autoFilterDirection==="alternate"?"sine":"sawtooth";db.autoFilterLfo.frequency.setTargetAtTime(daybreakAutoFilterRateHz(),now,.02);}
     const sweep=autoFilterDirectionGain(db.autoFilterDirection,autoDepth*DB_LFO_OCTAVES*1200);
     db.autoFilterLfoGainPre?.gain.setTargetAtTime(autoLfoActive&&autoPosition==="pre"?sweep:0,now,.02);
-    db.autoFilterLfoGainReturn?.gain.setTargetAtTime(autoLfoActive&&autoPosition==="return"?sweep:0,now,.02);
+    db.autoFilterLfoGainReturn?.gain.setTargetAtTime(autoLfoActive&&autoPosition==="return"?sweep:0,now,.02);db.autoFilterLfoGainPost?.gain.setTargetAtTime(autoLfoActive&&autoPosition==="post"?sweep:0,now,.02);
     const wet = db.delayEnabled ? clamp(db.mix,0,1) : 0;
     db.wetGain.gain.setTargetAtTime(wet, now, 0.016);
     db.outputBus.gain.setTargetAtTime(dbToGain(clamp(db.returnDb??0,-12,12)),now,.018);
@@ -8485,6 +8488,13 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     return Math.sqrt(s/daybreakEchoBuf.length);
   }
   function initDaybreakEngineControls(){
+    const grid=document.querySelector(".auto-filter-core-grid"),orig=$("daybreakAutoFilterPosition");
+    if(grid&&orig&&!$("daybreakAutoPlacement")){
+      const lab=document.createElement("label");lab.className="auto-filter-placement";
+      lab.innerHTML='Position<select id="daybreakAutoPlacement"><option value="pre">Pre · into Daybreak</option><option value="return">Echoes only</option><option value="post">Post · all of Daybreak</option></select>';
+      grid.appendChild(lab);
+      $("daybreakAutoPlacement").addEventListener("change",e=>{orig.value=e.target.value;orig.dispatchEvent(new Event("change",{bubbles:true}));});
+    }
     const on=(id,ev,fn)=>$(id)?.addEventListener(ev,fn);
     on("fragmentFeed","input",e=>{state.daybreak.fragmentFeedAmt=Number(e.target.value)/100;updateDaybreakGraph();});
     on("fragmentSource","change",e=>{state.daybreak.fragmentSource=e.target.value==="both"?"both":"input";updateDaybreakGraph();});
@@ -8493,7 +8503,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     on("daybreakPingPong","change",e=>{state.daybreak.pingPong=!!e.target.checked;updateDaybreakGraph();});
   }
   function daybreakEngineSync(){
-    const db=state.daybreak,setIf=(id,val)=>{const el=$(id);if(el&&String(el.value)!==String(val))el.value=val;};
+    const db=state.daybreak,pl=$("daybreakAutoPlacement");if(pl&&pl.value!==db.autoFilterPosition)pl.value=db.autoFilterPosition||"return";
+    const setIf=(id,val)=>{const el=$(id);if(el&&String(el.value)!==String(val))el.value=val;};
     setIf("fragmentFeed",Math.round(clamp(Number(db.fragmentFeedAmt)||0,0,1)*100));if($("fragmentFeedValue"))$("fragmentFeedValue").textContent=`${Math.round(clamp(Number(db.fragmentFeedAmt)||0,0,1)*100)}%`;
     setIf("fragmentSource",db.fragmentSource==="both"?"both":"input");if($("fragmentLock"))$("fragmentLock").checked=!!db.fragmentLock;
     setIf("daybreakSpread",Math.round(clamp(Number(db.stereoSpread)||0,0,1)*100));if($("daybreakSpreadValue"))$("daybreakSpreadValue").textContent=`${Math.round(clamp(Number(db.stereoSpread)||0,0,1)*100)}%${db.pingPong?' · ping-pong':''}`;
