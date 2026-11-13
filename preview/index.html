@@ -2894,8 +2894,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root[data-theme="pro"] .ambient{display:none!important}
 
 /* --- global shape language: small radii, no shadows, no gradients on containers --- */
-:root[data-theme="pro"] body *:not(.mixer-rotary):not(.fx-knob):not([class*="knob"]):not([class*="rotary"]):not(.status-dot):not([class*="dot"]):not(input[type="range"]):not([class*="led"]){
-  border-radius:min(var(--r,4px),4px);
+:where(:root[data-theme="pro"] body *:not(.mixer-rotary):not(.fx-knob):not([class*="knob"]):not([class*="rotary"]):not(.status-dot):not([class*="dot"]):not(input[type="range"]):not([class*="led"])){
+  border-radius:4px!important;
   box-shadow:none!important;text-shadow:none!important;
 }
 :root[data-theme="pro"] *::before,:root[data-theme="pro"] *::after{box-shadow:none!important}
@@ -3120,6 +3120,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root[data-theme="pro"] .topbar{display:flex!important;justify-content:space-between!important;gap:12px}
 :root[data-theme="pro"] .top-actions{display:flex!important;flex-wrap:nowrap!important}
 :root[data-theme="pro"] .top-actions>*{flex:0 0 auto}
+:root[data-theme="pro"] .top-actions{margin-left:auto!important}
 /* values inside labels keep their real casing */
 :root[data-theme="pro"] label span,:root[data-theme="pro"] label b,:root[data-theme="pro"] label em,:root[data-theme="pro"] label i{text-transform:none;letter-spacing:0}
 /* mixer: compact send labels, channel colour on faders */
@@ -3137,6 +3138,67 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root[data-theme="pro"] .mixer-meter{background:#0b0b0d!important}
 :root[data-theme="pro"] .prepost-switch{background:var(--surface-3)!important}
 :root[data-theme="pro"] .prepost-switch button.active{background:#3a3a42!important;color:#fff!important}
+
+/* ===================== STAGE 2 — DAYBREAK / PADS / MIXER LAYOUTS (Studio only) ===================== */
+.pro-knob{display:none}
+:root[data-theme="pro"] .pro-knob{display:block;width:56px;height:56px;padding:3px;--knob-accent:var(--module,var(--c-blue))}
+:root[data-theme="pro"] .pro-knob.sm{width:40px;height:40px}
+:root[data-theme="pro"] .pro-knobbed{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden;clip:rect(0 0 0 0)}
+:root[data-theme="pro"] .fx-knob,:root[data-theme="pro"] .mixer-rotary{background:conic-gradient(from 225deg,var(--knob-accent,var(--module,var(--teal))) 0deg var(--rotary-fill),#2c2c32 var(--rotary-fill) 270deg,transparent 270deg)!important;border-radius:50%!important}
+:root[data-theme="pro"] .fx-knob i,:root[data-theme="pro"] .mixer-rotary i{background:#f2f2f4!important;width:2px!important}
+:root[data-theme="pro"] .pro-knob:focus-visible{outline:1px solid var(--module,var(--gold))!important;outline-offset:2px;border-radius:50%!important}
+
+/* --- Daybreak header: one tidy row instead of an empty left column --- */
+:root[data-theme="pro"] .daybreak-performance-header{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;padding:12px 14px!important}
+:root[data-theme="pro"] .daybreak-header-copy{display:flex!important;align-items:baseline;flex-wrap:wrap;gap:4px 12px;max-width:none!important}
+:root[data-theme="pro"] .daybreak-header-copy .eyebrow{width:100%;margin:0!important}
+:root[data-theme="pro"] .daybreak-header-copy h2{display:inline-flex;align-items:center}
+:root[data-theme="pro"] .daybreak-action-row .button,:root[data-theme="pro"] .daybreak-action-row .toggle-row{min-height:32px!important}
+
+/* core cards: label + big readout on the left, knob on the right */
+:root[data-theme="pro"] .core-control.has-pro-knob{padding-right:86px!important;min-height:96px!important}
+:root[data-theme="pro"] .core-control.has-pro-knob>.pro-knob{position:absolute;right:16px;top:50%;transform:translateY(-50%)}
+:root[data-theme="pro"] .core-control.has-pro-knob>.pro-help{right:auto;left:auto;top:11px;right:84px}
+:root[data-theme="pro"] .daybreak-performance-grid{gap:8px!important;align-items:stretch}
+:root[data-theme="pro"] .daybreak-performance-grid .core-control{min-height:96px!important}
+:root[data-theme="pro"] .daybreak-feedback-cue{margin-top:2px}
+:root[data-theme="pro"] .timing-mode-switch{margin:4px 0 6px!important}
+
+/* small knob controls (filters, trim, return) */
+:root[data-theme="pro"] label.has-pro-knob:not(.core-control){position:relative;display:grid!important;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:10px;padding-right:0!important;min-height:44px}
+:root[data-theme="pro"] label.has-pro-knob:not(.core-control)>.pro-knob{grid-column:2;grid-row:1/3}
+:root[data-theme="pro"] label.has-pro-knob:not(.core-control)>strong,:root[data-theme="pro"] label.has-pro-knob:not(.core-control)>span:not(.pro-knob){grid-column:1;font-size:13px!important;color:#fff!important;font-weight:500!important;text-align:left!important;justify-self:start}
+:root[data-theme="pro"] .input-filter-strip{display:grid!important;grid-template-columns:minmax(150px,1fr) minmax(150px,200px) minmax(150px,200px)!important;gap:8px 18px!important;align-items:center!important;padding:10px 14px!important}
+:root[data-theme="pro"] .daybreak-return-control.has-pro-knob{min-width:150px}
+
+/* echo display: a proper dark scope */
+:root[data-theme="pro"] #tab-daybreak [class*="visual"],:root[data-theme="pro"] #tab-daybreak canvas{background:#0b0b0d!important}
+
+/* --- PADS: square, dark, colour edge per row, glow when struck --- */
+:root[data-theme="pro"] .pad{--pc:var(--c-red);aspect-ratio:1/1!important;border-top:3px solid color-mix(in srgb,var(--pc) 70%,#232327)!important;display:flex!important;flex-direction:column;justify-content:space-between;padding:8px 9px!important;transition:background-color .06s linear,border-color .06s linear!important;min-height:0!important}
+:root[data-theme="pro"] .pad:nth-child(n+5){--pc:var(--c-orange)}
+:root[data-theme="pro"] .pad:nth-child(n+9){--pc:var(--c-blue)}
+:root[data-theme="pro"] .pad:nth-child(n+13){--pc:var(--c-violet)}
+:root[data-theme="pro"] .pad:hover{background:#29292e!important}
+:root[data-theme="pro"] .pad.selected{border-color:#5a5a63!important;border-top-color:var(--pc)!important;outline:1px solid var(--pc);outline-offset:-1px}
+:root[data-theme="pro"] .pad:active,:root[data-theme="pro"] .pad.playing{background:color-mix(in srgb,var(--pc) 62%,#232327)!important;border-color:var(--pc)!important}
+:root[data-theme="pro"] .pad-grid,:root[data-theme="pro"] .compact-pad-grid{gap:6px!important}
+:root[data-theme="pro"] .pad *{color:inherit}
+:root[data-theme="pro"] .pad [class*="num"],:root[data-theme="pro"] .pad small{font-size:10px!important;letter-spacing:.08em;color:var(--muted)!important}
+:root[data-theme="pro"] #tab-pads>.small-note,:root[data-theme="pro"] #tab-pads .small-note[style]{background:transparent!important;border:0!important;color:var(--muted)!important;font-size:10.5px!important;letter-spacing:.14em;text-transform:uppercase;font-weight:600!important}
+
+/* --- MIXER: channel colour cap, channel-coloured faders and pan rings --- */
+:root[data-theme="pro"] .mixer-strip{--chan:var(--c-teal);border-top:3px solid var(--chan)!important;padding-top:8px!important}
+:root[data-theme="pro"] .mixer-strip .mixer-channel-colour{background:var(--chan)!important;width:3px!important}
+:root[data-theme="pro"] .mixer-strip .mixer-fader{accent-color:var(--chan)!important}
+:root[data-theme="pro"] .mixer-strip .mixer-rotary.mix-pan-knob{--knob-accent:var(--chan)!important}
+:root[data-theme="pro"] .mixer-strip.is-focused,:root[data-theme="pro"] .mixer-strip.selected{background:#26262b!important}
+:root[data-theme="pro"] .mixer-meter{border:1px solid var(--line)!important}
+:root[data-theme="pro"] .mixer-meter i{background:linear-gradient(0deg,#4cc94a 0 65%,#e8c23a 65% 85%,#f0584e 85% 100%)!important;background-size:100% var(--meter-h,100%)!important;background-position:bottom!important}
+:root[data-theme="pro"] .mixer-readout{font-size:11px!important;color:#fff!important;font-variant-numeric:tabular-nums}
+:root[data-theme="pro"] .mixer-fader-wrap{background:#0f0f11!important;border:1px solid var(--line)!important;background-image:linear-gradient(0deg,transparent calc(83.3% - 1px),#3a3a41 calc(83.3% - 1px) 83.3%,transparent 83.3%)!important}
+:root[data-theme="pro"] .mixer-channel-head b{font-size:11.5px!important;font-weight:600!important}
+:root[data-theme="pro"] .mixer-channel-head small{font-size:9.5px!important}
 </style>
 
 </head>
@@ -8309,17 +8371,61 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     guide.appendChild(b);
     try{ if(localStorage.getItem('shmungTipDismissed')==='1')document.body.classList.add('pro-tip-dismissed'); }catch(_){}
   }
-  function fill(r){ const min=+r.min||0,max=+r.max||100,v=+r.value; r.style.setProperty('--fill',((v-min)/((max-min)||1)*100)+'%'); }
+  function fill(r){ const min=+r.min||0,max=+r.max||100,v=+r.value; r.style.setProperty('--fill',((v-min)/((max-min)||1)*100)+'%'); if(r._proKnob)knobVisual(r._proKnob,r); }
   function fills(){
     document.querySelectorAll('input[type=range]').forEach(fill);
     document.addEventListener('input',ev=>{if(ev.target.matches?.('input[type=range]'))fill(ev.target);},true);
     // values set from code (presets, loads, undo) — catch them by watching the value property
     const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
     Object.defineProperty(HTMLInputElement.prototype,'value',{configurable:true,enumerable:d.enumerable,get(){return d.get.call(this);},set(v){d.set.call(this,v);if(this.type==='range')fill(this);}});
-    new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType!==1)return; if(n.matches('input[type=range]'))fill(n); n.querySelectorAll?.('input[type=range]').forEach(fill);}))).observe(document.body,{childList:true,subtree:true});
+    let raf=0; new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType!==1)return; if(n.matches('input[type=range]'))fill(n); n.querySelectorAll?.('input[type=range]').forEach(fill);})); if(!raf)raf=requestAnimationFrame(()=>{raf=0;colourStrips();}); }).observe(document.body,{childList:true,subtree:true});
+  }
+
+  /* ---- Stage 2: knobs for key Daybreak sliders (the range input stays the real control) ---- */
+  const KNOBS=[['daybreakFeedback',''],['daybreakMix',''],['daybreakHPF','sm'],['daybreakLPF','sm'],['daybreakReturnLevel','sm'],['daybreakInputTrim','sm']];
+  function knobVisual(btn,input){
+    const min=+input.min||0,max=+input.max||100,v=+input.value,pct=Math.min(1,Math.max(0,(v-min)/((max-min)||1)));
+    btn.style.setProperty('--rotary-fill',(pct*270)+'deg'); btn.style.setProperty('--rotary-turn',(-135+pct*270)+'deg');
+    btn.setAttribute('aria-valuenow',String(v));
+  }
+  function snap(input,v){const min=+input.min||0,max=+input.max||100,step=+input.step||1;return Math.round((Math.min(max,Math.max(min,v))-min)/step)*step+min;}
+  function beginHist(input){try{input.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,composed:true}));}catch(_){}}
+  function setVal(input,v,change){input.value=String(snap(input,v));input.dispatchEvent(new Event('input',{bubbles:true}));if(change)input.dispatchEvent(new Event('change',{bubbles:true}));}
+  function knobify(){
+    KNOBS.forEach(([id,size])=>{
+      const input=document.getElementById(id); if(!input||input.dataset.proKnob)return; input.dataset.proKnob='1';
+      const host=input.closest('label')||input.parentElement;
+      const btn=document.createElement('button'); btn.type='button'; btn.className='fx-knob pro-knob'+(size?' '+size:'');
+      btn.innerHTML='<i></i>'; btn.setAttribute('role','slider');
+      const name=(input.getAttribute('aria-label')||(host.firstChild&&host.firstChild.textContent)||id).trim();
+      btn.setAttribute('aria-label',name); btn.setAttribute('aria-valuemin',input.min||'0'); btn.setAttribute('aria-valuemax',input.max||'100');
+      btn.title='Drag up/down · double-click to reset';
+      input.classList.add('pro-knobbed'); host.classList.add('has-pro-knob'); input.insertAdjacentElement('beforebegin',btn); input._proKnob=btn; knobVisual(btn,input);
+      input.addEventListener('input',()=>knobVisual(btn,input));
+      let drag=null;
+      btn.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();beginHist(input);btn.setPointerCapture?.(ev.pointerId);drag={id:ev.pointerId,y:ev.clientY,x:ev.clientX,start:+input.value,fine:ev.shiftKey};});
+      btn.addEventListener('pointermove',ev=>{if(!drag||drag.id!==ev.pointerId)return;const d=(drag.y-ev.clientY)+(ev.clientX-drag.x)*.34;const span=(+input.max)-(+input.min);setVal(input,drag.start+d/(ev.shiftKey?480:140)*span,false);});
+      const end=ev=>{if(!drag||drag.id!==ev.pointerId)return;drag=null;input.dispatchEvent(new Event('change',{bubbles:true}));};
+      btn.addEventListener('pointerup',end); btn.addEventListener('pointercancel',end);
+      btn.addEventListener('click',ev=>ev.preventDefault());
+      btn.addEventListener('dblclick',ev=>{ev.preventDefault();beginHist(input);setVal(input,+(input.dataset.default??input.getAttribute('value')??input.min),true);});
+      btn.addEventListener('wheel',ev=>{if(document.documentElement.dataset.theme!=='pro')return;ev.preventDefault();beginHist(input);const step=+input.step||1;setVal(input,+input.value+(ev.deltaY<0?step:-step)*(ev.shiftKey?1:2),true);},{passive:false});
+      btn.addEventListener('keydown',ev=>{const step=+input.step||1;let n=null;if(ev.key==='ArrowUp'||ev.key==='ArrowRight')n=+input.value+step;if(ev.key==='ArrowDown'||ev.key==='ArrowLeft')n=+input.value-step;if(ev.key==='Home')n=+input.min;if(ev.key==='End')n=+input.max;if(n==null)return;ev.preventDefault();beginHist(input);setVal(input,n,true);});
+    });
+  }
+  /* ---- Stage 2: mixer channel colours (match tab and pad-row colours) ---- */
+  const CHAN={master:'#d7d7dc','drum bus':'var(--c-red)',sampler:'var(--c-orange)',synth:'var(--c-yellow)','live input':'var(--c-green)',daybreak:'var(--c-blue)'};
+  const PAD_ROW=['var(--c-red)','var(--c-orange)','var(--c-blue)','var(--c-violet)'];
+  function colourStrips(){
+    document.querySelectorAll('.mixer-strip').forEach(strip=>{
+      const t=(strip.querySelector('.mixer-channel-head b')?.textContent||'').trim().toLowerCase(); let c=null;
+      const m=t.match(/^pad\s+(\d+)/); if(m)c=PAD_ROW[Math.min(3,Math.floor((+m[1]-1)/4))];
+      else for(const k in CHAN){if(t.startsWith(k)){c=CHAN[k];break;}}
+      if(c&&strip.style.getPropertyValue('--chan')!==c)strip.style.setProperty('--chan',c);
+    });
   }
   function topbarH(){ const t=document.querySelector('.topbar'); if(t)document.documentElement.style.setProperty('--pro-topbar-h',t.offsetHeight+'px'); }
-  function start(){ wire(); fills(); tipClose(); topbarH(); addEventListener('resize',topbarH); addEventListener('scroll',hideTip,{passive:true}); document.addEventListener('pointerdown',ev=>{if(!ev.target.closest('.pro-help'))hideTip();}); new ResizeObserver(topbarH).observe(document.querySelector('.topbar')); }
+  function start(){ knobify(); wire(); fills(); colourStrips(); tipClose(); topbarH(); addEventListener('resize',topbarH); addEventListener('scroll',hideTip,{passive:true}); document.addEventListener('pointerdown',ev=>{if(!ev.target.closest('.pro-help'))hideTip();}); new ResizeObserver(topbarH).observe(document.querySelector('.topbar')); }
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start):start();
 })();
 </script>
