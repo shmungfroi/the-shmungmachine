@@ -2,6 +2,10 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.17 — EFFECTS DELAY TEMPO SYNC (13 Nov 2026)
+Effects rack Delay (05): Sync/Free switch and Rhythm selector (1/32 to 1 bar incl. triplets and dotted), follows tempo and metre,
+slider and drag pad snap to rhythms while synced, delay line extended to 4 s, WAV export matches. Older projects keep free time.
+
 EXP 0.3.16 — DAYBREAK ENGINE FIXES (13 Nov 2026)
 Loop always decays (Butterworth base, 100% = 0.98 at the loudest frequency; Hold opens the filters); fragment pitches stay on
 musical intervals; Feed-into-echoes, Capture-from-echoes and Lock-to-tempo for fragments; fragments scheduled on the audio clock;
@@ -2349,7 +2353,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.16 Studio</title>
+  <title>Shmung Machine — EXP 0.3.17 Studio</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3354,6 +3358,12 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .daybreak-space-strip .toggle-row{align-self:center}
 :root .daybreak-fragment-routing{margin-top:8px}
 :root .auto-filter-placement{grid-column:1/-1}
+:root .fx-delay-sync{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:end;margin:6px 0 4px}
+:root .fx-delay-sync .timing-mode-switch{margin:0!important}
+:root .fx-delay-sync .timing-mode-button{padding:6px 10px!important;font-size:11px!important}
+:root .fx-delay-div select{width:100%}
+:root .fx-delay-synced .fx-slider-control input[type="range"]{opacity:.55}
+:root .fx-slider-control span,:root .fx-slider-control output{text-transform:none!important;letter-spacing:0}
 </style>
 
 </head>
@@ -3363,7 +3373,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.16 STUDIO</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.17 STUDIO</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4280,7 +4290,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.16 Studio</span>
+    <span>Shmung Machine · EXP 0.3.17 Studio</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -4415,6 +4425,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       chorusDepth: 0.008,
       chorusMix: 0,
       delayTime: 0.28,
+      delaySync: true,
+      delayBeats: "0.5",
       delayFeedback: 0.25,
       delayMix: 0,
       reverbSpace: 2.5,
@@ -4839,7 +4851,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     chorusLfo.connect(chorusLfoGain).connect(chorusDelay.delayTime);
     chorusLfo.start();
 
-    const delay = c.createDelay(2.5);
+    const delay = c.createDelay(4.1);
     const feedback = c.createGain();
 
     const convolver = c.createConvolver();
@@ -4957,7 +4969,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     g.chorusDelay.delayTime.setTargetAtTime(Math.max(.012, (Number(e.chorusDepth) || 0) + .004), now, .05);
     g.chorusLfoGain.gain.setTargetAtTime(e.chorusDepth, now, 0.01);
 
-    g.delay.delayTime.setTargetAtTime(e.delayTime, now, 0.01);
+    g.delay.delayTime.setTargetAtTime(effectsDelaySeconds(e), now, 0.02);
     g.feedback.gain.setTargetAtTime(e.delayFeedback, now, 0.01);
 
     if(g.expReverbSpace!==e.reverbSpace){g.convolver.buffer = createImpulse(state.ctx, e.reverbSpace);g.expReverbSpace=e.reverbSpace;}
@@ -6336,7 +6348,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const stepsPerBar=globalMeterInfo().steps;
     const stepDuration = secondsPerStep();
     const daybreakTail = state.daybreak.delayEnabled ? daybreakDelaySeconds() * 8 : 0;
-    const total = bars * stepsPerBar * stepDuration + Math.max(2, state.effects.reverbSpace + state.effects.delayTime * 6, daybreakTail);
+    const total = bars * stepsPerBar * stepDuration + Math.max(2, state.effects.reverbSpace + effectsDelaySeconds(state.effects) * 6, daybreakTail);
     const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     const off = new OfflineCtx(2, Math.ceil(total * state.ctx.sampleRate), state.ctx.sampleRate);
 
@@ -6380,8 +6392,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     chorusLfo.connect(chorusLfoGain).connect(chorusDelay.delayTime);
     effectInputs.chorus.connect(chorusDelay).connect(effectReturns.chorus).connect(master);
 
-    const delayFx = off.createDelay(2.5), delayFeedback = off.createGain();
-    delayFx.delayTime.value = state.effects.delayTime;
+    const delayFx = off.createDelay(4.1), delayFeedback = off.createGain();
+    delayFx.delayTime.value = effectsDelaySeconds(state.effects);
     delayFeedback.gain.value = state.effects.delayFeedback;
     effectInputs.delay.connect(delayFx);
     delayFx.connect(delayFeedback).connect(delayFx);
@@ -6690,7 +6702,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     stopComputerKeyboardNotes();
     state.computerKeyboardTarget = ["off","sample","synth"].includes(project.computerKeyboardTarget) ? project.computerKeyboardTarget : "off";
     state.pattern = project.pattern?.length === 16 ? project.pattern.map(row => expSequenceRow(row,0,projectSequenceStorageVersion).map(normaliseStepVelocity)) : Array.from({length:16},()=>expSequenceRow(null,0));
-    Object.assign(state.effects, project.effects || {});
+    Object.assign(state.effects, project.effects || {});if(project.effects&&!("delaySync" in project.effects)){state.effects.delaySync=false;}
     if (project.mixer) {
       for (const key of ["drumBus","sampler","synth","live","daybreakReturn","master"]) {
         if (project.mixer[key]) Object.assign(state.mixer[key], project.mixer[key]);
@@ -6853,7 +6865,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     $("chorusRateValue").textContent = `${e.chorusRate.toFixed(2)} Hz`;
     $("chorusDepthValue").textContent = `${Math.round(e.chorusDepth * 1000)} ms`;
     $("chorusMixValue").textContent = `${Math.round(e.chorusMix * 100)}%`;
-    $("delayTimeValue").textContent = `${Math.round(e.delayTime * 1000)} ms`;
+    $("delayTimeValue").textContent = `${Math.round(effectsDelaySeconds(e) * 1000)} ms`;fxDelaySyncUI();
     $("delayFeedbackValue").textContent = `${Math.round(e.delayFeedback * 100)}%`;
     $("delayMixValue").textContent = `${Math.round(e.delayMix * 100)}%`;
     $("reverbSpaceValue").textContent = `${e.reverbSpace.toFixed(1)} s`;
@@ -7707,7 +7719,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   const effectsVisualState={raf:null,last:0,data:null};
   function effectInputLevel(analyser){if(!analyser||!state.audioReady)return 0;if(!effectsVisualState.data)effectsVisualState.data=new Float32Array(256);analyser.getFloatTimeDomainData(effectsVisualState.data);let sum=0;for(const v of effectsVisualState.data)sum+=v*v;return Math.sqrt(sum/effectsVisualState.data.length);}
-  function updateEffectVisualStatic(){const e=state.effects,curve=$('fxFilterCurve');if(curve){const x=clamp((Math.log(Math.max(40,e.filterFreq))-Math.log(40))/(Math.log(18000)-Math.log(40)),0,1)*240,q=clamp(e.filterQ/24,0,1);let d='';if(e.filterType==='highpass')d=`M0 68 Q${Math.max(8,x-30)} ${68-q*34} ${x} ${18-q*8} L240 18`;else if(e.filterType==='bandpass')d=`M0 68 Q${Math.max(0,x-60)} 68 ${x} ${18-q*12} Q${Math.min(240,x+60)} 68 240 68`;else if(e.filterType==='notch')d=`M0 18 L${Math.max(0,x-35)} 18 Q${x} ${68+q*5} ${Math.min(240,x+35)} 18 L240 18`;else d=`M0 18 L${Math.max(0,x-18)} 18 Q${x+q*20} ${18+q*4} 240 68`;curve.setAttribute('d',d);proFilterVisual(e);}const drive=clamp(e.distDrive/100,0,1),path=$('fxDistortionPath');if(path){const top=5+drive*22,bottom=71-drive*22;path.setAttribute('d',`M0 38 C18 ${top} 42 ${top} 60 38 S102 ${bottom} 120 38 S162 ${top} 180 38 S222 ${bottom} 240 38`);}const delayTaps=$('fxDelayTimeline')?.querySelectorAll('i')||[];delayTaps.forEach((tap,i)=>{const spacing=clamp(e.delayTime/1.2,.03,1)*42,feedback=Math.pow(clamp(e.delayFeedback,0,1),i);tap.style.left=`${8+Math.min(84,(i+1)*spacing)}%`;tap.style.opacity=String(i===0?.9:clamp(feedback+.08,.08,.9));tap.style.transform=`translate(-50%,-50%) scale(${.72+feedback*.45})`;});const field=$('fxReverbField');if(field){field.style.setProperty('--reverb-space',String(clamp(e.reverbSpace/8,0,1)));field.querySelectorAll('i').forEach((ring,i)=>{const scale=.65+(i+1)*(.22+e.reverbSpace/30);ring.style.transform=`translate(-50%,-50%) scale(${scale})`;ring.style.opacity=String(clamp(e.reverbMix*(1-i*.11),.05,.65));});}const threshold=$('fxCompressionThreshold');if(threshold)threshold.style.left=`${clamp((e.compThreshold+60)/60,0,1)*100}%`;updateEffectsDaybreakCard();refreshAllRotaries();expEffectSync.forEach(sync=>sync());}
+  function updateEffectVisualStatic(){const e=state.effects,curve=$('fxFilterCurve');if(curve){const x=clamp((Math.log(Math.max(40,e.filterFreq))-Math.log(40))/(Math.log(18000)-Math.log(40)),0,1)*240,q=clamp(e.filterQ/24,0,1);let d='';if(e.filterType==='highpass')d=`M0 68 Q${Math.max(8,x-30)} ${68-q*34} ${x} ${18-q*8} L240 18`;else if(e.filterType==='bandpass')d=`M0 68 Q${Math.max(0,x-60)} 68 ${x} ${18-q*12} Q${Math.min(240,x+60)} 68 240 68`;else if(e.filterType==='notch')d=`M0 18 L${Math.max(0,x-35)} 18 Q${x} ${68+q*5} ${Math.min(240,x+35)} 18 L240 18`;else d=`M0 18 L${Math.max(0,x-18)} 18 Q${x+q*20} ${18+q*4} 240 68`;curve.setAttribute('d',d);proFilterVisual(e);}const drive=clamp(e.distDrive/100,0,1),path=$('fxDistortionPath');if(path){const top=5+drive*22,bottom=71-drive*22;path.setAttribute('d',`M0 38 C18 ${top} 42 ${top} 60 38 S102 ${bottom} 120 38 S162 ${top} 180 38 S222 ${bottom} 240 38`);}const delayTaps=$('fxDelayTimeline')?.querySelectorAll('i')||[];delayTaps.forEach((tap,i)=>{const spacing=clamp(effectsDelaySeconds(e)/1.2,.03,1)*42,feedback=Math.pow(clamp(e.delayFeedback,0,1),i);tap.style.left=`${8+Math.min(84,(i+1)*spacing)}%`;tap.style.opacity=String(i===0?.9:clamp(feedback+.08,.08,.9));tap.style.transform=`translate(-50%,-50%) scale(${.72+feedback*.45})`;});const field=$('fxReverbField');if(field){field.style.setProperty('--reverb-space',String(clamp(e.reverbSpace/8,0,1)));field.querySelectorAll('i').forEach((ring,i)=>{const scale=.65+(i+1)*(.22+e.reverbSpace/30);ring.style.transform=`translate(-50%,-50%) scale(${scale})`;ring.style.opacity=String(clamp(e.reverbMix*(1-i*.11),.05,.65));});}const threshold=$('fxCompressionThreshold');if(threshold)threshold.style.left=`${clamp((e.compThreshold+60)/60,0,1)*100}%`;updateEffectsDaybreakCard();refreshAllRotaries();expEffectSync.forEach(sync=>sync());}
   function updateEffectsDaybreakCard(){const db=state.daybreak,stage=daybreakCharacterStage(db.character);if($('effectsDaybreakCharacter'))$('effectsDaybreakCharacter').value=String(Math.round(db.character*100));if($('effectsDaybreakReturn'))$('effectsDaybreakReturn').value=String(Math.round(db.mix*100));if($('effectsDaybreakCharacterValue'))$('effectsDaybreakCharacterValue').textContent=`${Math.round(db.character*100)}%`;if($('effectsDaybreakReturnValue'))$('effectsDaybreakReturnValue').textContent=`${Math.round(db.mix*100)}%`;if($('fxDaybreakStage'))$('fxDaybreakStage').textContent=stage.name;refreshAllRotaries();}
   function startEffectsVisualLoop(){if(effectsVisualState.raf)return;const tick=t=>{effectsVisualState.raf=requestAnimationFrame(tick);if(t-effectsVisualState.last<48)return;effectsVisualState.last=t;const active=$('tab-effects')?.classList.contains('active');if(document.hidden||!active)return;const level=effectInputLevel(state.graph?.masterAnalyser),energy=clamp(level*9,0,1);const spectrum=$('fxFilterSpectrum');if(spectrum){spectrum.style.opacity=String(active?.18+energy*.75:.12);spectrum.style.transform=`translateY(${Math.sin(t*.004)*energy*5}px) scaleY(${1+energy*.2})`;spectrum.style.transformOrigin='center';}const e=state.effects,rate=e.autoFilterMode==='free'?e.autoFilterRate:1/Math.max(.08,(60/state.tempo)*e.autoFilterSubdivision),phase=(t/1000*rate)%1;let pos=e.autoFilterDirection==='up'?phase:e.autoFilterDirection==='down'?1-phase:(.5-.5*Math.cos(phase*Math.PI*2));const dot=$('fxAutoFilterDot'),trail=$('fxAutoFilterTrail');if(dot)dot.style.left=`${8+pos*84}%`;if(trail)trail.style.width=`${8+pos*84}%`;if($('fxAutoFilterMotion'))$('fxAutoFilterMotion').textContent=e.autoFilterMode==='free'?`${e.autoFilterRate.toFixed(2)} Hz free sweep`:`Tempo sync · ${String(e.autoFilterSubdivision).replace('0.25','1/16').replace('0.5','1/8').replace('1','1/4').replace('2','1/2').replace('4','1 bar').replace('8','2 bars')}`;const chorusPhase=t/1000*e.chorusRate;['A','B','C'].forEach((letter,i)=>{const path=$(`fxChorusPath${letter}`);if(path)path.style.transform=`translateX(${Math.sin(chorusPhase*Math.PI*2+i*2.1)*e.chorusDepth*energy*.45}px)`;});const reduction=Math.abs(Number(state.graph?.compressor?.reduction)||0),bar=$('fxCompressionReduction');if(bar)bar.style.height=`${clamp(reduction/18*100,2,100)}%`;if($('fxCompressionReductionValue'))$('fxCompressionReductionValue').textContent=`${reduction.toFixed(1)} dB`;const dayLevel=effectInputLevel(state.daybreak?.outputAnalyser),dayVisual=$('fxDaybreakVisual');if(dayVisual){dayVisual.querySelectorAll('i').forEach((shard,i)=>{const wobble=Math.sin(t*.003+i*1.7)*(4+dayLevel*80);shard.style.marginLeft=`${wobble}px`;shard.style.opacity=String(.25+clamp(dayLevel*7,0,.75));});}if(active&&energy>.02)document.querySelectorAll('.functional-effect-card').forEach((card,i)=>card.style.setProperty('--fx-energy',String(energy*(.75+Math.sin(t*.002+i)*.2))));};effectsVisualState.raf=requestAnimationFrame(tick);}
 
@@ -8418,6 +8430,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     // hold switches off when the delay stops
     $("daybreakDelayBtn")?.addEventListener("click",()=>setTimeout(()=>{if(!state.daybreak.delayEnabled&&state.daybreak.hold){state.daybreak.hold=false;updateDaybreakGraph();}},0));
     initDaybreakEngineControls();
+    initFxDelaySync();
     if(db.toneSlope!==24)db.toneSlope=12;db.toneRes=clamp(Number(db.toneRes)||0,0,1);db.characterLocks=db.characterLocks&&typeof db.characterLocks==="object"?db.characterLocks:{};
     daybreakProSync();
   }
@@ -8509,6 +8522,40 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     setIf("fragmentSource",db.fragmentSource==="both"?"both":"input");if($("fragmentLock"))$("fragmentLock").checked=!!db.fragmentLock;
     setIf("daybreakSpread",Math.round(clamp(Number(db.stereoSpread)||0,0,1)*100));if($("daybreakSpreadValue"))$("daybreakSpreadValue").textContent=`${Math.round(clamp(Number(db.stereoSpread)||0,0,1)*100)}%${db.pingPong?' · ping-pong':''}`;
     if($("daybreakPingPong"))$("daybreakPingPong").checked=!!db.pingPong;
+  }
+  /* ===== EXP 0.3.17 — Effects Delay tempo sync ===== */
+  const FX_DELAY_DIVS=[["0.125","1/32"],["0.1666666667","1/16T"],["0.25","1/16"],["0.3333333333","1/8T"],["0.375","1/16."],["0.5","1/8"],["0.6666666667","1/4T"],["0.75","1/8."],["1","1/4"],["1.3333333333","1/2T"],["1.5","1/4."],["2","1/2"],["3","1/2."],["bar","1 bar"]];
+  function fxDelayBeats(v){if(v==="bar"){const m=globalMeterInfo();return m.beats*m.quarterFactor;}return Number(v)||.5;}
+  function effectsDelaySeconds(e){if(!e||!e.delaySync)return clamp(Number(e?.delayTime)||.28,.02,4);return clamp(60/state.tempo*fxDelayBeats(e.delayBeats),.02,4);}
+  function fxDelayDivName(v){return (FX_DELAY_DIVS.find(d=>d[0]===String(v))||[0,"1/8"])[1];}
+  function fxDelaySyncUI(){
+    const e=state.effects,box=$("fxDelaySync");if(!box)return;
+    const sync=!!e.delaySync;
+    [["fxDelaySyncBtn",sync],["fxDelayFreeBtn",!sync]].forEach(([id,on])=>{const b=$(id);if(b){b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));}});
+    const sel=$("fxDelaySubdivision");if(sel){sel.disabled=!sync;if(sel.value!==String(e.delayBeats))sel.value=String(e.delayBeats);}
+    const card=box.closest(".functional-effect-card");card?.classList.toggle("fx-delay-synced",sync);
+    const lab=$("delayTimeValue");if(lab)lab.textContent=sync?`${fxDelayDivName(e.delayBeats)} · ${Math.round(effectsDelaySeconds(e)*1000)} ms`:`${Math.round(effectsDelaySeconds(e)*1000)} ms`;
+    const slider=$("delayTime");if(slider&&sync){const ms=Math.round(effectsDelaySeconds(e)*1000);if(Math.abs(Number(slider.value)-ms)>5){slider.value=String(clamp(ms,Number(slider.min),Number(slider.max)));try{expEffectSync.forEach(f=>f());}catch(_){}}}
+  }
+  function initFxDelaySync(){
+    const card=document.querySelector('[data-effect-key="delay"]'),timeLabel=$("delayTime")?.closest("label");if(!card||!timeLabel||$("fxDelaySync"))return;
+    const e=state.effects;if(e.delaySync===undefined)e.delaySync=true;if(!FX_DELAY_DIVS.some(d=>d[0]===String(e.delayBeats)))e.delayBeats="0.5";
+    const box=document.createElement("div");box.id="fxDelaySync";box.className="fx-delay-sync";
+    box.innerHTML='<span class="timing-mode-switch" role="group" aria-label="Delay timing"><button id="fxDelaySyncBtn" class="timing-mode-button" type="button">Sync</button><button id="fxDelayFreeBtn" class="timing-mode-button" type="button">Free</button></span>'
+      +'<label class="fx-delay-div">Rhythm<select id="fxDelaySubdivision">'+FX_DELAY_DIVS.map(([v,n])=>`<option value="${v}">${n}</option>`).join("")+'</select></label>';
+    timeLabel.before(box);
+    const commit=()=>{updateEffectLabels();updateEffectGraph();fxDelaySyncUI();};
+    $("fxDelaySyncBtn").addEventListener("click",()=>{if(e.delaySync)return;beginHistory("Delay sync");e.delaySync=true;
+      // land on the subdivision nearest the current free time
+      const t=Number(e.delayTime)||.28;let best=FX_DELAY_DIVS[5][0],bd=1e9;for(const [v] of FX_DELAY_DIVS){const d=Math.abs(60/state.tempo*fxDelayBeats(v)-t);if(d<bd){bd=d;best=v;}}e.delayBeats=best;commit();commitHistory();});
+    $("fxDelayFreeBtn").addEventListener("click",()=>{if(!e.delaySync)return;beginHistory("Delay free time");e.delayTime=effectsDelaySeconds(e);e.delaySync=false;const s=$("delayTime");if(s)s.value=String(Math.round(e.delayTime*1000));commit();commitHistory();});
+    $("fxDelaySubdivision").addEventListener("change",ev=>{beginHistory("Delay rhythm");e.delayBeats=ev.target.value;commit();commitHistory();});
+    // the Time slider and the drag pad snap to rhythms while synced
+    document.addEventListener("input",ev=>{if(ev.target?.id!=="delayTime"||!e.delaySync)return;const t=Number(ev.target.value)/1000;let best=e.delayBeats,bd=1e9;for(const [v] of FX_DELAY_DIVS){const d=Math.abs(60/state.tempo*fxDelayBeats(v)-t);if(d<bd){bd=d;best=v;}}if(best!==e.delayBeats){e.delayBeats=best;}},true);
+    // follow tempo and metre changes
+    let lastTempo=state.tempo,lastMeter=state.metronome?.meter;
+    setInterval(()=>{if(state.tempo!==lastTempo||state.metronome?.meter!==lastMeter){lastTempo=state.tempo;lastMeter=state.metronome?.meter;if(state.effects.delaySync){updateEffectGraph();updateEffectLabels();}}},200);
+    fxDelaySyncUI();
   }
 
   function init() {
