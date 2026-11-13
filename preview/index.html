@@ -3327,6 +3327,10 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .transform-details.layer-off .control-grid,:root .transform-details.layer-off .daybreak-extreme-panel,:root .transform-details.layer-off .transform-mix-control{opacity:.45}
 :root .transform-details label.is-locked{position:relative}
 :root .transform-details label.is-locked::after{content:"";position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--module,var(--c-blue))}
+/* Effects Filter card: peak marker */
+.fx-filter-visual .pro-peak{fill:var(--module,var(--c-teal))}
+.fx-filter-visual .pro-peak-label{font:600 7px system-ui,sans-serif;fill:var(--muted);text-transform:none;letter-spacing:0}
+.fx-filter-visual .fx-spectrum-trace{transition:none}
 </style>
 
 </head>
@@ -6881,7 +6885,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   function applyDaybreakEnvelopeFilter(level) {
     const db=state.daybreak;if(!state.ctx||!db.autoFilterEnabled||db.autoFilterMode!=="envelope")return;
     db.autoFilterEnvelope=clamp(db.autoFilterEnvelope*.82+clamp(level*8,0,1)*.18,0,1);
-    const centre=clamp(db.autoFilterCenter,80,16000),depth=clamp(db.autoFilterDepth,0,1)*(1+clamp(db.character,0,1)*.22);
+    const centre=clamp(db.autoFilterCenter,80,16000),depth=clamp(db.autoFilterDepth,0,1);
     let amount=db.autoFilterEnvelope;
     if(db.autoFilterDirection==="alternate")amount=amount*2-1;
     else if(db.autoFilterDirection==="down")amount=-amount;
@@ -6938,14 +6942,25 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       g.fillStyle=muted;g.fillText('ECHOES',8,14);
       const holding=db.hold&&db.delayEnabled,span=Math.max(2,delay*8),base=58;
       g.strokeStyle=ink;g.globalAlpha=.12;g.beginPath();g.moveTo(left,base);g.lineTo(right,base);g.stroke();g.globalAlpha=1;
+      // repeat-tone response: how much the resonance lifts each repeat
+      let tonePeakDb=-99,tonePeakF=1000;const tonePts=[];for(let i=0;i<=60;i++){const f=20*Math.pow(1000,i/60),m=daybreakToneResponse(f),dbv=20*Math.log10(Math.max(1e-5,m));tonePts.push(dbv);if(dbv>tonePeakDb){tonePeakDb=dbv;tonePeakF=f;}}
+      const ringAmt=clamp((tonePeakDb-.5)/9,0,1);
       for(let i=1;i<=8;i++){
         const x=left+laneW*i*delay/span;if(x>right)break;
         const amp=Math.min(1,(holding?1:Math.pow(feedback,i-1))*Math.max(.35,db.mix)*1.25),hh=40*amp;
         g.fillStyle=holding?hot:echo;g.globalAlpha=db.delayEnabled?.25+.7*amp:.18;
-        g.strokeStyle=holding?hot:echo;g.lineWidth=1;g.globalAlpha=db.delayEnabled?.2+.5*amp:.15;g.beginPath();g.moveTo(x-6,base);g.quadraticCurveTo(x,base-hh*2.1,x+6,base);g.stroke();
+        g.strokeStyle=holding?hot:echo;g.lineWidth=1;g.globalAlpha=db.delayEnabled?.2+.5*amp:.15;g.beginPath();g.moveTo(x-6,base);g.quadraticCurveTo(x,base-hh*2.1,x+6,base);if(ringAmt>.02){const rl=Math.min(laneW*delay/span-10,10+ringAmt*34),cyc=3+ringAmt*5;for(let k=0;k<=36;k++){const t=k/36,yy=base-Math.sin(t*cyc*2*Math.PI)*Math.exp(-t*3.2)*hh*.9*ringAmt;g.lineTo(x+6+t*rl,yy);}}g.stroke();
       }
       g.globalAlpha=1;g.fillStyle=muted;
       g.fillText(holding?'HOLD ∞':`${Math.round(feedback*100)}% loop · ${Math.round(delay*1000)} ms`,right-150,14);
+      // ---- repeat tone panel ----
+      {const tx=right+14,tw=w-tx-8,ty=4,th=62,yOf=d=>ty+16+clamp((12-d)/48,0,1)*(th-16);
+        g.fillStyle=muted;g.font='600 10px system-ui,sans-serif';g.fillText('REPEAT TONE',tx,ty+8);
+        g.strokeStyle=ink;g.globalAlpha=.12;g.beginPath();g.moveTo(tx,yOf(0));g.lineTo(tx+tw,yOf(0));g.stroke();
+        g.globalAlpha=.75;g.strokeStyle=echo;g.lineWidth=1.1;g.beginPath();tonePts.forEach((d,i)=>{const xx=tx+tw*i/60;i?g.lineTo(xx,yOf(d)):g.moveTo(xx,yOf(d));});g.stroke();g.lineWidth=1;
+        if(db.autoFilterEnabled){const fs=state.ctx?.sampleRate||48000,at=db.autoFilterType||'lowpass',ac=clamp(db.autoFilterCenter,80,16000),aq=at==='bandpass'?clamp(db.autoFilterQ,.1,16):clamp(db.autoFilterQ,.1,16);g.globalAlpha=.4;g.setLineDash([2,3]);g.strokeStyle=cv('--c-orange')||hot;g.beginPath();for(let i=0;i<=60;i++){const f=20*Math.pow(1000,i/60),dd=20*Math.log10(Math.max(1e-5,biquadMag(at,ac,aq,f,fs)));const xx=tx+tw*i/60;i?g.lineTo(xx,yOf(dd)):g.moveTo(xx,yOf(dd));}g.stroke();g.setLineDash([]);}
+        if(tonePeakDb>.8){const px=tx+tw*Math.log(tonePeakF/20)/Math.log(1000);g.globalAlpha=.9;g.fillStyle=echo;g.beginPath();g.arc(px,yOf(tonePeakDb),2.4,0,Math.PI*2);g.fill();g.fillStyle=muted;g.font='9px system-ui,sans-serif';g.fillText(`+${tonePeakDb.toFixed(1)} dB`,px>tx+tw*.6?px-40:px+5,Math.max(ty+22,yOf(tonePeakDb)+3));}
+        g.globalAlpha=.5;g.fillStyle=muted;g.font='8px system-ui,sans-serif';g.fillText('20 Hz',tx,ty+th+9);g.fillText('20k',tx+tw-14,ty+th+9);g.globalAlpha=1;}
       // ---- fragment lane ----
       const top=92,bottom=h-14,mid=(top+bottom)/2,pxSt=(bottom-top)/2/24;
       g.fillStyle=muted;g.fillText('FRAGMENTS',8,top-6);
@@ -7242,7 +7257,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     state.graph?.liveMonitorGate?.gain.setTargetAtTime(db.micEnabled&&db.monitor?1:0,now,.012);
     db.delayNode.delayTime.cancelScheduledValues(now);db.delayNode.delayTime.setTargetAtTime(delaySeconds,now,db.timeMode==="free"?.055:.025);
     const holding=!!(db.hold&&db.delayEnabled);db.delayInputGain.gain.setTargetAtTime(db.delayEnabled&&!holding ? 1 : 0, now, 0.012);
-    const toneQ=.707+clamp(Number(db.toneRes)||0,0,1)*1.5,tonePeak=toneQ>.708?toneQ/Math.sqrt(1-1/(4*toneQ*toneQ)):1;db.loopCeiling=.96/tonePeak;const effectiveFeedback=holding?Math.min(1,.995/tonePeak):Math.min(daybreakFeedbackGainFromControl(db.feedback),db.loopCeiling);db.effectiveFeedback=effectiveFeedback;
+    const toneQ=.707+clamp(Number(db.toneRes)||0,0,1)*9.3,qPeak=qdb=>{const q=Math.pow(10,qdb/20);return q>.7072?q/Math.sqrt(1-1/(4*q*q)):1;},tonePeak=qPeak(toneQ)/qPeak(.707);db.loopCeiling=.96/tonePeak;/* Web Audio LP/HP Q is in dB: 0.707 dB = original tone, up to +10 dB resonance; ceiling only offsets the added peak */const effectiveFeedback=holding?Math.min(1,.995/tonePeak):Math.min(daybreakFeedbackGainFromControl(db.feedback),db.loopCeiling);db.effectiveFeedback=effectiveFeedback;
     db.feedbackGain.gain.setTargetAtTime(db.delayEnabled ? effectiveFeedback : 0, now, 0.025);
     const effectiveHPF=clamp(db.hpfHz,20,2000),effectiveLPF=clamp(db.lpfHz,Math.max(500,effectiveHPF*1.05),20000),steep=Number(db.toneSlope)===24;
     db.feedbackHPF.frequency.setTargetAtTime(effectiveHPF,now,.025);db.feedbackHPF.Q.setTargetAtTime(.707,now,.025);
@@ -7624,7 +7639,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   const effectsVisualState={raf:null,last:0,data:null};
   function effectInputLevel(analyser){if(!analyser||!state.audioReady)return 0;if(!effectsVisualState.data)effectsVisualState.data=new Float32Array(256);analyser.getFloatTimeDomainData(effectsVisualState.data);let sum=0;for(const v of effectsVisualState.data)sum+=v*v;return Math.sqrt(sum/effectsVisualState.data.length);}
-  function updateEffectVisualStatic(){const e=state.effects,curve=$('fxFilterCurve');if(curve){const x=clamp((Math.log(Math.max(40,e.filterFreq))-Math.log(40))/(Math.log(18000)-Math.log(40)),0,1)*240,q=clamp(e.filterQ/24,0,1);let d='';if(e.filterType==='highpass')d=`M0 68 Q${Math.max(8,x-30)} ${68-q*34} ${x} ${18-q*8} L240 18`;else if(e.filterType==='bandpass')d=`M0 68 Q${Math.max(0,x-60)} 68 ${x} ${18-q*12} Q${Math.min(240,x+60)} 68 240 68`;else if(e.filterType==='notch')d=`M0 18 L${Math.max(0,x-35)} 18 Q${x} ${68+q*5} ${Math.min(240,x+35)} 18 L240 18`;else d=`M0 18 L${Math.max(0,x-18)} 18 Q${x+q*20} ${18+q*4} 240 68`;curve.setAttribute('d',d);}const drive=clamp(e.distDrive/100,0,1),path=$('fxDistortionPath');if(path){const top=5+drive*22,bottom=71-drive*22;path.setAttribute('d',`M0 38 C18 ${top} 42 ${top} 60 38 S102 ${bottom} 120 38 S162 ${top} 180 38 S222 ${bottom} 240 38`);}const delayTaps=$('fxDelayTimeline')?.querySelectorAll('i')||[];delayTaps.forEach((tap,i)=>{const spacing=clamp(e.delayTime/1.2,.03,1)*42,feedback=Math.pow(clamp(e.delayFeedback,0,1),i);tap.style.left=`${8+Math.min(84,(i+1)*spacing)}%`;tap.style.opacity=String(i===0?.9:clamp(feedback+.08,.08,.9));tap.style.transform=`translate(-50%,-50%) scale(${.72+feedback*.45})`;});const field=$('fxReverbField');if(field){field.style.setProperty('--reverb-space',String(clamp(e.reverbSpace/8,0,1)));field.querySelectorAll('i').forEach((ring,i)=>{const scale=.65+(i+1)*(.22+e.reverbSpace/30);ring.style.transform=`translate(-50%,-50%) scale(${scale})`;ring.style.opacity=String(clamp(e.reverbMix*(1-i*.11),.05,.65));});}const threshold=$('fxCompressionThreshold');if(threshold)threshold.style.left=`${clamp((e.compThreshold+60)/60,0,1)*100}%`;updateEffectsDaybreakCard();refreshAllRotaries();expEffectSync.forEach(sync=>sync());}
+  function updateEffectVisualStatic(){const e=state.effects,curve=$('fxFilterCurve');if(curve){const x=clamp((Math.log(Math.max(40,e.filterFreq))-Math.log(40))/(Math.log(18000)-Math.log(40)),0,1)*240,q=clamp(e.filterQ/24,0,1);let d='';if(e.filterType==='highpass')d=`M0 68 Q${Math.max(8,x-30)} ${68-q*34} ${x} ${18-q*8} L240 18`;else if(e.filterType==='bandpass')d=`M0 68 Q${Math.max(0,x-60)} 68 ${x} ${18-q*12} Q${Math.min(240,x+60)} 68 240 68`;else if(e.filterType==='notch')d=`M0 18 L${Math.max(0,x-35)} 18 Q${x} ${68+q*5} ${Math.min(240,x+35)} 18 L240 18`;else d=`M0 18 L${Math.max(0,x-18)} 18 Q${x+q*20} ${18+q*4} 240 68`;curve.setAttribute('d',d);proFilterVisual(e);}const drive=clamp(e.distDrive/100,0,1),path=$('fxDistortionPath');if(path){const top=5+drive*22,bottom=71-drive*22;path.setAttribute('d',`M0 38 C18 ${top} 42 ${top} 60 38 S102 ${bottom} 120 38 S162 ${top} 180 38 S222 ${bottom} 240 38`);}const delayTaps=$('fxDelayTimeline')?.querySelectorAll('i')||[];delayTaps.forEach((tap,i)=>{const spacing=clamp(e.delayTime/1.2,.03,1)*42,feedback=Math.pow(clamp(e.delayFeedback,0,1),i);tap.style.left=`${8+Math.min(84,(i+1)*spacing)}%`;tap.style.opacity=String(i===0?.9:clamp(feedback+.08,.08,.9));tap.style.transform=`translate(-50%,-50%) scale(${.72+feedback*.45})`;});const field=$('fxReverbField');if(field){field.style.setProperty('--reverb-space',String(clamp(e.reverbSpace/8,0,1)));field.querySelectorAll('i').forEach((ring,i)=>{const scale=.65+(i+1)*(.22+e.reverbSpace/30);ring.style.transform=`translate(-50%,-50%) scale(${scale})`;ring.style.opacity=String(clamp(e.reverbMix*(1-i*.11),.05,.65));});}const threshold=$('fxCompressionThreshold');if(threshold)threshold.style.left=`${clamp((e.compThreshold+60)/60,0,1)*100}%`;updateEffectsDaybreakCard();refreshAllRotaries();expEffectSync.forEach(sync=>sync());}
   function updateEffectsDaybreakCard(){const db=state.daybreak,stage=daybreakCharacterStage(db.character);if($('effectsDaybreakCharacter'))$('effectsDaybreakCharacter').value=String(Math.round(db.character*100));if($('effectsDaybreakReturn'))$('effectsDaybreakReturn').value=String(Math.round(db.mix*100));if($('effectsDaybreakCharacterValue'))$('effectsDaybreakCharacterValue').textContent=`${Math.round(db.character*100)}%`;if($('effectsDaybreakReturnValue'))$('effectsDaybreakReturnValue').textContent=`${Math.round(db.mix*100)}%`;if($('fxDaybreakStage'))$('fxDaybreakStage').textContent=stage.name;refreshAllRotaries();}
   function startEffectsVisualLoop(){if(effectsVisualState.raf)return;const tick=t=>{effectsVisualState.raf=requestAnimationFrame(tick);if(t-effectsVisualState.last<48)return;effectsVisualState.last=t;const active=$('tab-effects')?.classList.contains('active');if(document.hidden||!active)return;const level=effectInputLevel(state.graph?.masterAnalyser),energy=clamp(level*9,0,1);const spectrum=$('fxFilterSpectrum');if(spectrum){spectrum.style.opacity=String(active?.18+energy*.75:.12);spectrum.style.transform=`translateY(${Math.sin(t*.004)*energy*5}px) scaleY(${1+energy*.2})`;spectrum.style.transformOrigin='center';}const e=state.effects,rate=e.autoFilterMode==='free'?e.autoFilterRate:1/Math.max(.08,(60/state.tempo)*e.autoFilterSubdivision),phase=(t/1000*rate)%1;let pos=e.autoFilterDirection==='up'?phase:e.autoFilterDirection==='down'?1-phase:(.5-.5*Math.cos(phase*Math.PI*2));const dot=$('fxAutoFilterDot'),trail=$('fxAutoFilterTrail');if(dot)dot.style.left=`${8+pos*84}%`;if(trail)trail.style.width=`${8+pos*84}%`;if($('fxAutoFilterMotion'))$('fxAutoFilterMotion').textContent=e.autoFilterMode==='free'?`${e.autoFilterRate.toFixed(2)} Hz free sweep`:`Tempo sync · ${String(e.autoFilterSubdivision).replace('0.25','1/16').replace('0.5','1/8').replace('1','1/4').replace('2','1/2').replace('4','1 bar').replace('8','2 bars')}`;const chorusPhase=t/1000*e.chorusRate;['A','B','C'].forEach((letter,i)=>{const path=$(`fxChorusPath${letter}`);if(path)path.style.transform=`translateX(${Math.sin(chorusPhase*Math.PI*2+i*2.1)*e.chorusDepth*energy*.45}px)`;});const reduction=Math.abs(Number(state.graph?.compressor?.reduction)||0),bar=$('fxCompressionReduction');if(bar)bar.style.height=`${clamp(reduction/18*100,2,100)}%`;if($('fxCompressionReductionValue'))$('fxCompressionReductionValue').textContent=`${reduction.toFixed(1)} dB`;const dayLevel=effectInputLevel(state.daybreak?.outputAnalyser),dayVisual=$('fxDaybreakVisual');if(dayVisual){dayVisual.querySelectorAll('i').forEach((shard,i)=>{const wobble=Math.sin(t*.003+i*1.7)*(4+dayLevel*80);shard.style.marginLeft=`${wobble}px`;shard.style.opacity=String(.25+clamp(dayLevel*7,0,.75));});}if(active&&energy>.02)document.querySelectorAll('.functional-effect-card').forEach((card,i)=>card.style.setProperty('--fx-energy',String(energy*(.75+Math.sin(t*.002+i)*.2))));};effectsVisualState.raf=requestAnimationFrame(tick);}
 
@@ -8335,6 +8350,43 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     $("daybreakDelayBtn")?.addEventListener("click",()=>setTimeout(()=>{if(!state.daybreak.delayEnabled&&state.daybreak.hold){state.daybreak.hold=false;updateDaybreakGraph();}},0));
     if(db.toneSlope!==24)db.toneSlope=12;db.toneRes=clamp(Number(db.toneRes)||0,0,1);db.characterLocks=db.characterLocks&&typeof db.characterLocks==="object"?db.characterLocks:{};
     daybreakProSync();
+  }
+  /* ===== Filter response maths (Web Audio biquad semantics: LP/HP Q in dB, BP/notch Q linear) ===== */
+  function biquadMag(type,f0,q,f,fs){
+    if(type==="allpass")return 1;
+    const w0=2*Math.PI*clamp(f0,10,fs/2-10)/fs,cw=Math.cos(w0),sw=Math.sin(w0);
+    const qq=(type==="lowpass"||type==="highpass")?Math.pow(10,q/20):Math.max(.0001,q),al=sw/(2*qq);
+    let b0,b1,b2;const a0=1+al,a1=-2*cw,a2=1-al;
+    if(type==="highpass"){b0=(1+cw)/2;b1=-(1+cw);b2=(1+cw)/2;}
+    else if(type==="bandpass"){b0=al;b1=0;b2=-al;}
+    else if(type==="notch"){b0=1;b1=-2*cw;b2=1;}
+    else {b0=(1-cw)/2;b1=1-cw;b2=(1-cw)/2;}
+    const w=2*Math.PI*f/fs,c1=Math.cos(w),s1=Math.sin(w),c2=Math.cos(2*w),s2=Math.sin(2*w);
+    const nr=b0+b1*c1+b2*c2,ni=-(b1*s1+b2*s2),dr=a0+a1*c1+a2*c2,di=-(a1*s1+a2*s2);
+    return Math.sqrt((nr*nr+ni*ni)/(dr*dr+di*di));
+  }
+  // Effects page Filter card: true response curve, resonant peak marker, and the 'waveform' trace lifted by the filter
+  const FX_TRACE=Array.from({length:97},(_,i)=>.55+.45*Math.sin(i*1.7)*Math.sin(i*.37+1)+(((i*7919)%13)/13-.5)*.35);
+  function proFilterVisual(e){
+    const curve=$('fxFilterCurve'),trace=$('fxFilterSpectrum');if(!curve)return;
+    const fs=48000,type=e.filterType||'lowpass',f0=clamp(Number(e.filterFreq)||1000,40,18000),q=Number(e.filterQ)||.7;
+    const fx=i=>40*Math.pow(18000/40,i/96),yOf=db=>clamp(30-db*1.15,3,74);
+    let d='',peakDb=-99,peakX=0;
+    for(let i=0;i<=96;i++){const db=20*Math.log10(Math.max(1e-5,biquadMag(type,f0,q,fx(i),fs)));const x=i*2.5;d+=(i?'L':'M')+x.toFixed(1)+' '+yOf(db).toFixed(1);if(db>peakDb){peakDb=db;peakX=x;}}
+    curve.setAttribute('d',d);
+    if(trace){let t='';for(let i=0;i<=96;i++){const m=biquadMag(type,f0,q,fx(i),fs),lift=Math.min(2.6,m);const y=clamp(62-FX_TRACE[i]*14*lift,4,74);t+=(i?'L':'M')+(i*2.5).toFixed(1)+' '+y.toFixed(1);}trace.setAttribute('d',t);}
+    const svg=curve.ownerSVGElement;let dot=svg.querySelector('.pro-peak'),lab=svg.querySelector('.pro-peak-label');
+    if(!dot){dot=document.createElementNS('http://www.w3.org/2000/svg','circle');dot.setAttribute('class','pro-peak');dot.setAttribute('r','2.6');svg.appendChild(dot);lab=document.createElementNS('http://www.w3.org/2000/svg','text');lab.setAttribute('class','pro-peak-label');svg.appendChild(lab);}
+    const show=peakDb>1&&type!=='notch';dot.style.display=lab.style.display=show?'':'none';
+    if(show){dot.setAttribute('cx',peakX.toFixed(1));dot.setAttribute('cy',yOf(peakDb).toFixed(1));lab.setAttribute('x',Math.min(212,peakX+5).toFixed(1));lab.setAttribute('y',Math.max(9,yOf(peakDb)-4).toFixed(1));lab.textContent=`+${peakDb.toFixed(1)} dB`;}
+  }
+  // Daybreak repeat-tone response (what each echo passes through)
+  function daybreakToneResponse(f){
+    const db=state.daybreak,fs=state.ctx?.sampleRate||48000,steep=Number(db.toneSlope)===24,qRes=.707+clamp(Number(db.toneRes)||0,0,1)*9.3;
+    const hp=clamp(db.hpfHz,20,2000),lp=clamp(db.lpfHz,Math.max(500,hp*1.05),20000);
+    let m=biquadMag('highpass',hp,.707,f,fs)*biquadMag('lowpass',lp,steep?.707:qRes,f,fs);
+    if(steep)m*=biquadMag('highpass',hp,.707,f,fs)*biquadMag('lowpass',lp,qRes,f,fs);
+    return m;
   }
 
   function init() {
