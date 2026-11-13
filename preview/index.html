@@ -2,6 +2,10 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.18 — TIMING, AUTOSAVE, RECORD (13 Nov 2026)
+Sequenced synth/sampler notes (poly) start and release on the audio clock; autosave every 30 s when changed (5 rolling slots),
+recovery banner, named saves on this device, unsaved-changes warning on close; Record button captures the master output to WAV.
+
 EXP 0.3.17 — EFFECTS DELAY TEMPO SYNC (13 Nov 2026)
 Effects rack Delay (05): Sync/Free switch and Rhythm selector (1/32 to 1 bar incl. triplets and dotted), follows tempo and metre,
 slider and drag pad snap to rhythms while synced, delay line extended to 4 s, WAV export matches. Older projects keep free time.
@@ -2353,7 +2357,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.17 Studio</title>
+  <title>Shmung Machine — EXP 0.3.18 Studio</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3364,6 +3368,18 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .fx-delay-div select{width:100%}
 :root .fx-delay-synced .fx-slider-control input[type="range"]{opacity:.55}
 :root .fx-slider-control span,:root .fx-slider-control output{text-transform:none!important;letter-spacing:0}
+
+/* EXP 0.3.18: saves, recovery, record */
+:root .pro-saves{grid-column:1/-1;display:grid;gap:6px;padding:0 0 10px;margin:0 0 10px;border-bottom:1px solid var(--s-line)}
+:root .pro-saves strong{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+:root .pro-saves-row{display:flex;gap:6px}
+:root .pro-saves select{width:100%;min-height:96px!important;font-size:12px!important}
+:root .pro-saves small{font-size:11px;color:var(--muted)}
+:root .pro-recover{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:200;display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s-tip);color:var(--s-tip-text);border:1px solid var(--s-line-strong);border-left:3px solid var(--c-yellow);font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.35)!important}
+:root .pro-transport .pro-tp-rec{color:var(--c-red)!important}
+:root .pro-transport .pro-tp-rec.on{background:var(--c-red)!important;border-color:var(--c-red)!important;color:#fff!important;animation:proRecPulse 1.2s ease-in-out infinite}
+@keyframes proRecPulse{50%{opacity:.6}}
+:root .pro-rec-time{font:600 11px/1 ui-monospace,Menlo,monospace;color:var(--c-red);min-width:34px}
 </style>
 
 </head>
@@ -3373,7 +3389,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.17 STUDIO</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.18 STUDIO</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4290,7 +4306,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.17 Studio</span>
+    <span>Shmung Machine · EXP 0.3.18 Studio</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -4549,7 +4565,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   function historySignature(snapshot){return JSON.stringify(snapshot,(key,value)=>key==="buffer"?(value?`audio:${value.duration}:${value.length}:${value.sampleRate}`:null):value);}
   function updateHistoryUI(){const u=$("undoBtn"),r=$("redoBtn");if(!u||!r)return;const undoItem=editHistory.undo.at(-1),redoItem=editHistory.redo.at(-1);u.disabled=!undoItem;r.disabled=!redoItem;u.textContent=undoItem?`↶ Undo ${undoItem.label}`:"↶ Undo";r.textContent=redoItem?`↷ Redo ${redoItem.label}`:"↷ Redo";u.title=undoItem?`Undo ${undoItem.label}`:"Nothing to undo";r.title=redoItem?`Redo ${redoItem.label}`:"Nothing to redo";u.classList.toggle("history-ready",!!undoItem);r.classList.toggle("history-ready",!!redoItem);}
   function beginHistory(label){if(editHistory.applying||editHistory.pending)return;const before=captureHistoryState();editHistory.pending={label:label||"change",before,signature:historySignature(before)};}
-  function commitHistory(label=null){const pending=editHistory.pending;if(!pending||editHistory.applying)return;editHistory.pending=null;const after=captureHistoryState();if(historySignature(after)===pending.signature){updateHistoryUI();return;}editHistory.undo.push({label:label||pending.label,before:pending.before,after});if(editHistory.undo.length>editHistory.limit)editHistory.undo.shift();editHistory.redo.length=0;updateHistoryUI();}
+  function commitHistory(label=null){markProjectDirty();const pending=editHistory.pending;if(!pending||editHistory.applying)return;editHistory.pending=null;const after=captureHistoryState();if(historySignature(after)===pending.signature){updateHistoryUI();return;}editHistory.undo.push({label:label||pending.label,before:pending.before,after});if(editHistory.undo.length>editHistory.limit)editHistory.undo.shift();editHistory.redo.length=0;updateHistoryUI();}
   function cancelHistory(){editHistory.pending=null;updateHistoryUI();}
   function restoreHistoryState(snapshot){editHistory.applying=true;try{stopSequencer();state.pads.forEach((_,i)=>stopPad(i));stopAllSamples();stopAllSynth();state.selectedPad=clamp(Number(snapshot.selectedPad)||0,0,15);state.tempo=clamp(Number(snapshot.tempo)||100,40,220);state.performanceTarget=snapshot.performanceTarget||"pads";state.sampleRootMidi=Number(snapshot.sampleRootMidi)||60;Object.assign(state.samplerProgram,snapshot.samplerProgram||{});snapshot.pads.forEach((p,i)=>Object.assign(state.pads[i],p,{fxSends:{...(p.fxSends||{})},fxSendModes:{...(p.fxSendModes||{})},sliceMarkers:[...(p.sliceMarkers||[])],activeSources:new Set()}));state.pattern=snapshot.pattern.map(r=>[...r]);Object.assign(state.sampler,snapshot.sampler);Object.assign(state.synth,snapshot.synth);for(const key of Object.keys(snapshot.mixer))Object.assign(state.mixer[key],snapshot.mixer[key],{fxSends:snapshot.mixer[key].fxSends?{...snapshot.mixer[key].fxSends}:state.mixer[key].fxSends,fxSendModes:snapshot.mixer[key].fxSendModes?{...snapshot.mixer[key].fxSendModes}:state.mixer[key].fxSendModes});Object.assign(state.effects,snapshot.effects);Object.assign(state.sequence,snapshot.sequence,{sampler:[...snapshot.sequence.sampler],synth:[...snapshot.sequence.synth]});Object.assign(state.slice,snapshot.slice,{previewPads:false,manualArmed:false,undo:null,playSource:null});Object.assign(state.metronome,snapshot.metronome);Object.assign(state.daybreak,snapshot.daybreak);$("tempoInput").value=state.tempo;$("performanceTarget").value=state.performanceTarget;$("sampleRootSelect").value=String(state.sampleRootMidi);syncEffectUI();syncInstrumentUI();renderPads();updatePadEditor();renderSequencer();renderMixer();updateEffectGraph();updateMixerRouting();applyDaybreakCharacter(state.daybreak.character,{writeParameters:false});syncDaybreakControls();updateDaybreakGraph();updateMetronomeUI();updatePadAccordionSummaries();}finally{editHistory.applying=false;updateHistoryUI();}}
   function undoGlobal(){const item=editHistory.undo.pop();if(!item)return;editHistory.redo.push(item);restoreHistoryState(item.before);toast(`Undid ${item.label}`);}
@@ -6143,7 +6159,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
 
   function retuneSampleVoice(voice,midi,useGlide){if(!voice||voice.ended)return;const t=state.ctx.currentTime,target=samplerPlaybackRate(midi),seconds=state.sampler.glideMs/1000,param=voice.source.playbackRate;param.cancelScheduledValues(t);param.setValueAtTime(Math.max(.01,param.value),t);if(useGlide&&seconds>.001)param.exponentialRampToValueAtTime(Math.max(.01,target),t+seconds);else param.setValueAtTime(target,t);voice.currentMidi=midi;}
-  function releaseSampleVoice(voice){if(!voice||voice.ended)return;const t=state.ctx.currentTime,r=Math.max(.01,state.sampler.releaseMs/1000);const tc=Math.max(.008,r/4);holdParamAt(voice.gain.gain,t,.0001);voice.gain.gain.setTargetAtTime(.0001,t,tc);try{voice.source.stop(t+tc*7+.02)}catch{}voice.ended=true;}
+  function releaseSampleVoice(voice,when=null){if(!voice||voice.ended)return;const t=Math.max(when??state.ctx.currentTime,state.ctx.currentTime),r=Math.max(.01,state.sampler.releaseMs/1000);const tc=Math.max(.008,r/4);holdParamAt(voice.gain.gain,t,.0001);voice.gain.gain.setTargetAtTime(.0001,t,tc);try{voice.source.stop(t+tc*7+.02)}catch{}voice.ended=true;}
   function startSampleNote(midi,velocity=1,when=null,fromSequencer=false){if(!state.audioReady)return null;if(!state.samplerProgram.buffer){toast("Load, capture or copy a sample into the independent sampler first");return null;}const s=state.sampler,mode=s.voiceMode;let voice=null;
     if(mode==="poly"){voice=makeSampleVoice(midi,velocity,midi,when);if(voice)state.sampleVoices.set(midi,voice);state.lastSampleMidi=midi;}
     else{if(!state.sampleHeld.includes(midi))state.sampleHeld.push(midi);const overlap=!!state.monoSampleVoice&&state.sampleHeld.length>1;if(!state.monoSampleVoice||state.monoSampleVoice.ended){const startMidi=s.glideEnabled&&state.lastSampleMidi!=null?state.lastSampleMidi:midi;state.monoSampleVoice=makeSampleVoice(midi,velocity,startMidi,when);}else retuneSampleVoice(state.monoSampleVoice,midi,s.glideEnabled&&(mode==="legato"||overlap));state.lastSampleMidi=midi;voice=state.monoSampleVoice;}
@@ -6340,7 +6356,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
 
   function secondsPerStep(){return 60/state.tempo/4;}
-  function scheduleStep(step,time){const generation=expSequenceGeneration,index=expSequenceIndex(step);const swing=(step%2?secondsPerStep()*state.sequence.swing*.35:0),t=time+swing;state.pattern.forEach((row,padIndex)=>{const velocity=normaliseStepVelocity(row[index]);if(velocity>0)playPad(padIndex,t,null,{fromSequencer:true,gainDb:20*Math.log10(velocity)});});const samplerMidi=state.sequence.sampler[index],synthMidi=state.sequence.synth[index],gate=secondsPerStep()*.78;if(samplerMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;const v=startSampleNote(samplerMidi,.9,null,true);if(state.sampler.playMode!=="oneshot")setTimeout(()=>stopSampleNote(samplerMidi,v),gate*1000);},delay);}if(synthMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;startSynthNote(synthMidi,.88,null,true);setTimeout(()=>{if(generation===expSequenceGeneration)stopSynthNote(synthMidi);},gate*1000);},delay);}const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;state.sequence.currentPlayStep=step;expPaintSequencePosition(step);},delay);}
+  function scheduleStep(step,time){const generation=expSequenceGeneration,index=expSequenceIndex(step);const swing=(step%2?secondsPerStep()*state.sequence.swing*.35:0),t=time+swing;state.pattern.forEach((row,padIndex)=>{const velocity=normaliseStepVelocity(row[index]);if(velocity>0)playPad(padIndex,t,null,{fromSequencer:true,gainDb:20*Math.log10(velocity)});});const samplerMidi=state.sequence.sampler[index],synthMidi=state.sequence.synth[index],gate=secondsPerStep()*.78;if(samplerMidi!=null&&state.sampler.voiceMode==="poly"&&state.samplerProgram.buffer){seqScheduleSample(samplerMidi,t,gate);}else if(samplerMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;const v=startSampleNote(samplerMidi,.9,null,true);if(state.sampler.playMode!=="oneshot")setTimeout(()=>stopSampleNote(samplerMidi,v),gate*1000);},delay);}if(synthMidi!=null&&state.synth.voiceMode==="poly"){seqScheduleSynth(synthMidi,t,gate);}else if(synthMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;startSynthNote(synthMidi,.88,null,true);setTimeout(()=>{if(generation===expSequenceGeneration)stopSynthNote(synthMidi);},gate*1000);},delay);}const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;state.sequence.currentPlayStep=step;expPaintSequencePosition(step);},delay);}
 
   async function exportPatternWav() {
     await initAudio();
@@ -6599,7 +6615,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const pads = [];
     for (const pad of state.pads) {
       let audio = null;
-      if (includeAudio && pad.buffer) audio = arrayBufferToBase64(audioBufferToWav(pad.buffer));
+      if (includeAudio && pad.buffer) audio = cachedAudioB64(pad.buffer);
       pads.push({
         name: pad.name, mode: pad.mode, gainDb: pad.gainDb, pitch: pad.pitch,
         trimStart: pad.trimStart, trimEnd: pad.trimEnd, reverse: pad.reverse,
@@ -6618,7 +6634,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       samplerProgram: {
         name: state.samplerProgram.name, sourceName: state.samplerProgram.sourceName, reverse: !!state.samplerProgram.reverse,
         trimStart: state.samplerProgram.trimStart, trimEnd: state.samplerProgram.trimEnd, loopStart: state.samplerProgram.loopStart, loopEnd: state.samplerProgram.loopEnd,
-        audio: includeAudio && state.samplerProgram.buffer ? arrayBufferToBase64(audioBufferToWav(state.samplerProgram.buffer)) : null
+        audio: includeAudio && state.samplerProgram.buffer ? cachedAudioB64(state.samplerProgram.buffer) : null
       },
       synth: state.synth,
       sequence: state.sequence,
@@ -6801,6 +6817,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const project = await serialiseProject(true);
     const json = JSON.stringify(project);
     downloadBlob(new Blob([json], { type: "application/json" }), `${safeFileName("other_voices_sound_lab")}.ovslab`);
+    markProjectClean();
     toast("Project file downloaded");
   }
 
@@ -6820,7 +6837,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       tx.objectStore("projects").put(project, "latest");
       tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
     });
-    db.close(); toast("Saved locally on this browser");
+    db.close(); markProjectClean(); toast("Saved locally on this browser");
   }
   async function loadLocal() {
     try {
@@ -6832,7 +6849,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       });
       db.close();
       if (!project) { toast("No local save was found"); return; }
-      await applyProject(project);
+      await applyProject(project); markProjectClean();
     } catch (err) { console.error(err); toast("Could not load the local save"); }
   }
 
@@ -8017,7 +8034,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     $("loadFileBtn").addEventListener("click", () => $("loadFileInput").click());
     $("loadFileInput").addEventListener("change", async e => {
       const file = e.target.files?.[0]; if (!file) return;
-      try { await applyProject(JSON.parse(await file.text())); }
+      try { await applyProject(JSON.parse(await file.text())); markProjectClean(); }
       catch (err) { console.error(err); toast("That project file could not be loaded"); }
       e.target.value = "";
     });
@@ -8282,6 +8299,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     state.pads.forEach((_,i)=>stopPad(i));
     stopAllSamples();
     stopAllSynth();
+    seqReleaseAll();
   }
   function scheduler(){
     const tr=ensureGlobalTransportState();
@@ -8431,6 +8449,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     $("daybreakDelayBtn")?.addEventListener("click",()=>setTimeout(()=>{if(!state.daybreak.delayEnabled&&state.daybreak.hold){state.daybreak.hold=false;updateDaybreakGraph();}},0));
     initDaybreakEngineControls();
     initFxDelaySync();
+    initSaves();
+    setTimeout(initRecord,0);
     if(db.toneSlope!==24)db.toneSlope=12;db.toneRes=clamp(Number(db.toneRes)||0,0,1);db.characterLocks=db.characterLocks&&typeof db.characterLocks==="object"?db.characterLocks:{};
     daybreakProSync();
   }
@@ -8556,6 +8576,96 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     let lastTempo=state.tempo,lastMeter=state.metronome?.meter;
     setInterval(()=>{if(state.tempo!==lastTempo||state.metronome?.meter!==lastMeter){lastTempo=state.tempo;lastMeter=state.metronome?.meter;if(state.effects.delaySync){updateEffectGraph();updateEffectLabels();}}},200);
     fxDelaySyncUI();
+  }
+  /* ===== EXP 0.3.18 — 1. sequenced synth/sampler notes on the audio clock ===== */
+  const SEQ_VOICES=new Set();
+  function seqTrack(kind,v,until){const rec={kind,v};SEQ_VOICES.add(rec);setTimeout(()=>SEQ_VOICES.delete(rec),Math.max(0,(until-state.ctx.currentTime)*1000)+3000);}
+  function seqScheduleSynth(midi,t,gate){if(!state.audioReady)return;const v=makeSynthVoice(midi,.88,midi,t);if(!v)return;releaseSynthVoice(v,t+gate);seqTrack("synth",v,t+gate);}
+  function seqScheduleSample(midi,t,gate){if(!state.audioReady||!state.samplerProgram.buffer)return;const v=makeSampleVoice(midi,.9,midi,t);if(!v)return;if(state.sampler.playMode!=="oneshot")releaseSampleVoice(v,t+gate);seqTrack("sample",v,t+gate+5);}
+  function seqReleaseAll(){if(!state.ctx)return;const now=state.ctx.currentTime;for(const r of SEQ_VOICES){try{if(r.kind==="synth")releaseSynthVoice(r.v,now);else{holdParamAt(r.v.gain.gain,now,.0001);r.v.gain.gain.setTargetAtTime(.0001,now,.01);try{r.v.source.stop(now+.08);}catch(_){}}}catch(_){}}SEQ_VOICES.clear();}
+
+  /* ===== EXP 0.3.18 — 2. autosave, recovery and named saves ===== */
+  const AUDIO_B64_CACHE=new WeakMap();
+  function cachedAudioB64(buffer){if(!buffer)return null;let v=AUDIO_B64_CACHE.get(buffer);if(!v){v=arrayBufferToBase64(audioBufferToWav(buffer));AUDIO_B64_CACHE.set(buffer,v);}return v;}
+  const SAVE_STATE={dirty:false,unsavedSinceExplicit:false,lastAutosave:0,busy:false,index:null};
+  function markProjectDirty(){if(editHistory&&editHistory.applying)return;SAVE_STATE.dirty=true;SAVE_STATE.unsavedSinceExplicit=true;}
+  function markProjectClean(){SAVE_STATE.dirty=false;SAVE_STATE.unsavedSinceExplicit=false;saveIndexUpdate(ix=>{ix.lastExplicit=Date.now();});refreshSavesUI();}
+  function idbDo(mode,fn){return openDatabase().then(db=>new Promise((res,rej)=>{const tx=db.transaction("projects",mode),st=tx.objectStore("projects");let out;Promise.resolve(fn(st,v=>out=v)).catch(rej);tx.oncomplete=()=>{db.close();res(out);};tx.onerror=()=>{db.close();rej(tx.error);};}));}
+  function idbGet(key){return idbDo("readonly",(st,set)=>{const r=st.get(key);r.onsuccess=()=>set(r.result);});}
+  function idbPut(key,val){return idbDo("readwrite",st=>{st.put(val,key);});}
+  function idbDel(key){return idbDo("readwrite",st=>{st.delete(key);});}
+  async function saveIndex(){if(!SAVE_STATE.index){try{SAVE_STATE.index=(await idbGet("shmung-index"))||{items:[],lastExplicit:0};}catch(_){SAVE_STATE.index={items:[],lastExplicit:0};}}return SAVE_STATE.index;}
+  async function saveIndexUpdate(fn){const ix=await saveIndex();fn(ix);try{await idbPut("shmung-index",ix);}catch(_){}}
+  async function writeSave(kind,name){
+    const project=await serialiseProject(true),time=Date.now(),key=kind==="auto"?`autosave:${time}`:`named:${name}`;
+    await idbPut(key,project);
+    const ix=await saveIndex();ix.items=ix.items.filter(it=>it.key!==key);ix.items.push({key,kind,name:name||"",time});
+    const autos=ix.items.filter(it=>it.kind==="auto").sort((a,b)=>b.time-a.time);for(const old of autos.slice(5)){ix.items=ix.items.filter(it=>it.key!==old.key);try{await idbDel(old.key);}catch(_){}}
+    await idbPut("shmung-index",ix);return time;
+  }
+  async function autosaveNow(reason){
+    if(SAVE_STATE.busy||!SAVE_STATE.dirty)return;if(ensureGlobalTransportState().running||REC.on)return;
+    SAVE_STATE.busy=true;try{SAVE_STATE.lastAutosave=await writeSave("auto");SAVE_STATE.dirty=false;}catch(err){console.warn("Autosave failed",err);}finally{SAVE_STATE.busy=false;refreshSavesUI();}
+  }
+  function agoText(t){if(!t)return"never";const s=Math.round((Date.now()-t)/1000);if(s<60)return"just now";const m=Math.round(s/60);if(m<60)return`${m} min ago`;const h=Math.round(m/60);if(h<24)return`${h} h ago`;return new Date(t).toLocaleDateString();}
+  function timeText(t){const d=new Date(t);return d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});}
+  async function refreshSavesUI(){
+    const list=$("proSaveList"),status=$("proAutosaveStatus");if(!list)return;const ix=await saveIndex();
+    const items=[...ix.items].sort((a,b)=>b.time-a.time);const prev=list.value;
+    list.innerHTML=items.length?items.map(it=>`<option value="${escapeHtml(it.key)}">${it.kind==="auto"?"Autosave":"★ "+escapeHtml(it.name)} · ${timeText(it.time)}</option>`).join(""):'<option value="" disabled>No saves yet</option>';
+    if(prev&&items.some(it=>it.key===prev))list.value=prev;
+    if(status)status.textContent=`Autosave on · last ${agoText(SAVE_STATE.lastAutosave||(items.find(i=>i.kind==="auto")||{}).time)}${SAVE_STATE.unsavedSinceExplicit?" · unsaved changes":""}`;
+  }
+  async function openSave(key){if(!key)return;try{const p=await idbGet(key);if(!p){toast("That save could not be found");return;}await applyProject(p);SAVE_STATE.dirty=false;SAVE_STATE.unsavedSinceExplicit=key.startsWith("autosave:");toast("Save opened");refreshSavesUI();}catch(err){console.error(err);toast("Could not open that save");}}
+  function initSaves(){
+    const panel=document.querySelector(".utility-menu-panel");if(panel&&!$("proSaves")){
+      const box=document.createElement("div");box.id="proSaves";box.className="pro-saves";
+      box.innerHTML='<strong>Saves on this device</strong><div class="pro-saves-row"><button id="proSaveAs" class="button" type="button">Save as…</button><button id="proSaveOpen" class="button" type="button">Open</button><button id="proSaveDelete" class="button ghost" type="button">Delete</button></div><select id="proSaveList" size="6" aria-label="Saved projects on this device"></select><small id="proAutosaveStatus">Autosave on</small>';
+      panel.prepend(box);
+      $("proSaveAs").addEventListener("click",async()=>{const name=(prompt("Name this save:",`Shmung ${new Date().toLocaleDateString()}`)||"").trim();if(!name)return;try{await writeSave("named",name.slice(0,60));markProjectClean();toast(`Saved “${name}” on this device`);}catch(err){console.error(err);toast("Save failed — the browser may be out of space");}});
+      $("proSaveOpen").addEventListener("click",()=>openSave($("proSaveList").value));
+      $("proSaveList").addEventListener("dblclick",()=>openSave($("proSaveList").value));
+      $("proSaveDelete").addEventListener("click",async()=>{const key=$("proSaveList").value;if(!key)return;const ix=await saveIndex(),it=ix.items.find(i=>i.key===key);if(!it||!confirm(`Delete ${it.kind==="auto"?"this autosave":"“"+it.name+"”"}?`))return;await idbDel(key);await saveIndexUpdate(x=>{x.items=x.items.filter(i=>i.key!==key);});refreshSavesUI();});
+    }
+    setInterval(()=>autosaveNow("timer"),30000);
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")autosaveNow("hidden");});
+    // stop/after-play is a natural moment to save
+    $("stopBtn")?.addEventListener("click",()=>setTimeout(()=>autosaveNow("stop"),400));
+    window.addEventListener("beforeunload",ev=>{if(SAVE_STATE.unsavedSinceExplicit&&SAVE_STATE.dirty){ev.preventDefault();ev.returnValue="";}});
+    setInterval(refreshSavesUI,30000);
+    // offer recovery when the last session ended with unsaved work
+    saveIndex().then(ix=>{const auto=ix.items.filter(i=>i.kind==="auto").sort((a,b)=>b.time-a.time)[0];refreshSavesUI();
+      if(auto&&auto.time>(ix.lastExplicit||0)&&Date.now()-auto.time<14*864e5){const bar=document.createElement("div");bar.className="pro-recover";bar.innerHTML=`<span>Your last session was autosaved ${agoText(auto.time)} (${timeText(auto.time)}).</span><button class="button primary" type="button">Restore it</button><button class="button ghost" type="button">Dismiss</button>`;
+        document.body.appendChild(bar);const [r,d]=bar.querySelectorAll("button");r.addEventListener("click",async()=>{bar.remove();await openSave(auto.key);});d.addEventListener("click",()=>bar.remove());}});
+  }
+
+  /* ===== EXP 0.3.18 — 3. Record the master output to WAV ===== */
+  const REC={on:false,node:null,chunks:[],frames:0,sr:48000,start:0,timer:null,max:10*60};
+  const REC_WORKLET=`class ShmungRec extends AudioWorkletProcessor{constructor(){super();this.n=0;this.size=8192;this.L=new Float32Array(this.size);this.R=new Float32Array(this.size);this.on=true;this.port.onmessage=e=>{if(e.data==="flush"){this.flush();this.port.postMessage("done");this.on=false;}};}flush(){if(this.n){this.port.postMessage([this.L.slice(0,this.n),this.R.slice(0,this.n)]);this.n=0;}}process(inputs){const i=inputs[0];if(this.on&&i&&i.length){const l=i[0],r=i[1]||i[0];for(let k=0;k<l.length;k++){this.L[this.n]=l[k];this.R[this.n]=r[k];if(++this.n===this.size){this.port.postMessage([this.L.slice(),this.R.slice()]);this.n=0;}}}return this.on;}}registerProcessor("shmung-rec",ShmungRec);`;
+  async function recStart(){
+    await initAudio();const c=state.ctx,src=state.graph?.masterAnalyser;if(!c||!src){toast("Audio is not ready yet");return;}
+    if(!c.__shmungRecReady){const url=URL.createObjectURL(new Blob([REC_WORKLET],{type:"application/javascript"}));try{await c.audioWorklet.addModule(url);c.__shmungRecReady=true;}catch(err){console.error(err);toast("Recording is not supported in this browser");return;}finally{URL.revokeObjectURL(url);}}
+    REC.node=new AudioWorkletNode(c,"shmung-rec",{numberOfInputs:1,numberOfOutputs:0,channelCount:2,channelCountMode:"explicit",channelInterpretation:"speakers"});
+    REC.chunks=[];REC.frames=0;REC.sr=c.sampleRate;REC.on=true;REC.start=performance.now();
+    REC.node.port.onmessage=e=>{if(e.data==="done"){recFinish();return;}const[l,r]=e.data,n=l.length,pcm=new Int16Array(n*2);for(let k=0;k<n;k++){const a=Math.max(-1,Math.min(1,l[k])),b=Math.max(-1,Math.min(1,r[k]));pcm[2*k]=a<0?a*32768:a*32767;pcm[2*k+1]=b<0?b*32768:b*32767;}REC.chunks.push(pcm);REC.frames+=n;if(REC.frames/REC.sr>=REC.max)recStop();};
+    src.connect(REC.node);recUI();REC.timer=setInterval(recUI,250);toast("Recording everything you hear");
+  }
+  function recStop(){if(!REC.on||!REC.node)return;REC.on=false;clearInterval(REC.timer);try{REC.node.port.postMessage("flush");}catch(_){recFinish();}recUI();}
+  function recFinish(){
+    try{state.graph?.masterAnalyser?.disconnect(REC.node);}catch(_){}REC.node=null;
+    if(!REC.frames){toast("Nothing was recorded");recUI();return;}
+    const dataBytes=REC.frames*4,buf=new ArrayBuffer(44),v=new DataView(buf),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+    w(0,"RIFF");v.setUint32(4,36+dataBytes,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,2,true);v.setUint32(24,REC.sr,true);v.setUint32(28,REC.sr*4,true);v.setUint16(32,4,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,dataBytes,true);
+    const d=new Date(),stamp=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}`;
+    downloadBlob(new Blob([buf,...REC.chunks],{type:"audio/wav"}),`shmung_recording_${stamp}.wav`);
+    toast(`Recording saved · ${Math.round(REC.frames/REC.sr)} s`);REC.chunks=[];REC.frames=0;recUI();
+  }
+  function recUI(){const b=$("proRecBtn"),t=$("proRecTime");if(!b)return;b.classList.toggle("on",REC.on);b.setAttribute("aria-pressed",String(REC.on));b.title=REC.on?"Stop recording and download the WAV":"Record everything you hear to a WAV file";if(t){const s=Math.floor(REC.on?(performance.now()-REC.start)/1000:0);t.textContent=REC.on?`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`:"";t.hidden=!REC.on;}}
+  function initRecord(tries=0){
+    const tp=$("proTransport");if($("proRecBtn"))return;if(!tp){if(tries<100)setTimeout(()=>initRecord(tries+1),50);return;}
+    const b=document.createElement("button");b.id="proRecBtn";b.type="button";b.className="pro-tp-rec";b.setAttribute("aria-label","Record");b.textContent="●";
+    const t=document.createElement("span");t.id="proRecTime";t.className="pro-rec-time";t.hidden=true;
+    tp.querySelector(".pro-tp-stop").after(b,t);b.addEventListener("click",()=>REC.on?recStop():recStart().catch(err=>{console.error(err);toast("Recording could not start");}));recUI();
   }
 
   function init() {
