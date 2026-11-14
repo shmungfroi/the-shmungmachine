@@ -2,6 +2,11 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.19 — IPHONE, AUTO FILTER, SWING (13 Nov 2026)
+Plays with the iPhone silent switch on, resumes after app switching, installs to the home screen (manifest + icons), larger touch
+targets and no double-tap zoom on controls, safe-area padding; Effects rack Auto Filter LFO sweeps in octaves (live + export);
+swing goes to MPC 75% with an MPC-style readout and a 1/16 or 1/8 grid (old projects unchanged).
+
 EXP 0.3.18 — TIMING, AUTOSAVE, RECORD (13 Nov 2026)
 Sequenced synth/sampler notes (poly) start and release on the audio clock; autosave every 30 s when changed (5 rolling slots),
 recovery banner, named saves on this device, unsaved-changes warning on close; Record button captures the master output to WAV.
@@ -166,7 +171,15 @@ Validation: JavaScript syntax and randomized macro scheduling checks passed; sel
 Reference SHA256: 7bb539ca4268a833be098e9dfa7015782018a420cf09190e5d8d5909143a5045
 -->
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#18181b" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Shmung" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <meta name="theme-color" content="#f3c548" />
   <meta name="description" content="Shmung Machine EXP 0.3.13.1 — free browser groovebox: Daybreak live-input delay, pads, sampler, synth, sequencer, mixer and effects." />
   <style>
@@ -2357,7 +2370,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.18 Studio</title>
+  <title>Shmung Machine — EXP 0.3.19 Studio</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3022,7 +3035,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .tab-page h4,:root .tab-page strong{font-weight:600}
 :root .eyebrow{font-size:10px!important;letter-spacing:.12em!important;font-weight:600!important;color:var(--module,var(--muted))!important;text-transform:uppercase}
 :root label,
-:root .tab-page label>span:first-child,
+:root .tab-page label>span:first-child:not([id]),
 :root [class*="label"]:not(.toggle-row):not(.pad-label){
   font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted)}
 :root label input,:root label select,:root label output,:root label strong,:root label button,:root label [id$="Value"],:root label [class*="cue"],:root label [class*="switch"],:root label [class*="panel"]{text-transform:none;letter-spacing:0}
@@ -3380,6 +3393,30 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root .pro-transport .pro-tp-rec.on{background:var(--c-red)!important;border-color:var(--c-red)!important;color:#fff!important;animation:proRecPulse 1.2s ease-in-out infinite}
 @keyframes proRecPulse{50%{opacity:.6}}
 :root .pro-rec-time{font:600 11px/1 ui-monospace,Menlo,monospace;color:var(--c-red);min-width:34px}
+
+/* EXP 0.3.19: phones and touch */
+:root .topbar{padding-top:max(8px,env(safe-area-inset-top))!important;padding-left:max(16px,env(safe-area-inset-left))!important;padding-right:max(16px,env(safe-area-inset-right))!important}
+:root body{padding-bottom:env(safe-area-inset-bottom)}
+:root button,:root .pad,:root .pro-knob,:root .fx-knob,:root .mixer-rotary,:root input[type="range"],:root .seq-step,:root .key,:root select,:root .tab{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+:root .pad,:root .key,:root .seq-step,:root .pro-knob{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+@media (pointer:coarse){
+  :root .pro-transport button{width:40px;height:34px;font-size:13px!important}
+  :root .pro-knob{width:52px!important;height:52px!important}
+  :root .pro-knob:not(.sm){width:60px!important;height:60px!important}
+  :root .tab{padding:13px 14px 11px!important}
+  :root .button,:root select{min-height:38px!important}
+  :root input[type="range"]:not(.mixer-fader)::-webkit-slider-thumb{width:14px;height:22px;margin-top:-9.5px}
+}
+@media (max-width:700px){
+  :root .topbar{position:static!important;flex-wrap:wrap!important;gap:6px!important}
+  :root .top-actions{width:100%;margin-left:0!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+  :root .top-actions::-webkit-scrollbar{display:none}
+  :root .tabs{top:0!important}
+}
+:root .pad .pad-number,:root .pad .pad-name,:root .pad .pad-meta{position:static!important;transform:none!important}
+:root .pad .pad-meta{font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root .pad .pad-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:auto}
+@media (max-width:520px){:root .pad .pad-meta{display:none}:root .pad{padding:6px!important}}
 </style>
 
 </head>
@@ -3389,7 +3426,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.18 STUDIO</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.19 STUDIO</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -3919,7 +3956,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
         <div class="sequence-toolbar">
           <label>Sequence target<select id="sequenceTarget"><option value="drums">Drum machine</option><option value="sampler">Sampler</option><option value="synth">Synth</option></select></label>
           <label>Pattern length<select id="patternLength"><option value="1">1 bar</option><option value="2">2 bars</option><option value="4">4 bars</option><option value="8">8 bars</option><option value="16">16 bars</option><option value="32">32 bars</option></select></label>
-          <label>Swing <span id="swingValue">0%</span><input id="swingRange" type="range" min="0" max="70" value="0" /></label>
+          <label>Swing <span id="swingValue">50%</span><input id="swingRange" type="range" min="0" max="143" value="0" /></label>
+          <label>Swing on<select id="swingGrid"><option value="16">1/16 notes</option><option value="8">1/8 notes</option></select></label>
           <label>Melodic octave<select id="sequenceOctave"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
         </div>
         <div class="exp-sequence-navigation">
@@ -4306,7 +4344,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.18 Studio</span>
+    <span>Shmung Machine · EXP 0.3.19 Studio</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -4561,7 +4599,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   function cloneHistoryPad(p){ensureFxSendState(p);ensureFadeCurveState?.(p);return {name:p.name,buffer:p.buffer,mode:p.mode,gainDb:p.gainDb,pitch:p.pitch,trimStart:p.trimStart,trimEnd:p.trimEnd,reverse:!!p.reverse,pan:p.pan,chokeGroup:p.chokeGroup,muted:!!p.muted,solo:!!p.solo,daybreakSend:p.daybreakSend,sendMode:p.sendMode||"post",fxSends:{...p.fxSends},fxSendModes:{...p.fxSendModes},decayMs:p.decayMs,fadeInMs:p.fadeInMs,fadeOutMs:p.fadeOutMs,fadeCurve:p.fadeCurve,fadeInCurve:p.fadeInCurve,fadeOutCurve:p.fadeOutCurve,sourceName:p.sourceName,sliceMarkers:[...(p.sliceMarkers||[])]};}
   function cloneHistoryMixer(){const result={};for(const key of ["drumBus","sampler","synth","live","daybreakReturn","master"]){const d=state.mixer[key]||{};result[key]={...d,fxSends:d.fxSends?{...d.fxSends}:undefined,fxSendModes:d.fxSendModes?{...d.fxSendModes}:undefined};}return result;}
-  function captureHistoryState(){const db=state.daybreak;return {selectedPad:state.selectedPad,tempo:state.tempo,performanceTarget:state.performanceTarget,sampleRootMidi:state.sampleRootMidi,samplerProgram:{...state.samplerProgram},pads:state.pads.map(cloneHistoryPad),pattern:state.pattern.map(r=>[...r]),sampler:{...state.sampler},synth:{...state.synth},mixer:cloneHistoryMixer(),sequence:{target:state.sequence.target,bars:state.sequence.bars,storageVersion:4,editBar:state.sequence.editBar,follow:state.sequence.follow,length:state.sequence.length,swing:state.sequence.swing,record:state.sequence.record,octave:state.sequence.octave,sampler:[...state.sequence.sampler],synth:[...state.sequence.synth]},effects:{...state.effects},slice:{mode:state.slice.mode,sensitivity:state.slice.sensitivity,regions:state.slice.regions,minGapMs:state.slice.minGapMs,snapZero:state.slice.snapZero,startPad:state.slice.startPad,writeMode:state.slice.writeMode,keepSource:state.slice.keepSource,selectedSlice:state.slice.selectedSlice,sourcePadIndex:state.slice.sourcePadIndex},metronome:{levelDb:state.metronome.levelDb,meter:state.metronome.meter,inExport:state.metronome.inExport},daybreak:{monitor:db.monitor,inputTrimDb:db.inputTrimDb,inputDeviceId:db.inputDeviceId,inputChannel:db.inputChannel,timeMode:db.timeMode,subdivision:db.subdivision,freeTimeMs:db.freeTimeMs,feedback:db.feedback,mix:db.mix,hpfHz:db.hpfHz,lpfHz:db.lpfHz,autoFilterEnabled:db.autoFilterEnabled,autoFilterType:db.autoFilterType,autoFilterMode:db.autoFilterMode,autoFilterSubdivision:db.autoFilterSubdivision,autoFilterRate:db.autoFilterRate,autoFilterCenter:db.autoFilterCenter,autoFilterDepth:db.autoFilterDepth,autoFilterQ:db.autoFilterQ,autoFilterPosition:db.autoFilterPosition,autoFilterDirection:db.autoFilterDirection,transformMix:db.transformMix,character:db.character,returnDb:db.returnDb,fragmentLayer:db.fragmentLayer,freeze:db.freeze,fragmentMs:db.fragmentMs,density:db.density,scatter:db.scatter,pitchVariation:db.pitchVariation,stereo:db.stereo,colour:db.colour,allowReverse:db.allowReverse,shred:db.shred,crush:db.crush,ringMod:db.ringMod,burstCount:db.burstCount,characterLocks:{...(db.characterLocks||{})},toneSlope:db.toneSlope,toneRes:db.toneRes,fragmentFeedAmt:db.fragmentFeedAmt,fragmentSource:db.fragmentSource,fragmentLock:db.fragmentLock,stereoSpread:db.stereoSpread,pingPong:db.pingPong}};}
+  function captureHistoryState(){const db=state.daybreak;return {selectedPad:state.selectedPad,tempo:state.tempo,performanceTarget:state.performanceTarget,sampleRootMidi:state.sampleRootMidi,samplerProgram:{...state.samplerProgram},pads:state.pads.map(cloneHistoryPad),pattern:state.pattern.map(r=>[...r]),sampler:{...state.sampler},synth:{...state.synth},mixer:cloneHistoryMixer(),sequence:{target:state.sequence.target,bars:state.sequence.bars,storageVersion:4,editBar:state.sequence.editBar,follow:state.sequence.follow,length:state.sequence.length,swing:state.sequence.swing,swingGrid:state.sequence.swingGrid==="8"?"8":"16",record:state.sequence.record,octave:state.sequence.octave,sampler:[...state.sequence.sampler],synth:[...state.sequence.synth]},effects:{...state.effects},slice:{mode:state.slice.mode,sensitivity:state.slice.sensitivity,regions:state.slice.regions,minGapMs:state.slice.minGapMs,snapZero:state.slice.snapZero,startPad:state.slice.startPad,writeMode:state.slice.writeMode,keepSource:state.slice.keepSource,selectedSlice:state.slice.selectedSlice,sourcePadIndex:state.slice.sourcePadIndex},metronome:{levelDb:state.metronome.levelDb,meter:state.metronome.meter,inExport:state.metronome.inExport},daybreak:{monitor:db.monitor,inputTrimDb:db.inputTrimDb,inputDeviceId:db.inputDeviceId,inputChannel:db.inputChannel,timeMode:db.timeMode,subdivision:db.subdivision,freeTimeMs:db.freeTimeMs,feedback:db.feedback,mix:db.mix,hpfHz:db.hpfHz,lpfHz:db.lpfHz,autoFilterEnabled:db.autoFilterEnabled,autoFilterType:db.autoFilterType,autoFilterMode:db.autoFilterMode,autoFilterSubdivision:db.autoFilterSubdivision,autoFilterRate:db.autoFilterRate,autoFilterCenter:db.autoFilterCenter,autoFilterDepth:db.autoFilterDepth,autoFilterQ:db.autoFilterQ,autoFilterPosition:db.autoFilterPosition,autoFilterDirection:db.autoFilterDirection,transformMix:db.transformMix,character:db.character,returnDb:db.returnDb,fragmentLayer:db.fragmentLayer,freeze:db.freeze,fragmentMs:db.fragmentMs,density:db.density,scatter:db.scatter,pitchVariation:db.pitchVariation,stereo:db.stereo,colour:db.colour,allowReverse:db.allowReverse,shred:db.shred,crush:db.crush,ringMod:db.ringMod,burstCount:db.burstCount,characterLocks:{...(db.characterLocks||{})},toneSlope:db.toneSlope,toneRes:db.toneRes,fragmentFeedAmt:db.fragmentFeedAmt,fragmentSource:db.fragmentSource,fragmentLock:db.fragmentLock,stereoSpread:db.stereoSpread,pingPong:db.pingPong}};}
   function historySignature(snapshot){return JSON.stringify(snapshot,(key,value)=>key==="buffer"?(value?`audio:${value.duration}:${value.length}:${value.sampleRate}`:null):value);}
   function updateHistoryUI(){const u=$("undoBtn"),r=$("redoBtn");if(!u||!r)return;const undoItem=editHistory.undo.at(-1),redoItem=editHistory.redo.at(-1);u.disabled=!undoItem;r.disabled=!redoItem;u.textContent=undoItem?`↶ Undo ${undoItem.label}`:"↶ Undo";r.textContent=redoItem?`↷ Redo ${redoItem.label}`:"↷ Redo";u.title=undoItem?`Undo ${undoItem.label}`:"Nothing to undo";r.title=redoItem?`Redo ${redoItem.label}`:"Nothing to redo";u.classList.toggle("history-ready",!!undoItem);r.classList.toggle("history-ready",!!redoItem);}
   function beginHistory(label){if(editHistory.applying||editHistory.pending)return;const before=captureHistoryState();editHistory.pending={label:label||"change",before,signature:historySignature(before)};}
@@ -4856,7 +4894,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const autoFilter = c.createBiquadFilter();
     const autoFilterLfo = c.createOscillator();
     const autoFilterLfoGain = c.createGain();
-    autoFilterLfo.connect(autoFilterLfoGain).connect(autoFilter.frequency);
+    autoFilterLfo.connect(autoFilterLfoGain).connect(autoFilter.detune);
     autoFilterLfo.start();
     const shaper = c.createWaveShaper();
 
@@ -4974,7 +5012,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       g.autoFilter.Q.setTargetAtTime(clamp(e.autoFilterQ,.1,16),now,.02);
       g.autoFilterLfo.type = e.autoFilterDirection === "alternate" ? "sine" : "sawtooth";
       g.autoFilterLfo.frequency.setTargetAtTime(autoFilterRateHz(e),now,.02);
-      const sweep = clamp(e.autoFilterCenter,80,16000) * clamp(e.autoFilterDepth,0,1) * .88;
+      const sweep = clamp(e.autoFilterDepth,0,1) * DB_LFO_OCTAVES * 1200;
       g.autoFilterLfoGain.gain.setTargetAtTime(autoFilterDirectionGain(e.autoFilterDirection,sweep),now,.02);
     }
 
@@ -6356,7 +6394,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
 
   function secondsPerStep(){return 60/state.tempo/4;}
-  function scheduleStep(step,time){const generation=expSequenceGeneration,index=expSequenceIndex(step);const swing=(step%2?secondsPerStep()*state.sequence.swing*.35:0),t=time+swing;state.pattern.forEach((row,padIndex)=>{const velocity=normaliseStepVelocity(row[index]);if(velocity>0)playPad(padIndex,t,null,{fromSequencer:true,gainDb:20*Math.log10(velocity)});});const samplerMidi=state.sequence.sampler[index],synthMidi=state.sequence.synth[index],gate=secondsPerStep()*.78;if(samplerMidi!=null&&state.sampler.voiceMode==="poly"&&state.samplerProgram.buffer){seqScheduleSample(samplerMidi,t,gate);}else if(samplerMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;const v=startSampleNote(samplerMidi,.9,null,true);if(state.sampler.playMode!=="oneshot")setTimeout(()=>stopSampleNote(samplerMidi,v),gate*1000);},delay);}if(synthMidi!=null&&state.synth.voiceMode==="poly"){seqScheduleSynth(synthMidi,t,gate);}else if(synthMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;startSynthNote(synthMidi,.88,null,true);setTimeout(()=>{if(generation===expSequenceGeneration)stopSynthNote(synthMidi);},gate*1000);},delay);}const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;state.sequence.currentPlayStep=step;expPaintSequencePosition(step);},delay);}
+  function scheduleStep(step,time){const generation=expSequenceGeneration,index=expSequenceIndex(step);const swing=seqSwingOffset(step,secondsPerStep()),t=time+swing;state.pattern.forEach((row,padIndex)=>{const velocity=normaliseStepVelocity(row[index]);if(velocity>0)playPad(padIndex,t,null,{fromSequencer:true,gainDb:20*Math.log10(velocity)});});const samplerMidi=state.sequence.sampler[index],synthMidi=state.sequence.synth[index],gate=secondsPerStep()*.78;if(samplerMidi!=null&&state.sampler.voiceMode==="poly"&&state.samplerProgram.buffer){seqScheduleSample(samplerMidi,t,gate);}else if(samplerMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;const v=startSampleNote(samplerMidi,.9,null,true);if(state.sampler.playMode!=="oneshot")setTimeout(()=>stopSampleNote(samplerMidi,v),gate*1000);},delay);}if(synthMidi!=null&&state.synth.voiceMode==="poly"){seqScheduleSynth(synthMidi,t,gate);}else if(synthMidi!=null){const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;startSynthNote(synthMidi,.88,null,true);setTimeout(()=>{if(generation===expSequenceGeneration)stopSynthNote(synthMidi);},gate*1000);},delay);}const delay=Math.max(0,(t-state.ctx.currentTime)*1000);setTimeout(()=>{if(generation!==expSequenceGeneration||!state.sequencerTimer)return;state.sequence.currentPlayStep=step;expPaintSequencePosition(step);},delay);}
 
   async function exportPatternWav() {
     await initAudio();
@@ -6389,8 +6427,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     autoFilterFx.Q.value = clamp(state.effects.autoFilterQ,.1,16);
     autoFilterLfo.type = state.effects.autoFilterDirection === "alternate" ? "sine" : "sawtooth";
     autoFilterLfo.frequency.value = autoFilterRateHz(state.effects);
-    autoFilterLfoGain.gain.value = autoFilterDirectionGain(state.effects.autoFilterDirection,clamp(state.effects.autoFilterCenter,80,16000)*clamp(state.effects.autoFilterDepth,0,1)*.88);
-    autoFilterLfo.connect(autoFilterLfoGain).connect(autoFilterFx.frequency);
+    autoFilterLfoGain.gain.value = autoFilterDirectionGain(state.effects.autoFilterDirection,clamp(state.effects.autoFilterDepth,0,1)*DB_LFO_OCTAVES*1200);
+    autoFilterLfo.connect(autoFilterLfoGain).connect(autoFilterFx.detune);
     effectInputs.autoFilter.connect(autoFilterFx).connect(effectReturns.autoFilter).connect(master);
     autoFilterLfo.start(0);
 
@@ -6540,7 +6578,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     for (let bar=0;bar<bars;bar++) {
       for (let step=0;step<stepsPerBar;step++) {
         const index=expSequenceIndex((bar*stepsPerBar+step)%state.sequence.length);
-        const t=(bar*stepsPerBar+step)*stepDuration+(step%2?stepDuration*state.sequence.swing*.35:0);
+        const t=(bar*stepsPerBar+step)*stepDuration+seqSwingOffset(step,stepDuration);
         state.pattern.forEach((row,padIndex)=>{const velocity=normaliseStepVelocity(row[index]);if(velocity>0)schedulePadOffline(padIndex,t,velocity);});
 
         const sm=state.sequence.sampler[index];
@@ -7942,7 +7980,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     state.computerKeyboardTarget=safe;updateComputerKeyboardUI();
     toast(safe==="off"?"Computer keyboard off":`Computer keyboard → ${safe==="sample"?"Sampler":"Synth"}`);
   }
-  function syncInstrumentUI(){ensureMeterSequenceShape();const sm=state.sampler,sy=state.synth;const vals={samplePlayMode:sm.playMode,sampleVoiceMode:sm.voiceMode,sampleGlideTime:sm.glideMs,sampleCoarse:sm.coarse,sampleFine:sm.fineCents,sampleAttack:sm.attackMs,sampleDecay:sm.decayMs,sampleSustain:Math.round(sm.sustain*100),sampleRelease:sm.releaseMs,sampleFilterType:sm.filterType,sampleCutoff:sm.cutoff,sampleQ:sm.q,sampleFilterEnv:Math.round(sm.filterEnvAmount*100),sampleVelocity:Math.round(sm.velocityToLevel*100),sampleLevel:sm.levelDb,samplePosition:Math.round(sm.position*100),sampleSend:Math.round(sm.daybreakSend*100),synthWaveSelect:sy.wave,synthWave2Select:sy.wave2,synthOctaveSelect:sy.octave,synthVoiceMode:sy.voiceMode,synthGlideMode:sy.glideMode,synthGlideTime:sy.glideMs,synthAttack:sy.attackMs,synthDecay:sy.decayMs,synthSustain:Math.round(sy.sustain*100),synthRelease:sy.releaseMs,synthCutoff:sy.cutoff,synthRes:sy.q,synthEnvAmount:Math.round(sy.envAmount*100),synthDetune:sy.detune,synthLfoRate:sy.lfoRate,synthLfoDepth:sy.lfoDepth,synthLevel:sy.levelDb,synthSend:Math.round(sy.daybreakSend*100),sequenceTarget:state.sequence.target,patternLength:state.sequence.bars,swingRange:Math.round(state.sequence.swing*100),sequenceOctave:state.sequence.octave,performanceTarget:state.performanceTarget};for(const[id,v]of Object.entries(vals))if($(id))$(id).value=v;if($("sampleRootSelect"))$("sampleRootSelect").value=String(state.sampleRootMidi);$("sampleGlideEnabled").checked=sm.glideEnabled;if($("samplerReverse"))$("samplerReverse").checked=!!state.samplerProgram.reverse;$("synthGlideEnabled").checked=sy.glideEnabled;$("synthRetrigger").checked=sy.retrigger;$("seqRecordBtn").classList.toggle("seq-recording",state.sequence.record);$("seqRecordBtn").setAttribute("aria-pressed",String(state.sequence.record));$("swingValue").textContent=`${Math.round(state.sequence.swing*100)}%`;updateKeyboardSourceUI();updateSamplerLabels();updateSynthLabels();updateComputerKeyboardUI();}
+  function syncInstrumentUI(){ensureMeterSequenceShape();const sm=state.sampler,sy=state.synth;const vals={samplePlayMode:sm.playMode,sampleVoiceMode:sm.voiceMode,sampleGlideTime:sm.glideMs,sampleCoarse:sm.coarse,sampleFine:sm.fineCents,sampleAttack:sm.attackMs,sampleDecay:sm.decayMs,sampleSustain:Math.round(sm.sustain*100),sampleRelease:sm.releaseMs,sampleFilterType:sm.filterType,sampleCutoff:sm.cutoff,sampleQ:sm.q,sampleFilterEnv:Math.round(sm.filterEnvAmount*100),sampleVelocity:Math.round(sm.velocityToLevel*100),sampleLevel:sm.levelDb,samplePosition:Math.round(sm.position*100),sampleSend:Math.round(sm.daybreakSend*100),synthWaveSelect:sy.wave,synthWave2Select:sy.wave2,synthOctaveSelect:sy.octave,synthVoiceMode:sy.voiceMode,synthGlideMode:sy.glideMode,synthGlideTime:sy.glideMs,synthAttack:sy.attackMs,synthDecay:sy.decayMs,synthSustain:Math.round(sy.sustain*100),synthRelease:sy.releaseMs,synthCutoff:sy.cutoff,synthRes:sy.q,synthEnvAmount:Math.round(sy.envAmount*100),synthDetune:sy.detune,synthLfoRate:sy.lfoRate,synthLfoDepth:sy.lfoDepth,synthLevel:sy.levelDb,synthSend:Math.round(sy.daybreakSend*100),sequenceTarget:state.sequence.target,patternLength:state.sequence.bars,swingRange:Math.round(state.sequence.swing*100),sequenceOctave:state.sequence.octave,performanceTarget:state.performanceTarget};for(const[id,v]of Object.entries(vals))if($(id))$(id).value=v;if($("sampleRootSelect"))$("sampleRootSelect").value=String(state.sampleRootMidi);$("sampleGlideEnabled").checked=sm.glideEnabled;if($("samplerReverse"))$("samplerReverse").checked=!!state.samplerProgram.reverse;$("synthGlideEnabled").checked=sy.glideEnabled;$("synthRetrigger").checked=sy.retrigger;$("seqRecordBtn").classList.toggle("seq-recording",state.sequence.record);$("seqRecordBtn").setAttribute("aria-pressed",String(state.sequence.record));$("swingValue").textContent=`${swingPercent(state.sequence.swing)}%`;if($("swingGrid"))$("swingGrid").value=state.sequence.swingGrid==="8"?"8":"16";updateKeyboardSourceUI();updateSamplerLabels();updateSynthLabels();updateComputerKeyboardUI();}
   function currentPerformanceTarget(){return state.performanceTarget||"pads";}
   async function enableMidi(){if(!navigator.requestMIDIAccess){toast("Web MIDI is not available in this browser");return;}try{const access=await navigator.requestMIDIAccess();state.midi.access=access;const input=[...access.inputs.values()][0];if(!input){$("midiBtn").textContent="MIDI: no device";toast("No MIDI input found");return;}if(state.midi.input)state.midi.input.onmidimessage=null;state.midi.input=input;input.onmidimessage=handleMidi;$("midiBtn").textContent=`MIDI: ${input.name||"connected"}`;$("midiBtn").classList.add("midi-ready");access.onstatechange=()=>{const next=[...access.inputs.values()][0];if(next&&next!==state.midi.input){state.midi.input=next;next.onmidimessage=handleMidi;}};toast("MIDI enabled");}catch(e){console.error(e);toast("MIDI permission was not granted");}}
   function forgetMidiPadVoice(note, source) {
@@ -8119,7 +8157,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
     $("sequenceTarget").addEventListener("change",e=>{state.sequence.target=e.target.value;renderSequencer();});
     $("patternLength").addEventListener("change",e=>{if(state.sequencerTimer){e.target.value=String(state.sequence.bars);toast("Stop transport before changing pattern length");return;}state.sequence.bars=Number(e.target.value);ensureMeterSequenceShape();renderSequencer();});
-    $("swingRange").addEventListener("input",e=>{state.sequence.swing=Number(e.target.value)/100;$("swingValue").textContent=`${e.target.value}%`;});
+    $("swingRange").addEventListener("input",e=>{state.sequence.swing=Number(e.target.value)/100;$("swingValue").textContent=`${swingPercent(Number(e.target.value)/100)}%`;});
     $("sequenceOctave").addEventListener("change",e=>{state.sequence.octave=Number(e.target.value);renderSequencer();});
     $("seqRecordBtn").addEventListener("click",()=>{state.sequence.record=!state.sequence.record;$("seqRecordBtn").classList.toggle("seq-recording",state.sequence.record);$("seqRecordBtn").setAttribute("aria-pressed",String(state.sequence.record));toast(state.sequence.record?"Live record armed · press Play, then play to record":"Live record off");});
     $("clearPatternBtn").addEventListener("click",expClearSequenceTarget);
@@ -8450,6 +8488,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     initDaybreakEngineControls();
     initFxDelaySync();
     initSaves();
+    initSwingGrid();
+    initMobileAudio();
     setTimeout(initRecord,0);
     if(db.toneSlope!==24)db.toneSlope=12;db.toneRes=clamp(Number(db.toneRes)||0,0,1);db.characterLocks=db.characterLocks&&typeof db.characterLocks==="object"?db.characterLocks:{};
     daybreakProSync();
@@ -8666,6 +8706,33 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
     const b=document.createElement("button");b.id="proRecBtn";b.type="button";b.className="pro-tp-rec";b.setAttribute("aria-label","Record");b.textContent="●";
     const t=document.createElement("span");t.id="proRecTime";t.className="pro-rec-time";t.hidden=true;
     tp.querySelector(".pro-tp-stop").after(b,t);b.addEventListener("click",()=>REC.on?recStop():recStart().catch(err=>{console.error(err);toast("Recording could not start");}));recUI();
+  }
+  /* ===== EXP 0.3.19 — swing helpers ===== */
+  // state.sequence.swing keeps its original meaning (delay = swing × 0.35 of the swung note) so old projects sound the same;
+  // the readout is MPC-style: 50% straight, ~66% triplet feel, 75% hardest.
+  function swingPercent(s){return Math.round(50+clamp(Number(s)||0,0,1.43)*.35*50);}
+  function seqSwingOffset(step,stepDur){const s=clamp(Number(state.sequence.swing)||0,0,1.43)*.35;if(state.sequence.swingGrid==="8"){const q=step%4,m=q<2?q*(1+s):(2+2*s)+(q-2)*(1-s);return (m-q)*stepDur;}return step%2?stepDur*s:0;}
+  function initSwingGrid(){const g=$("swingGrid");if(!g||g.dataset.wired)return;g.dataset.wired="1";g.value=state.sequence.swingGrid==="8"?"8":"16";g.addEventListener("change",e=>{beginHistory("Swing grid");state.sequence.swingGrid=e.target.value==="8"?"8":"16";commitHistory();});const v=$("swingValue");if(v)v.textContent=`${swingPercent(state.sequence.swing)}%`;}
+
+  /* ===== EXP 0.3.19 — iPhone: play through the silent switch, resume after app switching ===== */
+  function initMobileAudio(){
+    const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+    let unlocked=false;
+    const unlock=()=>{
+      if(unlocked)return;unlocked=true;
+      try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(_){}
+      if(ios){
+        // A looping silent media element moves iOS audio into the "playback" category, so Web Audio is heard with the ringer off.
+        const sr=8000,n=sr,buf=new ArrayBuffer(44+n*2),v=new DataView(buf),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+        w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
+        const a=document.createElement("audio");a.src=URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));a.loop=true;a.setAttribute("playsinline","");a.setAttribute("x-webkit-airplay","deny");a.preload="auto";a.style.display="none";document.body.appendChild(a);
+        a.play().catch(()=>{unlocked=false;});
+      }
+      state.ctx?.resume?.().catch(()=>{});
+    };
+    ["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,unlock,{capture:true,passive:true}));
+    const wake=()=>{if(document.visibilityState==="visible"&&state.ctx&&state.ctx.state!=="running"&&state.ctx.state!=="closed")state.ctx.resume().catch(()=>{});};
+    document.addEventListener("visibilitychange",wake);window.addEventListener("pageshow",wake);window.addEventListener("focus",wake);
   }
 
   function init() {
