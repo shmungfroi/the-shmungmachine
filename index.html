@@ -2,6 +2,25 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.31 — PHONE KEYBOARDS (16 Nov 2026)
+Sampling Keyboard and Synth keys on phones: four octaves (C2–B5) at finger size (about 46 px white keys), roughly one
+octave on screen, with ‹ › octave buttons and the range shown between them. Moves by transform, so a glissando never
+shifts the keyboard.
+
+EXP 0.3.30 — PHONE SEQUENCER (16 Nov 2026)
+On phones the step grid comes first (under the heading and bar selector) with eight steps per screen: narrow row labels,
+snap to each beat group, and a bar with Drums / Sampler / Synth and 1–8 / 9–16 step pages. Settings and the transport box move
+below the grid; its Play/Stop is hidden (the top bar has them); bar copy compacted.
+
+EXP 0.3.29 — TOUCH WORDING + DOUBLE-TAP (16 Nov 2026)
+Help text says tap / double-tap instead of click / double-click. Two quick taps on a knob or the waveform now act as a
+double-click on touch screens (reset a knob, remove a slice marker, reset a fade curve). Guide updated to match.
+
+EXP 0.3.28 — PHONE MIXER (16 Nov 2026)
+On phones the mixer uses narrow upright strips (about four to a screen) with vertical faders and the eight sends as a 2×4
+knob grid; heading compacted and the overview map reduced to one row of Master / Performance / Drums jump buttons. Mixer
+faders now hold the page still while touched, like the knobs (all screens).
+
 EXP 0.3.27 — WIDE SCREENS (16 Nov 2026)
 On external and wide screens the top bar and crown tabs were a fixed 1380 px pinned to the left while the page centred.
 They now span the full width with their contents aligned to the centred page.
@@ -2407,7 +2426,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.27 Garden</title>
+  <title>Shmung Machine — EXP 0.3.31 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3740,6 +3759,112 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 :root:root:not(.phone) body:not(.daybreak-focus-mode) .topbar,:root:root:not(.phone) body:not(.daybreak-focus-mode) nav.tabs{
   width:auto!important;max-width:none!important;margin-left:0!important;margin-right:0!important;left:0!important;right:0!important;box-sizing:border-box!important;
   padding-left:max(18px,calc((100% - 1380px) / 2 + 18px))!important;padding-right:max(18px,calc((100% - 1380px) / 2 + 18px))!important}
+/* ===== EXP 0.3.28 PHONE MIXER — narrow upright strips, about four to a screen ===== */
+:root:root .mixer-strip .mixer-fader{touch-action:none!important}
+:root:root.phone #tab-mixer .mixer-console-panel{padding:12px 10px!important}
+:root:root.phone #tab-mixer .mixer-console-summary{flex-wrap:nowrap!important;align-items:center!important;margin-bottom:8px!important;gap:8px!important}
+:root:root.phone #tab-mixer .mixer-note .eyebrow{display:none}
+:root:root.phone #tab-mixer .mixer-note h2{font-size:1rem!important;margin:0!important;white-space:nowrap}
+:root:root.phone #tab-mixer .mixer-console-actions{display:flex!important;flex-wrap:nowrap!important;gap:5px!important;margin-left:auto}
+:root:root.phone #tab-mixer .mixer-console-actions .button{min-width:40px!important;width:auto!important;height:36px!important;min-height:36px!important;padding:0 10px!important;font-size:.78rem!important}
+:root:root.phone #tab-mixer .mixer-console-map{display:flex!important;gap:6px!important;margin:0 0 8px!important}
+:root:root.phone #tab-mixer .mixer-map-segment{flex:1 1 0!important;min-height:38px!important;height:38px!important;padding:0 6px!important;display:flex!important;align-items:center;justify-content:center;border-radius:10px!important}
+:root:root.phone #tab-mixer .mixer-map-segment span{display:none!important}
+:root:root.phone #tab-mixer .mixer-map-segment strong{font-size:.8rem!important;margin:0!important}
+:root:root.phone #tab-mixer .mixer-map-status{display:none!important}
+:root:root.phone #tab-mixer .mixer-console-viewport{scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+:root:root.phone #tab-mixer .mixer-console{gap:6px!important;padding:2px 0!important}
+:root:root.phone #tab-mixer .mixer-group-marker{flex:0 0 22px!important;width:22px!important;min-width:22px!important}
+:root:root.phone #tab-mixer .mixer-strip{display:flex!important;flex-direction:column!important;align-items:stretch!important;flex:0 0 84px!important;width:84px!important;min-width:84px!important;max-width:84px!important;
+  min-height:0!important;padding:8px 6px!important;gap:6px!important;grid-template-columns:none!important;scroll-snap-align:start}
+:root:root.phone #tab-mixer .mixer-strip>*{grid-column:auto!important;width:auto!important;max-width:100%!important;min-width:0!important;margin:0!important}
+:root:root.phone #tab-mixer .mixer-channel-head{display:block!important;min-height:30px}
+:root:root.phone #tab-mixer .mixer-channel-head b{display:block;font-size:.72rem!important;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root:root.phone #tab-mixer .mixer-channel-head small{display:block;font-size:.55rem!important;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.75}
+:root:root.phone #tab-mixer .mixer-channel-colour{display:none!important}
+:root:root.phone #tab-mixer .mixer-pan-control{display:grid!important;justify-items:center;gap:2px!important}
+:root:root.phone #tab-mixer .mixer-pan-control>span{font-size:.55rem!important}
+:root:root.phone #tab-mixer .mixer-level-core{display:grid!important;grid-template-columns:1fr 8px!important;gap:4px!important;height:170px!important}
+:root:root.phone #tab-mixer .mixer-fader-wrap{height:170px!important;display:flex;justify-content:center}
+:root:root.phone #tab-mixer .mixer-fader{writing-mode:vertical-lr!important;direction:rtl!important;width:36px!important;height:166px!important}
+:root:root.phone #tab-mixer .mixer-meter{height:166px!important;width:8px!important}
+:root:root.phone #tab-mixer .mixer-readout{text-align:center;font-size:.66rem!important}
+:root:root.phone #tab-mixer .mixer-buttons{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important}
+:root:root.phone #tab-mixer .mixer-mini{min-height:34px!important;height:34px!important;padding:0!important;font-size:.6rem!important;min-width:0!important}
+:root:root.phone #tab-mixer .mixer-send-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px 4px!important;justify-items:center}
+:root:root.phone #tab-mixer .mixer-send-cell{display:grid!important;justify-items:center;gap:1px}
+:root:root.phone #tab-mixer .mixer-send-cell output{display:none!important}
+:root:root.phone #tab-mixer .mixer-send-label{font-size:.5rem!important;padding:1px 3px!important;min-height:0!important}
+:root:root.phone #tab-mixer .mixer-rotary{width:32px!important;height:32px!important}
+:root:root.phone #tab-mixer .mixer-edit-pad{min-height:32px!important;height:32px!important;font-size:.6rem!important;padding:0 4px!important}
+:root:root.phone #tab-mixer .mixer-clip-dot{top:6px!important;right:6px!important}
+:root:root.phone.landscape #tab-mixer .mixer-console-map{display:none!important}
+:root:root.phone.landscape #tab-mixer .mixer-level-core,:root:root.phone.landscape #tab-mixer .mixer-fader-wrap{height:140px!important}
+:root:root.phone.landscape #tab-mixer .mixer-fader,:root:root.phone.landscape #tab-mixer .mixer-meter{height:136px!important}
+/* ===== EXP 0.3.30 PHONE SEQUENCER — grid first, eight steps per screen ===== */
+.seq-phone-bar{display:none}
+:root:root.phone #tab-sequencer .seq-header>div:first-child{position:sticky;left:0;z-index:3;background:rgb(22,19,13);align-self:stretch}
+:root:root.phone #tab-sequencer .seq-label{background:rgb(22,19,13)!important}
+:root:root.phone #tab-sequencer .seq-label span{display:none!important}
+:root:root.phone #tab-sequencer .seq-phone-bar .pager button{white-space:nowrap;padding:0 9px;flex:0 0 auto}
+:root:root.phone #tab-sequencer .seq-phone-bar .target button{padding:0 4px}
+:root:root.phone #tab-sequencer .exp-sequence-status{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:4px 10px!important;min-height:0!important}
+:root:root.phone #tab-sequencer .exp-sequence-status strong{font-size:.78rem!important}
+:root:root.phone #tab-sequencer .exp-sequence-status span{font-size:.72rem!important}
+:root:root.phone #tab-sequencer .exp-sequence-status label{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;margin-left:auto!important;font-size:.6rem!important;min-height:0!important}
+:root:root.phone #tab-sequencer #expBarOverview{margin:8px 0 0!important;gap:5px!important;flex-wrap:wrap}
+:root:root.phone #tab-sequencer .exp-bar-button{width:36px!important;height:34px!important;min-height:34px!important}
+:root:root.phone #tab-sequencer .exp-bar-copy label{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;white-space:nowrap}
+:root:root.phone #tab-sequencer .exp-bar-copy select{height:36px!important;min-height:36px!important;width:auto!important}
+:root:root.phone #tab-sequencer .exp-bar-copy{flex-wrap:wrap!important}
+:root:root.phone #tab-sequencer .exp-bar-copy .button{flex:1 1 100%!important;width:100%!important}
+:root:root.phone #tab-sequencer #sequencerGrid{padding-left:0!important}
+:root:root.phone #tab-sequencer .seq-phone-bar .pager[hidden]{display:none!important}
+:root:root.phone.landscape #tab-sequencer .exp-sequence-navigation{order:6}
+:root:root.phone.landscape #tab-sequencer #velocityLegend{order:7}
+:root:root.phone #tab-sequencer .sequencer-panel{display:flex!important;flex-direction:column!important;gap:10px!important;padding:12px 10px!important}
+:root:root.phone #tab-sequencer .sequencer-panel>.section-heading{order:0;margin:0!important;gap:8px!important}
+:root:root.phone #tab-sequencer .sequencer-panel>.section-heading .eyebrow{display:none}
+:root:root.phone #tab-sequencer .sequencer-panel>.section-heading h2{font-size:1rem!important}
+:root:root.phone #tab-sequencer .inline-controls{display:flex!important;flex-wrap:nowrap!important;gap:5px!important;width:100%}
+:root:root.phone #tab-sequencer .inline-controls .button{flex:1 1 0;min-width:0!important;height:38px!important;min-height:38px!important;padding:0 6px!important;font-size:.72rem!important;white-space:nowrap}
+:root:root.phone #tab-sequencer .exp-sequence-navigation{order:1;padding:8px 10px!important;margin:0!important}
+:root:root.phone #tab-sequencer .exp-bar-copy{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end;gap:6px!important;margin-top:6px!important}
+:root:root.phone #tab-sequencer .exp-bar-copy label{flex:1 1 auto;font-size:.6rem!important}
+:root:root.phone #tab-sequencer .exp-bar-copy .button{flex:0 0 auto;height:36px!important;min-height:36px!important;font-size:.68rem!important;padding:0 8px!important;width:auto!important}
+:root:root.phone #tab-sequencer .seq-phone-bar{order:2;display:flex;align-items:center;gap:6px}
+:root:root.phone #tab-sequencer #velocityLegend{order:3;margin:0!important;padding:6px 10px!important}
+:root:root.phone #tab-sequencer #sequencerGrid{order:4;margin:0!important;padding:6px 4px 8px!important;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
+:root:root.phone #tab-sequencer .sequence-toolbar{order:5;grid-template-columns:1fr 1fr!important;gap:8px!important;padding:10px!important}
+:root:root.phone #tab-sequencer .sequence-toolbar label{font-size:.62rem!important}
+:root:root.phone #tab-sequencer .sequence-toolbar select{height:36px!important;min-height:36px!important}
+:root:root.phone #tab-sequencer #globalTransportDock{order:6}
+:root:root.phone #tab-sequencer #globalTransportButtons{display:none!important}
+:root:root.phone #tab-sequencer .exp-bar-copy-phone{order:7}
+:root:root.phone #tab-sequencer .seq-row,:root:root.phone #tab-sequencer .seq-header{grid-template-columns:50px repeat(var(--seq-steps,16),31px)!important;column-gap:3px!important}
+:root:root.phone #tab-sequencer .melodic-grid .seq-row,:root:root.phone #tab-sequencer .melodic-grid .seq-header{grid-template-columns:50px repeat(var(--seq-steps,16),31px)!important}
+:root:root.phone #tab-sequencer .seq-label{width:50px!important;min-width:0!important;padding:0 4px!important;overflow:hidden;z-index:3}
+:root:root.phone #tab-sequencer .seq-label strong{font-size:.7rem!important}
+:root:root.phone #tab-sequencer .seq-label span{display:block;font-size:.5rem!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root:root.phone #tab-sequencer .seq-step{min-width:0!important;width:31px!important;height:34px!important;min-height:34px!important}
+:root:root.phone #tab-sequencer .seq-step.group-start{scroll-snap-align:start;scroll-margin-left:54px}
+:root:root.phone #tab-sequencer .sequencer-meter-ribbon{display:none!important}
+.seq-phone-bar .seg{display:flex;flex:1 1 auto;border:1px solid var(--line,rgba(201,162,74,.25));border-radius:10px;overflow:hidden}
+.seq-phone-bar .seg button{flex:1 1 0;min-height:38px;border:0;background:transparent;color:var(--ink,#efe6d2);font:inherit;font-size:.74rem;font-weight:700;padding:0 6px}
+.seq-phone-bar .seg button+button{border-left:1px solid var(--line,rgba(201,162,74,.2))}
+.seq-phone-bar .seg button.active{background:var(--module,#4d8fe0);color:#0d0b07}
+.seq-phone-bar .pager{flex:0 0 auto}
+/* ===== EXP 0.3.31 PHONE KEYBOARDS — finger-sized keys, one octave a screen, ‹ › octave stepping ===== */
+.kb-phone-wrap{display:contents}
+.kb-octave-bar{display:none}
+:root:root.phone .kb-phone-wrap{display:block;overflow:hidden;position:relative;border-radius:12px}
+:root:root.phone .kb-phone-wrap>.keyboard{width:calc(var(--kb-whites,28) * 46px)!important;max-width:none!important;min-width:0!important;height:210px!important;transition:transform .25s ease;will-change:transform}
+:root:root.phone .kb-phone-wrap>.keyboard .key.white{flex:1 1 0!important;min-width:0!important}
+:root:root.phone .kb-phone-wrap>.keyboard .key .key-label{font-size:.62rem!important}
+:root:root.phone .kb-octave-bar{display:flex;align-items:center;gap:8px;margin:8px 0}
+.kb-octave-bar button{min-width:52px;min-height:40px;border-radius:10px;border:1px solid var(--line,rgba(201,162,74,.25));background:transparent;color:var(--ink,#efe6d2);font-size:1.1rem;font-weight:700}
+.kb-octave-bar button:disabled{opacity:.3}
+.kb-octave-bar output{flex:1;text-align:center;font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--muted)}
 </style>
 
 </head>
@@ -3749,7 +3874,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.27 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.31 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4304,9 +4429,9 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
           <span><i class="velocity-dot soft"></i><b>Soft</b></span>
           <span><i class="velocity-dot medium"></i><b>Medium</b></span>
           <span><i class="velocity-dot hard"></i><b>Hard</b></span>
-          <small>Click a drum step repeatedly to cycle: off → soft → medium → hard.</small>
+          <small>Tap a drum step repeatedly to cycle: off → soft → medium → hard.</small>
         </div>
-        <p id="sequencerHelp" class="lead">Drums: each row controls one pad. Click repeatedly for three velocity levels, or arm Live Record, press Play, and play pads to write medium-velocity steps.</p>
+        <p id="sequencerHelp" class="lead">Drums: each row controls one pad. Tap repeatedly for three velocity levels, or arm Live Record, press Play, and play pads to write medium-velocity steps.</p>
         <div id="sequencerGrid" class="sequencer-grid"></div>
       </article>
     </section>
@@ -4342,7 +4467,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
             <span><i class="legend-meter"></i>Live level</span>
             <span><i class="legend-pre"></i>Pre-fader send</span>
             <span><i class="legend-post"></i>Post-fader send</span>
-            <span>Drag knobs vertically · double-click to reset · tap for exact send controls</span>
+            <span>Drag knobs up or down · double-tap to reset · tap for exact send controls</span>
           </div>
         </article>
       </div>
@@ -4723,7 +4848,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
             <ul>
               <li>Drag the labelled handles: <b>Start</b> and <b>End</b> trim the sound, <b>Fade in</b> / <b>Fade out</b> soften the edges, and the curve handle shapes the fade. The sliders underneath do the same thing.</li>
               <li><b>− / + / Fit</b> zoom in and out; <b>Pan view</b> slides along a long sample.</li>
-              <li><b>Edit</b> lets you move handles. <b>Audition</b> lets you tap anywhere on the waveform to hear it from that point; <b>Stop audition</b> silences it.</li>
+              <li>Double-tap a slice marker to remove it, or a curve handle to reset it. <b>Edit</b> lets you move handles. <b>Audition</b> lets you tap anywhere on the waveform to hear it from that point; <b>Stop audition</b> silences it.</li>
               <li><b>Fade curve</b> (Smooth, Linear, Steep) and <b>Maximum length</b> finish the shape.</li>
             </ul>
             <h4>Slice to pads</h4>
@@ -4803,7 +4928,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
               <li>Tap a send to switch <b>Pre</b> / <b>Post</b>. <b>Post-fader</b> sends follow the fader, so pulling the fader down also pulls down the effect. <b>Pre-fader</b> sends ignore it, so you can fade the dry sound out and leave only the effect.</li>
               <li><b>← →</b> scroll the console; <b>Reset mixer</b> puts everything back; <b>Edit pad</b> jumps to that pad's settings.</li>
             </ul>
-            <p class="sg-tip"><b>Knobs:</b> drag up to turn up, down to turn down. On a touch screen the page holds still while your finger is on a knob.</p>
+            <p class="sg-tip"><b>Knobs and faders:</b> drag up to turn up, down to turn down; double-tap a knob to reset it. On a touch screen the page holds still while your finger is on one.</p>
             <button class="button sg-go" type="button" data-go="mixer">Take me to the Mixer</button>
           </div>
         </details>
@@ -4871,7 +4996,8 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
           <div class="sg-body">
             <ul>
               <li>The modules live in the <b>crown bar</b> along the bottom, or down the left side when you turn the phone sideways. The slim bar at the top holds <b>Play</b>, <b>Stop</b>, <b>Record</b>, <b>MIDI</b> and <b>Project</b>.</li>
-              <li><b>Knobs:</b> drag up or down. The page stays still while your finger is on one, so you can turn it without scrolling away.</li>
+              <li><b>Knobs:</b> drag up or down; double-tap to reset. The page stays still while your finger is on a knob or fader, so you can turn it without scrolling away.</li>
+              <li><b>Keyboards</b> show about an octave at a time; <b>‹ ›</b> under the keys step through four octaves. The <b>Sequencer</b> shows eight steps at a time, with <b>1–8 / 9–16</b> and <b>Drums · Sampler · Synth</b> buttons above the grid. The <b>Mixer</b> shows narrow strips; swipe sideways for more channels.</li>
               <li><b>Sound:</b> tap the page once to wake it. iPhone plays with the silent switch on. Bluetooth headphones add a small delay; wired is tighter.</li>
               <li><b>Mic:</b> allow microphone access when asked, and use headphones with Daybreak to avoid feedback.</li>
               <li><b>Home screen:</b> in Safari, tap Share → <b>Add to Home Screen</b>. It then opens full-screen like an app.</li>
@@ -4954,7 +5080,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.27 Garden</span>
+    <span>Shmung Machine · EXP 0.3.31 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -6060,7 +6186,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     $("sliceAssignBtn").disabled=!source.buffer||count<2;$("sliceUndoBtn").disabled=!state.slice.undo;
     const selected=regions[clamp(state.slice.selectedSlice,0,Math.max(0,regions.length-1))];
     $("sliceSelection").innerHTML=selected?`<strong>Slice ${selected.index+1}</strong> · ${formatDurationSeconds(selected.endSeconds-selected.startSeconds)}`:`<strong>Slice 1</strong> · whole selection`;
-    $("sliceInstructions").textContent=state.slice.mode==="manual"?"Press Play, then tap any drum pad at each desired chop point. You can also click the waveform; drag markers to refine and double-click one to remove it.":state.slice.mode==="regions"?"Choose a region count, build the grid, then drag any purple marker to phrase the slices musically.":"Sensitivity finds attacks; minimum spacing prevents double-triggers. Drag markers, double-click to remove, then preview the mapping on the pads.";
+    $("sliceInstructions").textContent=state.slice.mode==="manual"?"Press Play, then tap any drum pad at each desired chop point. You can also tap the waveform; drag markers to refine and double-tap one to remove it.":state.slice.mode==="regions"?"Choose a region count, build the grid, then drag any purple marker to phrase the slices musically.":"Sensitivity finds attacks; minimum spacing prevents double-triggers. Drag markers, double-tap to remove, then preview the mapping on the pads.";
     $("waveformCanvas").classList.toggle("slice-editing",state.slice.mode==="manual");
     updatePadAccordionSummaries();
   }
@@ -6190,7 +6316,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     if(state.sampleEditorDrag)return;expStopAudition();expWaveView.mode=mode;
     for(const m of ['edit','audition']){const b=$('expWave'+(m==='edit'?'Edit':'Audition'));b.setAttribute('aria-pressed',String(mode===m));b.classList.toggle('active',mode===m);}
     $('waveformCanvas').style.cursor=mode==='audition'?'crosshair':'';
-    $('expWaveModeHelp').textContent=mode==='audition'?'Click or tap to hear from that position within the trim. Escape stops audition.':'Drag trim, fade, curve or slice handles. Manual slices: tap empty space to add a marker.';
+    $('expWaveModeHelp').textContent=mode==='audition'?'Tap to hear from that position within the trim. Stop audition (or Escape) silences it.':'Drag trim, fade, curve or slice handles. Manual slices: tap empty space to add a marker.';
   }
   function expSetNative(id,value){
     const el=$(id),min=Number(el.min),max=Number(el.max),step=Number(el.step)||1;
@@ -6706,7 +6832,8 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     let startMidi = 48, endMidi = 71;
     if (sourceType === "synth" || sourceType === "sample") {
       const viewportWidth = Math.max(container.clientWidth || 0, window.innerWidth || 0);
-      const octaves = viewportWidth >= 1580 ? 5 : viewportWidth >= 1180 ? 4 : viewportWidth >= 860 ? 3 : 2;
+      const phoneKeys = matchMedia('(max-width: 760px), (max-height: 500px) and (pointer: coarse)').matches && new URLSearchParams(location.search).get('layout') !== 'desktop';
+      const octaves = phoneKeys ? 4 : viewportWidth >= 1580 ? 5 : viewportWidth >= 1180 ? 4 : viewportWidth >= 860 ? 3 : 2; /* EXP 0.3.31: phones get 4 octaves to step through */
       startMidi = octaves >= 4 ? 36 : 48;
       endMidi = startMidi + octaves * 12 - 1;
     }
@@ -6997,12 +7124,12 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     const meterRibbon=document.createElement("div");meterRibbon.className="sequencer-meter-ribbon";meterRibbon.innerHTML=`<strong>${info.signature}</strong><span>${info.grouping}</span><span>${len} sixteenth-note steps</span>`;grid.appendChild(meterRibbon);
     const groupStarts=new Set(info.groups),head=document.createElement("div");head.className="seq-header";head.innerHTML="<div></div>"+Array.from({length:len},(_,i)=>`<div class="seq-header-cell ${i%info.beatSteps===0?'beat-start':''} ${groupStarts.has(i)?'group-start':''}">${i+1}</div>`).join("");grid.appendChild(head);
     if(target==="drums"){
-      state.pattern.forEach((row,padIndex)=>{const rowEl=document.createElement("div");rowEl.className="seq-row";const label=document.createElement("div");label.className="seq-label";label.innerHTML=`<strong>${String(padIndex+1).padStart(2,"0")}</strong><span>${state.pads[padIndex].name}</span>`;rowEl.appendChild(label);for(let step=0;step<len;step++){const rawVelocity=row[offset+step],velocity=normaliseStepVelocity(rawVelocity),b=document.createElement("button");b.className=`seq-step ${step%info.beatSteps===0?"beat":""} ${groupStarts.has(step)?"group-start":""}`;b.dataset.velocity=String(velocity);b.dataset.pad=padIndex;b.dataset.step=timeOffset+step;b.setAttribute("aria-label",`${state.pads[padIndex].name}, step ${step+1}, ${velocityName(velocity)} velocity`);b.title=`${velocityName(velocity)} velocity · click to cycle`;b.onclick=()=>{state.pattern[padIndex][offset+step]=nextStepVelocity(state.pattern[padIndex][offset+step]);renderSequencer();};rowEl.appendChild(b);}grid.appendChild(rowEl);});
+      state.pattern.forEach((row,padIndex)=>{const rowEl=document.createElement("div");rowEl.className="seq-row";const label=document.createElement("div");label.className="seq-label";label.innerHTML=`<strong>${String(padIndex+1).padStart(2,"0")}</strong><span>${state.pads[padIndex].name}</span>`;rowEl.appendChild(label);for(let step=0;step<len;step++){const rawVelocity=row[offset+step],velocity=normaliseStepVelocity(rawVelocity),b=document.createElement("button");b.className=`seq-step ${step%info.beatSteps===0?"beat":""} ${groupStarts.has(step)?"group-start":""}`;b.dataset.velocity=String(velocity);b.dataset.pad=padIndex;b.dataset.step=timeOffset+step;b.setAttribute("aria-label",`${state.pads[padIndex].name}, step ${step+1}, ${velocityName(velocity)} velocity`);b.title=`${velocityName(velocity)} velocity · tap to cycle`;b.onclick=()=>{state.pattern[padIndex][offset+step]=nextStepVelocity(state.pattern[padIndex][offset+step]);renderSequencer();};rowEl.appendChild(b);}grid.appendChild(rowEl);});
     }else{
       const base=(state.sequence.octave+1)*12,data=state.sequence[target];for(let n=11;n>=0;n--){const midi=base+n,row=document.createElement("div");row.className="seq-row";const label=document.createElement("div");label.className="seq-label";label.innerHTML=`<strong>${noteNames[n]}</strong><span>${Math.floor(midi/12)-1}</span>`;row.appendChild(label);for(let step=0;step<len;step++){const b=document.createElement("button");b.className=`seq-step ${step%info.beatSteps===0?"beat":""} ${groupStarts.has(step)?"group-start":""} ${data[offset+step]===midi?"note-on":""}`;b.dataset.step=timeOffset+step;b.dataset.midi=midi;b.onclick=()=>{data[offset+step]=data[offset+step]===midi?null:midi;renderSequencer();};row.appendChild(b);}grid.appendChild(row);}
     }
     expRenderBars();
-    $("sequencerHelp").textContent=(target==="drums"?"Drums: click each step repeatedly to cycle Off → Soft → Medium → Hard. ":`${target==="sampler"?"Sampler":"Synth"}: one note per step. `)+`Bar ${bar+1} of ${state.sequence.bars} · ${info.signature}: ${len} sixteenth-note steps, grouped ${info.grouping}.`;
+    $("sequencerHelp").textContent=(target==="drums"?"Drums: tap each step repeatedly to cycle Off → Soft → Medium → Hard. ":`${target==="sampler"?"Sampler":"Synth"}: one note per step. `)+`Bar ${bar+1} of ${state.sequence.bars} · ${info.signature}: ${len} sixteenth-note steps, grouped ${info.grouping}.`;
   }
 
   function secondsPerStep(){return 60/state.tempo/4;}
@@ -8452,7 +8579,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
       const previous=state.sampleEditorHover?.name||"";state.sampleEditorHover=target?{type:target.type,name:target.name,label:target.label}:null;
       canvas.classList.remove("editor-hover-trim","editor-hover-slice","editor-hover-fade","editor-hover-curve","editor-hover-body");
       if(target)canvas.classList.add(`editor-hover-${target.type}`);else if(state.slice.mode==="manual")canvas.classList.add("editor-hover-body");
-      canvas.title=target?`${target.label} · drag to adjust`:state.slice.mode==="manual"?"Click the waveform to add a slice marker":"Waveform display";
+      canvas.title=target?`${target.label} · drag to adjust`:state.slice.mode==="manual"?"Tap the waveform to add a slice marker":"Waveform display";
       if(label)label.textContent=target?`${target.label} · drag to adjust`:state.slice.mode==="manual"?"Tap empty waveform space to add a slice":"Touch or drag a labelled handle";
       if(previous!==(state.sampleEditorHover?.name||""))drawWaveform(state.pads[state.selectedPad]);
     };
@@ -9673,7 +9800,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
       btn.innerHTML='<i></i>'; btn.setAttribute('role','slider');
       const name=(input.getAttribute('aria-label')||(host.firstChild&&host.firstChild.textContent)||id).trim();
       btn.setAttribute('aria-label',name); btn.setAttribute('aria-valuemin',input.min||'0'); btn.setAttribute('aria-valuemax',input.max||'100');
-      btn.title='Drag up/down · double-click to reset';
+      btn.title='Drag up or down · double-tap to reset';
       input.classList.add('pro-knobbed'); host.classList.add('has-pro-knob'); if(size==='cell')host.classList.add('knob-cell'); input.insertAdjacentElement('beforebegin',btn); input._proKnob=btn; knobVisual(btn,input);
       input.addEventListener('input',()=>knobVisual(btn,input));
       let drag=null;
@@ -9799,6 +9926,71 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   function bindGo(){root.querySelectorAll('.sg-go').forEach(b=>{if(b.dataset.bound)return;b.dataset.bound='1';b.addEventListener('click',()=>{document.querySelector('.tab[data-tab="'+b.dataset.go+'"]')?.click();scrollTo({top:0,behavior:'smooth'});});});}
   bindGo();
   root.querySelectorAll('.sg-chips a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(!t)return;if(q.value){q.value='';run();}t.open=true;t.scrollIntoView({behavior:'smooth',block:'start'});}));
+})();
+</script>
+<script>
+/* EXP 0.3.29: double-tap = double-click on touch screens, for knobs and the waveform (reset a knob, remove a slice marker,
+   reset a fade curve). iPhone doesn't send a reliable dblclick from these, so two taps within 320 ms are turned into one. */
+(()=>{const SEL='.mixer-rotary,.pro-knob,.fx-knob,[data-rotary-for],#waveformCanvas';let last=null,synthAt=0;
+  document.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')return;const el=e.target.closest?.(SEL);if(!el){last=null;return;}
+    const now=performance.now();
+    if(last&&last.el===el&&now-last.t<320&&Math.hypot(e.clientX-last.x,e.clientY-last.y)<28){last=null;synthAt=now;
+      el.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,view:window}));}
+    else last={el,t:now,x:e.clientX,y:e.clientY};},true);
+  document.addEventListener('dblclick',e=>{if(e.isTrusted&&performance.now()-synthAt<450&&e.target.closest?.(SEL))e.stopImmediatePropagation();},true);
+})();
+</script>
+<script>
+/* EXP 0.3.30: phone sequencer bar — target switch and step pages (8 steps each), kept in step with the real controls */
+(()=>{const grid=document.getElementById('sequencerGrid'),sel=document.getElementById('sequenceTarget');if(!grid||!sel)return;
+  const bar=document.createElement('div');bar.className='seq-phone-bar';
+  bar.innerHTML='<div class="seg target" role="group" aria-label="Sequence target"><button type="button" data-t="drums">Drums</button><button type="button" data-t="sampler">Sampler</button><button type="button" data-t="synth">Synth</button></div><div class="seg pager" role="group" aria-label="Steps shown"></div>';
+  grid.parentElement.insertBefore(bar,grid);
+  const tgt=bar.querySelector('.target'),pager=bar.querySelector('.pager');
+  [...tgt.children].forEach(b=>{const o=[...sel.options].find(o=>o.value===b.dataset.t||o.textContent.toLowerCase().startsWith(b.dataset.t.slice(0,4)));if(o)b.dataset.v=o.value;else b.remove();});
+  const steps=()=>[...(grid.querySelector('.seq-row')?.querySelectorAll('.seq-step')||[])];
+  const pitch=()=>{const st=steps();return st.length>1?st[1].offsetLeft-st[0].offsetLeft:34;};
+  let per=8;
+  const fit=()=>{if(!grid.clientWidth)return per;const pt=pitch()||34;const room=grid.clientWidth-54;const n=steps().length||16;let k=Math.floor(room/pt);k=k>=n?n:Math.max(4,k-k%4);return k;};
+  function syncTarget(){[...tgt.children].forEach(b=>b.classList.toggle('active',b.dataset.v===sel.value));}
+  function buildPager(){const n=steps().length;grid.style.setProperty('--seq-steps',n||16);per=fit();const pages=Math.max(1,Math.ceil(n/per));
+    const key=n+'/'+per;if(pager.dataset.n===key){markPage();return;}pager.dataset.n=key;pager.innerHTML='';
+    for(let k=0;k<pages;k++){const b=document.createElement('button');b.type='button';b.textContent=(k*per+1)+'–'+Math.min(n,(k+1)*per);b.dataset.p=k;pager.append(b);}
+    pager.hidden=pages<2;markPage();}
+  function markPage(){const p=Math.round(grid.scrollLeft/(pitch()*per));[...pager.children].forEach(b=>b.classList.toggle('active',+b.dataset.p===p));}
+  tgt.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event('input',{bubbles:true}));sel.dispatchEvent(new Event('change',{bubbles:true}));syncTarget();});
+  pager.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;grid.scrollTo({left:+b.dataset.p*pitch()*per,behavior:'smooth'});});
+  grid.addEventListener('scroll',()=>{clearTimeout(grid._pg);grid._pg=setTimeout(markPage,80);},{passive:true});
+  sel.addEventListener('change',()=>{syncTarget();setTimeout(buildPager,0);});
+  new MutationObserver(()=>buildPager()).observe(grid,{childList:true});
+  new ResizeObserver(()=>{if(!grid.clientWidth)return;clearTimeout(grid._rs);grid._rs=setTimeout(buildPager,60);}).observe(grid);
+  syncTarget();buildPager();
+})();
+</script>
+<script>
+/* EXP 0.3.31: phone keyboards — wrap each in a viewport the width of the screen, step by octave with ‹ ›.
+   Uses a transform (not scrolling) so a glissando across the keys never moves the keyboard. */
+(()=>{const ids=['sampleKeyboard','synthKeyboard'];const names=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  function setup(id){const kb=document.getElementById(id);if(!kb||kb.dataset.phoneWrap)return !!kb?.dataset.phoneWrap;
+    const whites=[...kb.querySelectorAll('.key.white')];if(!whites.length)return false;kb.dataset.phoneWrap='1';
+    const wrap=document.createElement('div');wrap.className='kb-phone-wrap';kb.parentNode.insertBefore(wrap,kb);wrap.append(kb);
+    kb.style.setProperty('--kb-whites',whites.length);
+    const bar=document.createElement('div');bar.className='kb-octave-bar';bar.innerHTML='<button type="button" aria-label="Octave down">‹</button><output></output><button type="button" aria-label="Octave up">›</button>';
+    wrap.parentNode.insertBefore(bar,wrap.nextSibling);
+    const [dn,up]=bar.querySelectorAll('button'),out=bar.querySelector('output');
+    const cs=whites.map((k,i)=>({i,m:+k.dataset.midi})).filter(o=>o.m%12===0);
+    let at=Math.max(0,cs.findIndex(o=>o.m===48));if(at<0)at=0;
+    function show(){if(!document.documentElement.classList.contains('phone')){kb.style.transform='';return;}
+      const kw=whites[0].getBoundingClientRect().width||46;const view=wrap.clientWidth||kw*8;const total=kw*whites.length;
+      let x=cs[at].i*kw;x=Math.min(x,Math.max(0,total-view));kb.style.transform=`translateX(${-x}px)`;
+      const first=cs[at].m,lastVis=whites[Math.min(whites.length-1,cs[at].i+Math.floor(view/kw)-1)].dataset.midi;
+      out.textContent=`${names[first%12]}${Math.floor(first/12)-1} – ${names[lastVis%12]}${Math.floor(lastVis/12)-1}`;
+      dn.disabled=at===0;up.disabled=at===cs.length-1;}
+    dn.addEventListener('click',()=>{if(at>0){at--;show();}});up.addEventListener('click',()=>{if(at<cs.length-1){at++;show();}});
+    new ResizeObserver(show).observe(wrap);new MutationObserver(show).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    show();return true;}
+  let tries=0;const go=()=>{const done=ids.map(setup).every(Boolean);if(!done&&tries++<40)setTimeout(go,150);};
+  if(document.readyState==='loading')addEventListener('DOMContentLoaded',go);else go();
 })();
 </script>
 </body>
