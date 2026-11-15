@@ -2,6 +2,10 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.29 — TOUCH WORDING + DOUBLE-TAP (16 Nov 2026)
+Help text says tap / double-tap instead of click / double-click. Two quick taps on a knob or the waveform now act as a
+double-click on touch screens (reset a knob, remove a slice marker, reset a fade curve). Guide updated to match.
+
 EXP 0.3.28 — PHONE MIXER (16 Nov 2026)
 On phones the mixer uses narrow upright strips (about four to a screen) with vertical faders and the eight sends as a 2×4
 knob grid; heading compacted and the overview map reduced to one row of Master / Performance / Drums jump buttons. Mixer
@@ -2412,7 +2416,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.28 Garden</title>
+  <title>Shmung Machine — EXP 0.3.29 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3796,7 +3800,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.28 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.29 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4351,9 +4355,9 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
           <span><i class="velocity-dot soft"></i><b>Soft</b></span>
           <span><i class="velocity-dot medium"></i><b>Medium</b></span>
           <span><i class="velocity-dot hard"></i><b>Hard</b></span>
-          <small>Click a drum step repeatedly to cycle: off → soft → medium → hard.</small>
+          <small>Tap a drum step repeatedly to cycle: off → soft → medium → hard.</small>
         </div>
-        <p id="sequencerHelp" class="lead">Drums: each row controls one pad. Click repeatedly for three velocity levels, or arm Live Record, press Play, and play pads to write medium-velocity steps.</p>
+        <p id="sequencerHelp" class="lead">Drums: each row controls one pad. Tap repeatedly for three velocity levels, or arm Live Record, press Play, and play pads to write medium-velocity steps.</p>
         <div id="sequencerGrid" class="sequencer-grid"></div>
       </article>
     </section>
@@ -4389,7 +4393,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
             <span><i class="legend-meter"></i>Live level</span>
             <span><i class="legend-pre"></i>Pre-fader send</span>
             <span><i class="legend-post"></i>Post-fader send</span>
-            <span>Drag knobs vertically · double-click to reset · tap for exact send controls</span>
+            <span>Drag knobs up or down · double-tap to reset · tap for exact send controls</span>
           </div>
         </article>
       </div>
@@ -4770,7 +4774,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
             <ul>
               <li>Drag the labelled handles: <b>Start</b> and <b>End</b> trim the sound, <b>Fade in</b> / <b>Fade out</b> soften the edges, and the curve handle shapes the fade. The sliders underneath do the same thing.</li>
               <li><b>− / + / Fit</b> zoom in and out; <b>Pan view</b> slides along a long sample.</li>
-              <li><b>Edit</b> lets you move handles. <b>Audition</b> lets you tap anywhere on the waveform to hear it from that point; <b>Stop audition</b> silences it.</li>
+              <li>Double-tap a slice marker to remove it, or a curve handle to reset it. <b>Edit</b> lets you move handles. <b>Audition</b> lets you tap anywhere on the waveform to hear it from that point; <b>Stop audition</b> silences it.</li>
               <li><b>Fade curve</b> (Smooth, Linear, Steep) and <b>Maximum length</b> finish the shape.</li>
             </ul>
             <h4>Slice to pads</h4>
@@ -4850,7 +4854,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
               <li>Tap a send to switch <b>Pre</b> / <b>Post</b>. <b>Post-fader</b> sends follow the fader, so pulling the fader down also pulls down the effect. <b>Pre-fader</b> sends ignore it, so you can fade the dry sound out and leave only the effect.</li>
               <li><b>← →</b> scroll the console; <b>Reset mixer</b> puts everything back; <b>Edit pad</b> jumps to that pad's settings.</li>
             </ul>
-            <p class="sg-tip"><b>Knobs:</b> drag up to turn up, down to turn down. On a touch screen the page holds still while your finger is on a knob.</p>
+            <p class="sg-tip"><b>Knobs and faders:</b> drag up to turn up, down to turn down; double-tap a knob to reset it. On a touch screen the page holds still while your finger is on one.</p>
             <button class="button sg-go" type="button" data-go="mixer">Take me to the Mixer</button>
           </div>
         </details>
@@ -4918,7 +4922,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
           <div class="sg-body">
             <ul>
               <li>The modules live in the <b>crown bar</b> along the bottom, or down the left side when you turn the phone sideways. The slim bar at the top holds <b>Play</b>, <b>Stop</b>, <b>Record</b>, <b>MIDI</b> and <b>Project</b>.</li>
-              <li><b>Knobs:</b> drag up or down. The page stays still while your finger is on one, so you can turn it without scrolling away.</li>
+              <li><b>Knobs:</b> drag up or down; double-tap to reset. The page stays still while your finger is on a knob or fader, so you can turn it without scrolling away.</li>
               <li><b>Sound:</b> tap the page once to wake it. iPhone plays with the silent switch on. Bluetooth headphones add a small delay; wired is tighter.</li>
               <li><b>Mic:</b> allow microphone access when asked, and use headphones with Daybreak to avoid feedback.</li>
               <li><b>Home screen:</b> in Safari, tap Share → <b>Add to Home Screen</b>. It then opens full-screen like an app.</li>
@@ -5001,7 +5005,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.28 Garden</span>
+    <span>Shmung Machine · EXP 0.3.29 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -6107,7 +6111,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     $("sliceAssignBtn").disabled=!source.buffer||count<2;$("sliceUndoBtn").disabled=!state.slice.undo;
     const selected=regions[clamp(state.slice.selectedSlice,0,Math.max(0,regions.length-1))];
     $("sliceSelection").innerHTML=selected?`<strong>Slice ${selected.index+1}</strong> · ${formatDurationSeconds(selected.endSeconds-selected.startSeconds)}`:`<strong>Slice 1</strong> · whole selection`;
-    $("sliceInstructions").textContent=state.slice.mode==="manual"?"Press Play, then tap any drum pad at each desired chop point. You can also click the waveform; drag markers to refine and double-click one to remove it.":state.slice.mode==="regions"?"Choose a region count, build the grid, then drag any purple marker to phrase the slices musically.":"Sensitivity finds attacks; minimum spacing prevents double-triggers. Drag markers, double-click to remove, then preview the mapping on the pads.";
+    $("sliceInstructions").textContent=state.slice.mode==="manual"?"Press Play, then tap any drum pad at each desired chop point. You can also tap the waveform; drag markers to refine and double-tap one to remove it.":state.slice.mode==="regions"?"Choose a region count, build the grid, then drag any purple marker to phrase the slices musically.":"Sensitivity finds attacks; minimum spacing prevents double-triggers. Drag markers, double-tap to remove, then preview the mapping on the pads.";
     $("waveformCanvas").classList.toggle("slice-editing",state.slice.mode==="manual");
     updatePadAccordionSummaries();
   }
@@ -6237,7 +6241,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     if(state.sampleEditorDrag)return;expStopAudition();expWaveView.mode=mode;
     for(const m of ['edit','audition']){const b=$('expWave'+(m==='edit'?'Edit':'Audition'));b.setAttribute('aria-pressed',String(mode===m));b.classList.toggle('active',mode===m);}
     $('waveformCanvas').style.cursor=mode==='audition'?'crosshair':'';
-    $('expWaveModeHelp').textContent=mode==='audition'?'Click or tap to hear from that position within the trim. Escape stops audition.':'Drag trim, fade, curve or slice handles. Manual slices: tap empty space to add a marker.';
+    $('expWaveModeHelp').textContent=mode==='audition'?'Tap to hear from that position within the trim. Stop audition (or Escape) silences it.':'Drag trim, fade, curve or slice handles. Manual slices: tap empty space to add a marker.';
   }
   function expSetNative(id,value){
     const el=$(id),min=Number(el.min),max=Number(el.max),step=Number(el.step)||1;
@@ -7044,12 +7048,12 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     const meterRibbon=document.createElement("div");meterRibbon.className="sequencer-meter-ribbon";meterRibbon.innerHTML=`<strong>${info.signature}</strong><span>${info.grouping}</span><span>${len} sixteenth-note steps</span>`;grid.appendChild(meterRibbon);
     const groupStarts=new Set(info.groups),head=document.createElement("div");head.className="seq-header";head.innerHTML="<div></div>"+Array.from({length:len},(_,i)=>`<div class="seq-header-cell ${i%info.beatSteps===0?'beat-start':''} ${groupStarts.has(i)?'group-start':''}">${i+1}</div>`).join("");grid.appendChild(head);
     if(target==="drums"){
-      state.pattern.forEach((row,padIndex)=>{const rowEl=document.createElement("div");rowEl.className="seq-row";const label=document.createElement("div");label.className="seq-label";label.innerHTML=`<strong>${String(padIndex+1).padStart(2,"0")}</strong><span>${state.pads[padIndex].name}</span>`;rowEl.appendChild(label);for(let step=0;step<len;step++){const rawVelocity=row[offset+step],velocity=normaliseStepVelocity(rawVelocity),b=document.createElement("button");b.className=`seq-step ${step%info.beatSteps===0?"beat":""} ${groupStarts.has(step)?"group-start":""}`;b.dataset.velocity=String(velocity);b.dataset.pad=padIndex;b.dataset.step=timeOffset+step;b.setAttribute("aria-label",`${state.pads[padIndex].name}, step ${step+1}, ${velocityName(velocity)} velocity`);b.title=`${velocityName(velocity)} velocity · click to cycle`;b.onclick=()=>{state.pattern[padIndex][offset+step]=nextStepVelocity(state.pattern[padIndex][offset+step]);renderSequencer();};rowEl.appendChild(b);}grid.appendChild(rowEl);});
+      state.pattern.forEach((row,padIndex)=>{const rowEl=document.createElement("div");rowEl.className="seq-row";const label=document.createElement("div");label.className="seq-label";label.innerHTML=`<strong>${String(padIndex+1).padStart(2,"0")}</strong><span>${state.pads[padIndex].name}</span>`;rowEl.appendChild(label);for(let step=0;step<len;step++){const rawVelocity=row[offset+step],velocity=normaliseStepVelocity(rawVelocity),b=document.createElement("button");b.className=`seq-step ${step%info.beatSteps===0?"beat":""} ${groupStarts.has(step)?"group-start":""}`;b.dataset.velocity=String(velocity);b.dataset.pad=padIndex;b.dataset.step=timeOffset+step;b.setAttribute("aria-label",`${state.pads[padIndex].name}, step ${step+1}, ${velocityName(velocity)} velocity`);b.title=`${velocityName(velocity)} velocity · tap to cycle`;b.onclick=()=>{state.pattern[padIndex][offset+step]=nextStepVelocity(state.pattern[padIndex][offset+step]);renderSequencer();};rowEl.appendChild(b);}grid.appendChild(rowEl);});
     }else{
       const base=(state.sequence.octave+1)*12,data=state.sequence[target];for(let n=11;n>=0;n--){const midi=base+n,row=document.createElement("div");row.className="seq-row";const label=document.createElement("div");label.className="seq-label";label.innerHTML=`<strong>${noteNames[n]}</strong><span>${Math.floor(midi/12)-1}</span>`;row.appendChild(label);for(let step=0;step<len;step++){const b=document.createElement("button");b.className=`seq-step ${step%info.beatSteps===0?"beat":""} ${groupStarts.has(step)?"group-start":""} ${data[offset+step]===midi?"note-on":""}`;b.dataset.step=timeOffset+step;b.dataset.midi=midi;b.onclick=()=>{data[offset+step]=data[offset+step]===midi?null:midi;renderSequencer();};row.appendChild(b);}grid.appendChild(row);}
     }
     expRenderBars();
-    $("sequencerHelp").textContent=(target==="drums"?"Drums: click each step repeatedly to cycle Off → Soft → Medium → Hard. ":`${target==="sampler"?"Sampler":"Synth"}: one note per step. `)+`Bar ${bar+1} of ${state.sequence.bars} · ${info.signature}: ${len} sixteenth-note steps, grouped ${info.grouping}.`;
+    $("sequencerHelp").textContent=(target==="drums"?"Drums: tap each step repeatedly to cycle Off → Soft → Medium → Hard. ":`${target==="sampler"?"Sampler":"Synth"}: one note per step. `)+`Bar ${bar+1} of ${state.sequence.bars} · ${info.signature}: ${len} sixteenth-note steps, grouped ${info.grouping}.`;
   }
 
   function secondsPerStep(){return 60/state.tempo/4;}
@@ -8499,7 +8503,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
       const previous=state.sampleEditorHover?.name||"";state.sampleEditorHover=target?{type:target.type,name:target.name,label:target.label}:null;
       canvas.classList.remove("editor-hover-trim","editor-hover-slice","editor-hover-fade","editor-hover-curve","editor-hover-body");
       if(target)canvas.classList.add(`editor-hover-${target.type}`);else if(state.slice.mode==="manual")canvas.classList.add("editor-hover-body");
-      canvas.title=target?`${target.label} · drag to adjust`:state.slice.mode==="manual"?"Click the waveform to add a slice marker":"Waveform display";
+      canvas.title=target?`${target.label} · drag to adjust`:state.slice.mode==="manual"?"Tap the waveform to add a slice marker":"Waveform display";
       if(label)label.textContent=target?`${target.label} · drag to adjust`:state.slice.mode==="manual"?"Tap empty waveform space to add a slice":"Touch or drag a labelled handle";
       if(previous!==(state.sampleEditorHover?.name||""))drawWaveform(state.pads[state.selectedPad]);
     };
@@ -9720,7 +9724,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
       btn.innerHTML='<i></i>'; btn.setAttribute('role','slider');
       const name=(input.getAttribute('aria-label')||(host.firstChild&&host.firstChild.textContent)||id).trim();
       btn.setAttribute('aria-label',name); btn.setAttribute('aria-valuemin',input.min||'0'); btn.setAttribute('aria-valuemax',input.max||'100');
-      btn.title='Drag up/down · double-click to reset';
+      btn.title='Drag up or down · double-tap to reset';
       input.classList.add('pro-knobbed'); host.classList.add('has-pro-knob'); if(size==='cell')host.classList.add('knob-cell'); input.insertAdjacentElement('beforebegin',btn); input._proKnob=btn; knobVisual(btn,input);
       input.addEventListener('input',()=>knobVisual(btn,input));
       let drag=null;
@@ -9846,6 +9850,18 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   function bindGo(){root.querySelectorAll('.sg-go').forEach(b=>{if(b.dataset.bound)return;b.dataset.bound='1';b.addEventListener('click',()=>{document.querySelector('.tab[data-tab="'+b.dataset.go+'"]')?.click();scrollTo({top:0,behavior:'smooth'});});});}
   bindGo();
   root.querySelectorAll('.sg-chips a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(!t)return;if(q.value){q.value='';run();}t.open=true;t.scrollIntoView({behavior:'smooth',block:'start'});}));
+})();
+</script>
+<script>
+/* EXP 0.3.29: double-tap = double-click on touch screens, for knobs and the waveform (reset a knob, remove a slice marker,
+   reset a fade curve). iPhone doesn't send a reliable dblclick from these, so two taps within 320 ms are turned into one. */
+(()=>{const SEL='.mixer-rotary,.pro-knob,.fx-knob,[data-rotary-for],#waveformCanvas';let last=null,synthAt=0;
+  document.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')return;const el=e.target.closest?.(SEL);if(!el){last=null;return;}
+    const now=performance.now();
+    if(last&&last.el===el&&now-last.t<320&&Math.hypot(e.clientX-last.x,e.clientY-last.y)<28){last=null;synthAt=now;
+      el.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,view:window}));}
+    else last={el,t:now,x:e.clientX,y:e.clientY};},true);
+  document.addEventListener('dblclick',e=>{if(e.isTrusted&&performance.now()-synthAt<450&&e.target.closest?.(SEL))e.stopImmediatePropagation();},true);
 })();
 </script>
 </body>
