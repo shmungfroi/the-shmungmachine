@@ -2,6 +2,11 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.21 — IPHONE SOUND FIX (16 Nov 2026)
+iPhone was silent: the engine started on pointerdown (not a gesture to iOS), awaited the Daybreak worklet before resuming, and the
+unlock ran once before the engine existed. Now the engine starts and resumes inside touchend/click/keydown until it is running, with a
+silent-buffer prime; the audio session switches to play-and-record while the Daybreak input is open and back to playback after.
+
 EXP 0.3.20 — GARDEN LOOK (15 Nov 2026)
 New default Look from the Garden of Earthly Sounds: warm black and gold, Outfit and Poiret One, each module a jewel colour;
 the tab bar is a skyline of eight fractal crowns (one sacred-geometry figure per module); the module in view sets the page
@@ -2375,7 +2380,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.20 Garden</title>
+  <title>Shmung Machine — EXP 0.3.21 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3575,7 +3580,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.20 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.21 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4499,7 +4504,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.20 Garden</span>
+    <span>Shmung Machine · EXP 0.3.21 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -4979,6 +4984,8 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) throw new Error("Web Audio API is not supported in this browser.");
       state.ctx = new AudioContext({ latencyHint: "interactive" });
+      // iPhone: resume in the same tick as the tap. After the worklet await below, the tap no longer counts and Safari keeps the engine silent.
+      try { state.ctx.resume().catch(() => {}); } catch (_) {}
       state.ctx.addEventListener?.("statechange", () => {
         refreshPadLatencyDiagnostic();
         syncAudioStatus();
@@ -7583,13 +7590,13 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   }
   function disableDaybreakMic(){
     const db=state.daybreak;if(state.padRecording?.state==="recording"){toast("Stop the pad recording before disconnecting the input");return;}if(state.samplerRecording?.state==="recording"){toast("Stop the sampler recording before disconnecting the input");return;}
-    try{db.source?.disconnect();db.inputSplitter?.disconnect();db.inputChannelGain?.disconnect();db.stream?.getTracks().forEach(t=>t.stop());}catch(_){}
+    try{db.source?.disconnect();db.inputSplitter?.disconnect();db.inputChannelGain?.disconnect();db.stream?.getTracks().forEach(t=>t.stop());}catch(_){}try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(_){}
     Object.assign(db,{stream:null,source:null,inputSplitter:null,inputChannelGain:null,micEnabled:false});db.monitor=false;if($("daybreakMonitor"))$("daybreakMonitor").checked=false;setInputButtonState("off","Input disconnected. Internal instruments and the delay test can still feed Daybreak.");$("daybreakDelayBtn").disabled=false;updateDaybreakGraph();
   }
   async function enableDaybreakMic(){
     const db=state.daybreak;if(db.micEnabled){disableDaybreakMic();return;}setInputButtonState("connecting","Requesting the selected audio input…");await initAudio();if(!navigator.mediaDevices?.getUserMedia){setInputButtonState("blocked","This browser cannot open an audio input here. Use HTTPS or localhost.");return;}
     const select=$("daybreakInputDevice"),selectedId=select?.value||db.inputDeviceId||"",audio={echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:{ideal:2}};if(selectedId)audio.deviceId={exact:selectedId};
-    try{const stream=await navigator.mediaDevices.getUserMedia({audio}),track=stream.getAudioTracks()[0],label=track?.label||"Selected audio input";if(unsafeAudioInputLabel(label)){stream.getTracks().forEach(t=>t.stop());updateDaybreakInputSafety(label);setInputButtonState("blocked","Loopback/output-capture inputs are blocked. Select a microphone or physical interface input.");return;}ensureDaybreakCore();const c=state.ctx,source=c.createMediaStreamSource(stream),settings=track?.getSettings?.()||{},count=Math.max(1,Math.min(8,Number(settings.channelCount)||source.channelCount||1)),splitter=c.createChannelSplitter(Math.max(2,count));source.connect(splitter);Object.assign(db,{stream,source,inputSplitter:splitter,micEnabled:true,inputDeviceId:settings.deviceId||selectedId||"",inputDeviceLabel:label,inputChannelCount:count});refreshInputChannelOptions();connectSelectedInputChannel();await refreshDaybreakInputDevices({preserve:true});if(db.inputDeviceId&&$("daybreakInputDevice"))$("daybreakInputDevice").value=db.inputDeviceId;updateDaybreakInputSafety(label);setInputButtonState("on",`Input active: ${label} · ${selectedInputChannelLabel()}. One dry mono bus now serves monitoring and recording.`);$("daybreakDelayBtn").disabled=false;$("daybreakClearBtn").disabled=false;$("daybreakCaptureBtn").disabled=false;updateDaybreakGraph();animateDaybreakMeters();toast("Shared input enabled");}catch(err){console.error(err);setInputButtonState("blocked","Input permission was denied, the selected input is unavailable, or Chrome could not open it.");toast("Audio input could not be opened");}
+    try{try{if(navigator.audioSession)navigator.audioSession.type="play-and-record";}catch(_){}const stream=await navigator.mediaDevices.getUserMedia({audio}),track=stream.getAudioTracks()[0],label=track?.label||"Selected audio input";if(unsafeAudioInputLabel(label)){stream.getTracks().forEach(t=>t.stop());updateDaybreakInputSafety(label);setInputButtonState("blocked","Loopback/output-capture inputs are blocked. Select a microphone or physical interface input.");return;}ensureDaybreakCore();const c=state.ctx,source=c.createMediaStreamSource(stream),settings=track?.getSettings?.()||{},count=Math.max(1,Math.min(8,Number(settings.channelCount)||source.channelCount||1)),splitter=c.createChannelSplitter(Math.max(2,count));source.connect(splitter);Object.assign(db,{stream,source,inputSplitter:splitter,micEnabled:true,inputDeviceId:settings.deviceId||selectedId||"",inputDeviceLabel:label,inputChannelCount:count});refreshInputChannelOptions();connectSelectedInputChannel();await refreshDaybreakInputDevices({preserve:true});if(db.inputDeviceId&&$("daybreakInputDevice"))$("daybreakInputDevice").value=db.inputDeviceId;updateDaybreakInputSafety(label);setInputButtonState("on",`Input active: ${label} · ${selectedInputChannelLabel()}. One dry mono bus now serves monitoring and recording.`);$("daybreakDelayBtn").disabled=false;$("daybreakClearBtn").disabled=false;$("daybreakCaptureBtn").disabled=false;updateDaybreakGraph();animateDaybreakMeters();toast("Shared input enabled");}catch(err){console.error(err);setInputButtonState("blocked","Input permission was denied, the selected input is unavailable, or Chrome could not open it.");toast("Audio input could not be opened");}
   }
 
   function animateDaybreakMeters() {
@@ -8873,6 +8880,15 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   function initMobileAudio(){
     const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
     let unlocked=false;
+    /* EXP 0.3.21: iPhone counts touchend / click / keydown as a real gesture, not pointerdown. Start (or wake) the engine inside every
+       such gesture until it is actually running, with a one-sample silent buffer, the long-standing way to open Web Audio on iOS. */
+    const prime=()=>{
+      try{if(!state.audioReady&&!state.audioInitPromise)initAudio().catch(()=>{});}catch(_){}
+      const c=state.ctx;if(!c||c.state==="running"||c.state==="closed")return;
+      try{c.resume().catch(()=>{});}catch(_){}
+      try{const b=c.createBuffer(1,1,c.sampleRate),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);}catch(_){}
+    };
+    ["touchend","click","keydown","pointerup"].forEach(ev=>document.addEventListener(ev,prime,{capture:true,passive:true}));
     const unlock=()=>{
       if(unlocked)return;unlocked=true;
       try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(_){}
@@ -8881,11 +8897,11 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
         const sr=8000,n=sr,buf=new ArrayBuffer(44+n*2),v=new DataView(buf),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
         w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
         const a=document.createElement("audio");a.src=URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));a.loop=true;a.setAttribute("playsinline","");a.setAttribute("x-webkit-airplay","deny");a.preload="auto";a.style.display="none";document.body.appendChild(a);
-        a.play().catch(()=>{unlocked=false;});
+        a.play().catch(()=>{unlocked=false;a.remove();});
       }
       state.ctx?.resume?.().catch(()=>{});
     };
-    ["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,unlock,{capture:true,passive:true}));
+    ["touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlock,{capture:true,passive:true}));
     const wake=()=>{if(document.visibilityState==="visible"&&state.ctx&&state.ctx.state!=="running"&&state.ctx.state!=="closed")state.ctx.resume().catch(()=>{});};
     document.addEventListener("visibilitychange",wake);window.addEventListener("pageshow",wake);window.addEventListener("focus",wake);
   }
