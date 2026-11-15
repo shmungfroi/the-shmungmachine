@@ -2,6 +2,11 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.28 — PHONE MIXER (16 Nov 2026)
+On phones the mixer uses narrow upright strips (about four to a screen) with vertical faders and the eight sends as a 2×4
+knob grid; heading compacted and the overview map reduced to one row of Master / Performance / Drums jump buttons. Mixer
+faders now hold the page still while touched, like the knobs (all screens).
+
 EXP 0.3.27 — WIDE SCREENS (16 Nov 2026)
 On external and wide screens the top bar and crown tabs were a fixed 1380 px pinned to the left while the page centred.
 They now span the full width with their contents aligned to the centred page.
@@ -2407,7 +2412,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.27 Garden</title>
+  <title>Shmung Machine — EXP 0.3.28 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3740,6 +3745,48 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 :root:root:not(.phone) body:not(.daybreak-focus-mode) .topbar,:root:root:not(.phone) body:not(.daybreak-focus-mode) nav.tabs{
   width:auto!important;max-width:none!important;margin-left:0!important;margin-right:0!important;left:0!important;right:0!important;box-sizing:border-box!important;
   padding-left:max(18px,calc((100% - 1380px) / 2 + 18px))!important;padding-right:max(18px,calc((100% - 1380px) / 2 + 18px))!important}
+/* ===== EXP 0.3.28 PHONE MIXER — narrow upright strips, about four to a screen ===== */
+:root:root .mixer-strip .mixer-fader{touch-action:none!important}
+:root:root.phone #tab-mixer .mixer-console-panel{padding:12px 10px!important}
+:root:root.phone #tab-mixer .mixer-console-summary{flex-wrap:nowrap!important;align-items:center!important;margin-bottom:8px!important;gap:8px!important}
+:root:root.phone #tab-mixer .mixer-note .eyebrow{display:none}
+:root:root.phone #tab-mixer .mixer-note h2{font-size:1rem!important;margin:0!important;white-space:nowrap}
+:root:root.phone #tab-mixer .mixer-console-actions{display:flex!important;flex-wrap:nowrap!important;gap:5px!important;margin-left:auto}
+:root:root.phone #tab-mixer .mixer-console-actions .button{min-width:40px!important;width:auto!important;height:36px!important;min-height:36px!important;padding:0 10px!important;font-size:.78rem!important}
+:root:root.phone #tab-mixer .mixer-console-map{display:flex!important;gap:6px!important;margin:0 0 8px!important}
+:root:root.phone #tab-mixer .mixer-map-segment{flex:1 1 0!important;min-height:38px!important;height:38px!important;padding:0 6px!important;display:flex!important;align-items:center;justify-content:center;border-radius:10px!important}
+:root:root.phone #tab-mixer .mixer-map-segment span{display:none!important}
+:root:root.phone #tab-mixer .mixer-map-segment strong{font-size:.8rem!important;margin:0!important}
+:root:root.phone #tab-mixer .mixer-map-status{display:none!important}
+:root:root.phone #tab-mixer .mixer-console-viewport{scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+:root:root.phone #tab-mixer .mixer-console{gap:6px!important;padding:2px 0!important}
+:root:root.phone #tab-mixer .mixer-group-marker{flex:0 0 22px!important;width:22px!important;min-width:22px!important}
+:root:root.phone #tab-mixer .mixer-strip{display:flex!important;flex-direction:column!important;align-items:stretch!important;flex:0 0 84px!important;width:84px!important;min-width:84px!important;max-width:84px!important;
+  min-height:0!important;padding:8px 6px!important;gap:6px!important;grid-template-columns:none!important;scroll-snap-align:start}
+:root:root.phone #tab-mixer .mixer-strip>*{grid-column:auto!important;width:auto!important;max-width:100%!important;min-width:0!important;margin:0!important}
+:root:root.phone #tab-mixer .mixer-channel-head{display:block!important;min-height:30px}
+:root:root.phone #tab-mixer .mixer-channel-head b{display:block;font-size:.72rem!important;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root:root.phone #tab-mixer .mixer-channel-head small{display:block;font-size:.55rem!important;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.75}
+:root:root.phone #tab-mixer .mixer-channel-colour{display:none!important}
+:root:root.phone #tab-mixer .mixer-pan-control{display:grid!important;justify-items:center;gap:2px!important}
+:root:root.phone #tab-mixer .mixer-pan-control>span{font-size:.55rem!important}
+:root:root.phone #tab-mixer .mixer-level-core{display:grid!important;grid-template-columns:1fr 8px!important;gap:4px!important;height:170px!important}
+:root:root.phone #tab-mixer .mixer-fader-wrap{height:170px!important;display:flex;justify-content:center}
+:root:root.phone #tab-mixer .mixer-fader{writing-mode:vertical-lr!important;direction:rtl!important;width:36px!important;height:166px!important}
+:root:root.phone #tab-mixer .mixer-meter{height:166px!important;width:8px!important}
+:root:root.phone #tab-mixer .mixer-readout{text-align:center;font-size:.66rem!important}
+:root:root.phone #tab-mixer .mixer-buttons{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important}
+:root:root.phone #tab-mixer .mixer-mini{min-height:34px!important;height:34px!important;padding:0!important;font-size:.6rem!important;min-width:0!important}
+:root:root.phone #tab-mixer .mixer-send-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px 4px!important;justify-items:center}
+:root:root.phone #tab-mixer .mixer-send-cell{display:grid!important;justify-items:center;gap:1px}
+:root:root.phone #tab-mixer .mixer-send-cell output{display:none!important}
+:root:root.phone #tab-mixer .mixer-send-label{font-size:.5rem!important;padding:1px 3px!important;min-height:0!important}
+:root:root.phone #tab-mixer .mixer-rotary{width:32px!important;height:32px!important}
+:root:root.phone #tab-mixer .mixer-edit-pad{min-height:32px!important;height:32px!important;font-size:.6rem!important;padding:0 4px!important}
+:root:root.phone #tab-mixer .mixer-clip-dot{top:6px!important;right:6px!important}
+:root:root.phone.landscape #tab-mixer .mixer-console-map{display:none!important}
+:root:root.phone.landscape #tab-mixer .mixer-level-core,:root:root.phone.landscape #tab-mixer .mixer-fader-wrap{height:140px!important}
+:root:root.phone.landscape #tab-mixer .mixer-fader,:root:root.phone.landscape #tab-mixer .mixer-meter{height:136px!important}
 </style>
 
 </head>
@@ -3749,7 +3796,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.27 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.28 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4954,7 +5001,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.27 Garden</span>
+    <span>Shmung Machine · EXP 0.3.28 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
