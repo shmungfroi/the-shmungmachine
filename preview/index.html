@@ -2,6 +2,11 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.23 — PHONE FRAME (16 Nov 2026)
+On phones: a slim sticky bar (transport, MIDI, Project, Look) replaces the title block; the crown skyline becomes a bottom tab bar
+with short labels (a left rail in landscape); menus open as full-width sheets; opens in Full Machine. ?layout=desktop or ?layout=phone
+forces either.
+
 EXP 0.3.22 — KNOBS HOLD STILL (16 Nov 2026)
 Touching a knob freezes the page until that finger lifts: no scrolling or zooming mid-turn, and iPhone no longer cancels the turn
 by scrolling. Other fingers stay free (pads still play while a knob is held).
@@ -2384,7 +2389,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.22 Garden</title>
+  <title>Shmung Machine — EXP 0.3.23 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3578,6 +3583,70 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 /* EXP 0.3.22: knobs hold the page still while touched — the browser may not scroll or zoom from a knob */
 :root .pro-knob,:root .fx-knob,:root .mixer-rotary,:root [data-rotary-for]{touch-action:none!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 html.knob-held,html.knob-held body{overscroll-behavior:none}
+
+/* ===== EXP 0.3.23 PHONE FRAME — :root:root.phone is set by script for small or touch-landscape screens ===== */
+:root:root.phone{--tbh:64px;--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px)}
+:root:root.phone body{padding-bottom:calc(var(--tbh) + var(--sab) + 28px)!important}
+/* slim sticky top bar: transport + menus only */
+:root:root.phone body:not(.daybreak-focus-mode) .topbar{position:sticky!important;top:0;z-index:600;flex-direction:row!important;align-items:center!important;
+  padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px!important;margin:0!important;width:100%!important;max-width:none!important;gap:0!important;
+  background:#0b0906!important;backdrop-filter:none!important;border-bottom:1px solid rgba(201,162,74,.16)!important;border-radius:0!important;box-shadow:none!important}
+:root:root.phone body:not(.daybreak-focus-mode) .topbar>div:first-child{display:none!important}
+:root:root.phone body:not(.daybreak-focus-mode) .top-actions{display:flex!important;flex-wrap:nowrap!important;align-items:center;gap:6px!important;width:100%;margin:0!important;justify-content:space-between}
+:root:root.phone .top-actions .pro-transport{flex:0 0 auto;margin:0!important}
+:root:root.phone .top-actions .pro-transport button{width:44px!important;height:40px!important}
+:root:root.phone .top-actions>details>summary,:root:root.phone .top-actions #lookBtn{height:40px!important;min-height:40px!important;padding:0 10px!important;display:flex!important;align-items:center;white-space:nowrap;font-size:0!important}
+:root:root.phone #performanceSetupMenu>summary::after{content:"MIDI";font-size:13px}
+:root:root.phone #utilityMenu>summary::after{content:"Project";font-size:13px}
+:root:root.phone #lookBtn::after{content:"Look";font-size:13px}
+:root:root.phone .top-actions .theme-picker-wrap{width:auto!important;flex:0 0 auto}
+:root:root.phone .top-actions #audioStatus{display:none}
+/* menus open as full-width sheets under the bar instead of off the left edge */
+:root:root.phone .top-actions .system-menu-panel,:root:root.phone .top-actions .theme-picker{position:fixed!important;left:8px!important;right:8px!important;width:auto!important;max-width:none!important;
+  top:calc(58px + env(safe-area-inset-top,0px))!important;max-height:calc(100dvh - 58px - var(--tbh) - var(--sab) - 24px);overflow:auto;transform:none!important;z-index:700}
+/* bottom tab bar of crowns */
+:root:root.phone nav.tabs{position:fixed!important;top:auto!important;left:0!important;right:0!important;bottom:0!important;z-index:650;display:flex!important;flex-wrap:nowrap!important;
+  overflow:visible!important;width:100%!important;max-width:none!important;margin:0!important;gap:0!important;padding:4px 2px calc(4px + var(--sab))!important;height:auto!important;
+  background:#0b0906!important;border:0!important;border-top:1px solid rgba(201,162,74,.2)!important;border-radius:0!important;box-shadow:0 -10px 30px rgba(0,0,0,.45)!important}
+:root:root.phone nav.tabs .tab{flex:1 1 0!important;min-width:0!important;width:auto!important;height:calc(var(--tbh) - 8px)!important;min-height:0!important;margin:0!important;padding:0!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-end!important;gap:2px;font-size:0!important;letter-spacing:0!important;
+  border:0!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;position:relative}
+:root:root.phone nav.tabs .tab::before{width:42px!important;height:34px!important;margin:0!important;background-size:42px auto!important;background-position:50% 0!important;flex:0 0 auto}
+:root:root.phone nav.tabs .tab::after{font:500 9.5px/1 "Outfit",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:rgba(232,220,196,.5);white-space:nowrap;
+  position:static!important;inset:auto!important;width:auto!important;height:auto!important;background:none!important;border:0!important;transform:none!important;opacity:1!important}
+:root:root.phone nav.tabs .tab.active::after{color:var(--tab-c)}
+:root:root.phone nav.tabs .tab.active{background:radial-gradient(70% 80% at 50% 30%,color-mix(in srgb,var(--tab-c) 20%,transparent),transparent 75%)!important}
+:root:root.phone nav.tabs .tab.active::before{opacity:1!important;filter:none!important}
+:root:root.phone nav.tabs .tab[data-tab="daybreak"]::after{content:"Daybreak"}:root:root.phone nav.tabs .tab[data-tab="pads"]::after{content:"Pads"}
+:root:root.phone nav.tabs .tab[data-tab="keyboard"]::after{content:"Keys"}:root:root.phone nav.tabs .tab[data-tab="synth"]::after{content:"Synth"}
+:root:root.phone nav.tabs .tab[data-tab="sequencer"]::after{content:"Seq"}:root:root.phone nav.tabs .tab[data-tab="mixer"]::after{content:"Mixer"}
+:root:root.phone nav.tabs .tab[data-tab="effects"]::after{content:"FX"}:root:root.phone nav.tabs .tab[data-tab="guide"]::after{content:"Guide"}
+/* landscape: tabs become a rail down the left edge, top bar stays slim */
+:root:root.phone.landscape{--rail:74px}
+:root:root.phone.landscape body{padding-bottom:24px!important;padding-left:calc(var(--rail) + var(--sal))!important}
+:root:root.phone.landscape nav.tabs{top:0!important;bottom:0!important;right:auto!important;width:calc(var(--rail) + var(--sal))!important;flex-direction:column!important;
+  padding:calc(4px + env(safe-area-inset-top,0px)) 4px calc(4px + var(--sab)) calc(4px + var(--sal))!important;border-top:0!important;border-right:1px solid rgba(201,162,74,.2)!important;box-shadow:10px 0 30px rgba(0,0,0,.45)!important}
+:root:root.phone.landscape nav.tabs .tab{height:auto!important;flex:1 1 0!important;justify-content:center!important;gap:1px}
+:root:root.phone.landscape nav.tabs .tab::before{width:34px!important;height:26px!important;background-size:34px auto!important}
+:root:root.phone.landscape nav.tabs .tab::after{font-size:8.5px}
+:root:root.phone.landscape .top-actions .system-menu-panel,:root:root.phone.landscape .top-actions .theme-picker{left:calc(var(--rail) + var(--sal) + 8px)!important;max-height:calc(100dvh - 70px)}
+:root:root.phone.landscape body:not(.daybreak-focus-mode) .top-actions{justify-content:flex-start}
+:root:root.phone.landscape .top-actions .pro-transport{margin-right:auto!important}
+:root:root.phone,:root:root.phone body{overflow-x:clip!important}
+:root:root.phone body:not(.daybreak-focus-mode) .top-actions{gap:5px!important}
+:root:root.phone .top-actions .pro-transport{padding:2px!important;gap:3px!important}
+:root:root.phone .top-actions .pro-transport button{width:40px!important}
+:root:root.phone .top-actions #lookBtn{width:auto!important;min-width:0!important}
+:root:root.phone .top-actions>details>summary{min-width:0!important}
+:root:root.phone nav.tabs .tab::after{font-size:9px;letter-spacing:.02em}
+:root:root.phone.landscape .tab-page{margin-left:0!important;margin-right:0!important;width:auto!important;max-width:none!important}
+:root:root.phone.landscape main{width:auto!important;max-width:none!important;margin-left:12px!important;margin-right:calc(12px + env(safe-area-inset-right,0px))!important}
+:root:root.phone.landscape nav.tabs .tab::before{width:30px!important;height:22px!important;background-size:30px auto!important}
+:root:root.phone.landscape nav.tabs .tab::after{font-size:8px}
+/* focus mode keeps its own big opening screen, but no tab bar */
+:root:root.phone body.daybreak-focus-mode nav.tabs{display:none!important}
+:root:root.phone body.daybreak-focus-mode{padding-bottom:28px!important}
+
 </style>
 
 </head>
@@ -3587,7 +3656,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.22 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.23 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4511,7 +4580,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.22 Garden</span>
+    <span>Shmung Machine · EXP 0.3.23 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -9015,7 +9084,8 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     });
   });
 
-  setFocusMode(true);
+  /* EXP 0.3.23: on phones open straight into the full machine (the tab bar is the way around); Daybreak Focus stays one tap away */
+  setFocusMode(!(matchMedia('(max-width: 760px), (max-height: 500px) and (pointer: coarse)').matches&&new URLSearchParams(location.search).get('layout')!=='desktop'));
 })();
 </script>
 
@@ -9311,6 +9381,15 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   document.addEventListener('touchmove',e=>{if(!held.size)return;for(const t of e.touches){if(held.has(t.identifier)){if(e.cancelable)e.preventDefault();return;}}},{capture:true,passive:false});
   const end=e=>{for(const t of e.changedTouches)held.delete(t.identifier);if(!held.size)root.classList.remove('knob-held');};
   document.addEventListener('touchend',end,{capture:true,passive:true});document.addEventListener('touchcancel',end,{capture:true,passive:true});
+})();
+</script>
+<script>
+/* EXP 0.3.23: phone frame switch — small screens, or touch screens in landscape. ?layout=desktop / ?layout=phone forces it. */
+(()=>{const q=new URLSearchParams(location.search).get('layout');const root=document.documentElement;
+  const mq=matchMedia('(max-width: 760px), (max-height: 500px) and (pointer: coarse)');const land=matchMedia('(orientation: landscape)');
+  const apply=()=>{const on=q==='phone'||(q!=='desktop'&&mq.matches);root.classList.toggle('phone',on);root.classList.toggle('landscape',on&&land.matches&&innerHeight<=500);};
+  apply();mq.addEventListener?.('change',apply);land.addEventListener?.('change',apply);addEventListener('resize',apply);
+  window.shmungIsPhone=()=>root.classList.contains('phone');
 })();
 </script>
 </body>
