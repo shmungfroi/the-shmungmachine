@@ -2,6 +2,11 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.30 — PHONE SEQUENCER (16 Nov 2026)
+On phones the step grid comes first (under the heading and bar selector) with eight steps per screen: narrow row labels,
+snap to each beat group, and a bar with Drums / Sampler / Synth and 1–8 / 9–16 step pages. Settings and the transport box move
+below the grid; its Play/Stop is hidden (the top bar has them); bar copy compacted.
+
 EXP 0.3.29 — TOUCH WORDING + DOUBLE-TAP (16 Nov 2026)
 Help text says tap / double-tap instead of click / double-click. Two quick taps on a knob or the waveform now act as a
 double-click on touch screens (reset a knob, remove a slice marker, reset a fade curve). Guide updated to match.
@@ -2416,7 +2421,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.29 Garden</title>
+  <title>Shmung Machine — EXP 0.3.30 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3791,6 +3796,59 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 :root:root.phone.landscape #tab-mixer .mixer-console-map{display:none!important}
 :root:root.phone.landscape #tab-mixer .mixer-level-core,:root:root.phone.landscape #tab-mixer .mixer-fader-wrap{height:140px!important}
 :root:root.phone.landscape #tab-mixer .mixer-fader,:root:root.phone.landscape #tab-mixer .mixer-meter{height:136px!important}
+/* ===== EXP 0.3.30 PHONE SEQUENCER — grid first, eight steps per screen ===== */
+.seq-phone-bar{display:none}
+:root:root.phone #tab-sequencer .seq-header>div:first-child{position:sticky;left:0;z-index:3;background:rgb(22,19,13);align-self:stretch}
+:root:root.phone #tab-sequencer .seq-label{background:rgb(22,19,13)!important}
+:root:root.phone #tab-sequencer .seq-label span{display:none!important}
+:root:root.phone #tab-sequencer .seq-phone-bar .pager button{white-space:nowrap;padding:0 9px;flex:0 0 auto}
+:root:root.phone #tab-sequencer .seq-phone-bar .target button{padding:0 4px}
+:root:root.phone #tab-sequencer .exp-sequence-status{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:4px 10px!important;min-height:0!important}
+:root:root.phone #tab-sequencer .exp-sequence-status strong{font-size:.78rem!important}
+:root:root.phone #tab-sequencer .exp-sequence-status span{font-size:.72rem!important}
+:root:root.phone #tab-sequencer .exp-sequence-status label{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;margin-left:auto!important;font-size:.6rem!important;min-height:0!important}
+:root:root.phone #tab-sequencer #expBarOverview{margin:8px 0 0!important;gap:5px!important;flex-wrap:wrap}
+:root:root.phone #tab-sequencer .exp-bar-button{width:36px!important;height:34px!important;min-height:34px!important}
+:root:root.phone #tab-sequencer .exp-bar-copy label{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;white-space:nowrap}
+:root:root.phone #tab-sequencer .exp-bar-copy select{height:36px!important;min-height:36px!important;width:auto!important}
+:root:root.phone #tab-sequencer .exp-bar-copy{flex-wrap:wrap!important}
+:root:root.phone #tab-sequencer .exp-bar-copy .button{flex:1 1 100%!important;width:100%!important}
+:root:root.phone #tab-sequencer #sequencerGrid{padding-left:0!important}
+:root:root.phone #tab-sequencer .seq-phone-bar .pager[hidden]{display:none!important}
+:root:root.phone.landscape #tab-sequencer .exp-sequence-navigation{order:6}
+:root:root.phone.landscape #tab-sequencer #velocityLegend{order:7}
+:root:root.phone #tab-sequencer .sequencer-panel{display:flex!important;flex-direction:column!important;gap:10px!important;padding:12px 10px!important}
+:root:root.phone #tab-sequencer .sequencer-panel>.section-heading{order:0;margin:0!important;gap:8px!important}
+:root:root.phone #tab-sequencer .sequencer-panel>.section-heading .eyebrow{display:none}
+:root:root.phone #tab-sequencer .sequencer-panel>.section-heading h2{font-size:1rem!important}
+:root:root.phone #tab-sequencer .inline-controls{display:flex!important;flex-wrap:nowrap!important;gap:5px!important;width:100%}
+:root:root.phone #tab-sequencer .inline-controls .button{flex:1 1 0;min-width:0!important;height:38px!important;min-height:38px!important;padding:0 6px!important;font-size:.72rem!important;white-space:nowrap}
+:root:root.phone #tab-sequencer .exp-sequence-navigation{order:1;padding:8px 10px!important;margin:0!important}
+:root:root.phone #tab-sequencer .exp-bar-copy{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end;gap:6px!important;margin-top:6px!important}
+:root:root.phone #tab-sequencer .exp-bar-copy label{flex:1 1 auto;font-size:.6rem!important}
+:root:root.phone #tab-sequencer .exp-bar-copy .button{flex:0 0 auto;height:36px!important;min-height:36px!important;font-size:.68rem!important;padding:0 8px!important;width:auto!important}
+:root:root.phone #tab-sequencer .seq-phone-bar{order:2;display:flex;align-items:center;gap:6px}
+:root:root.phone #tab-sequencer #velocityLegend{order:3;margin:0!important;padding:6px 10px!important}
+:root:root.phone #tab-sequencer #sequencerGrid{order:4;margin:0!important;padding:6px 4px 8px!important;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
+:root:root.phone #tab-sequencer .sequence-toolbar{order:5;grid-template-columns:1fr 1fr!important;gap:8px!important;padding:10px!important}
+:root:root.phone #tab-sequencer .sequence-toolbar label{font-size:.62rem!important}
+:root:root.phone #tab-sequencer .sequence-toolbar select{height:36px!important;min-height:36px!important}
+:root:root.phone #tab-sequencer #globalTransportDock{order:6}
+:root:root.phone #tab-sequencer #globalTransportButtons{display:none!important}
+:root:root.phone #tab-sequencer .exp-bar-copy-phone{order:7}
+:root:root.phone #tab-sequencer .seq-row,:root:root.phone #tab-sequencer .seq-header{grid-template-columns:50px repeat(var(--seq-steps,16),31px)!important;column-gap:3px!important}
+:root:root.phone #tab-sequencer .melodic-grid .seq-row,:root:root.phone #tab-sequencer .melodic-grid .seq-header{grid-template-columns:50px repeat(var(--seq-steps,16),31px)!important}
+:root:root.phone #tab-sequencer .seq-label{width:50px!important;min-width:0!important;padding:0 4px!important;overflow:hidden;z-index:3}
+:root:root.phone #tab-sequencer .seq-label strong{font-size:.7rem!important}
+:root:root.phone #tab-sequencer .seq-label span{display:block;font-size:.5rem!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root:root.phone #tab-sequencer .seq-step{min-width:0!important;width:31px!important;height:34px!important;min-height:34px!important}
+:root:root.phone #tab-sequencer .seq-step.group-start{scroll-snap-align:start;scroll-margin-left:54px}
+:root:root.phone #tab-sequencer .sequencer-meter-ribbon{display:none!important}
+.seq-phone-bar .seg{display:flex;flex:1 1 auto;border:1px solid var(--line,rgba(201,162,74,.25));border-radius:10px;overflow:hidden}
+.seq-phone-bar .seg button{flex:1 1 0;min-height:38px;border:0;background:transparent;color:var(--ink,#efe6d2);font:inherit;font-size:.74rem;font-weight:700;padding:0 6px}
+.seq-phone-bar .seg button+button{border-left:1px solid var(--line,rgba(201,162,74,.2))}
+.seq-phone-bar .seg button.active{background:var(--module,#4d8fe0);color:#0d0b07}
+.seq-phone-bar .pager{flex:0 0 auto}
 </style>
 
 </head>
@@ -3800,7 +3858,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.29 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.30 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -5005,7 +5063,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.29 Garden</span>
+    <span>Shmung Machine · EXP 0.3.30 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -9862,6 +9920,33 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
       el.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,view:window}));}
     else last={el,t:now,x:e.clientX,y:e.clientY};},true);
   document.addEventListener('dblclick',e=>{if(e.isTrusted&&performance.now()-synthAt<450&&e.target.closest?.(SEL))e.stopImmediatePropagation();},true);
+})();
+</script>
+<script>
+/* EXP 0.3.30: phone sequencer bar — target switch and step pages (8 steps each), kept in step with the real controls */
+(()=>{const grid=document.getElementById('sequencerGrid'),sel=document.getElementById('sequenceTarget');if(!grid||!sel)return;
+  const bar=document.createElement('div');bar.className='seq-phone-bar';
+  bar.innerHTML='<div class="seg target" role="group" aria-label="Sequence target"><button type="button" data-t="drums">Drums</button><button type="button" data-t="sampler">Sampler</button><button type="button" data-t="synth">Synth</button></div><div class="seg pager" role="group" aria-label="Steps shown"></div>';
+  grid.parentElement.insertBefore(bar,grid);
+  const tgt=bar.querySelector('.target'),pager=bar.querySelector('.pager');
+  [...tgt.children].forEach(b=>{const o=[...sel.options].find(o=>o.value===b.dataset.t||o.textContent.toLowerCase().startsWith(b.dataset.t.slice(0,4)));if(o)b.dataset.v=o.value;else b.remove();});
+  const steps=()=>[...(grid.querySelector('.seq-row')?.querySelectorAll('.seq-step')||[])];
+  const pitch=()=>{const st=steps();return st.length>1?st[1].offsetLeft-st[0].offsetLeft:34;};
+  let per=8;
+  const fit=()=>{if(!grid.clientWidth)return per;const pt=pitch()||34;const room=grid.clientWidth-54;const n=steps().length||16;let k=Math.floor(room/pt);k=k>=n?n:Math.max(4,k-k%4);return k;};
+  function syncTarget(){[...tgt.children].forEach(b=>b.classList.toggle('active',b.dataset.v===sel.value));}
+  function buildPager(){const n=steps().length;grid.style.setProperty('--seq-steps',n||16);per=fit();const pages=Math.max(1,Math.ceil(n/per));
+    const key=n+'/'+per;if(pager.dataset.n===key){markPage();return;}pager.dataset.n=key;pager.innerHTML='';
+    for(let k=0;k<pages;k++){const b=document.createElement('button');b.type='button';b.textContent=(k*per+1)+'–'+Math.min(n,(k+1)*per);b.dataset.p=k;pager.append(b);}
+    pager.hidden=pages<2;markPage();}
+  function markPage(){const p=Math.round(grid.scrollLeft/(pitch()*per));[...pager.children].forEach(b=>b.classList.toggle('active',+b.dataset.p===p));}
+  tgt.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event('input',{bubbles:true}));sel.dispatchEvent(new Event('change',{bubbles:true}));syncTarget();});
+  pager.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;grid.scrollTo({left:+b.dataset.p*pitch()*per,behavior:'smooth'});});
+  grid.addEventListener('scroll',()=>{clearTimeout(grid._pg);grid._pg=setTimeout(markPage,80);},{passive:true});
+  sel.addEventListener('change',()=>{syncTarget();setTimeout(buildPager,0);});
+  new MutationObserver(()=>buildPager()).observe(grid,{childList:true});
+  new ResizeObserver(()=>{if(!grid.clientWidth)return;clearTimeout(grid._rs);grid._rs=setTimeout(buildPager,60);}).observe(grid);
+  syncTarget();buildPager();
 })();
 </script>
 </body>
