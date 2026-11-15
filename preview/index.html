@@ -2,6 +2,10 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.22 — KNOBS HOLD STILL (16 Nov 2026)
+Touching a knob freezes the page until that finger lifts: no scrolling or zooming mid-turn, and iPhone no longer cancels the turn
+by scrolling. Other fingers stay free (pads still play while a knob is held).
+
 EXP 0.3.21 — IPHONE SOUND FIX (16 Nov 2026)
 iPhone was silent: the engine started on pointerdown (not a gesture to iOS), awaited the Daybreak worklet before resuming, and the
 unlock ran once before the engine existed. Now the engine starts and resumes inside touchend/click/keydown until it is running, with a
@@ -2380,7 +2384,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.21 Garden</title>
+  <title>Shmung Machine — EXP 0.3.22 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3571,6 +3575,9 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 :root[data-theme="garden"] .pad[data-pad="13"]{--pfig:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2250.00%22 cy=%2250.00%22 r=%2240.00%22/%3E%3Cpath d=%22M50.00,13.20 L78.77,72.94 L14.12,58.19 L65.97,16.84 L65.97,83.16 L14.12,41.81 L78.77,27.06 L50.00,86.80 L21.23,27.06 L85.88,41.81 L34.03,83.16 L34.03,16.84 L85.88,58.19 L21.23,72.94 Z%22/%3E%3C/g%3E%3C/svg%3E")}
 :root[data-theme="garden"] .pad[data-pad="14"]{--pfig:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2250.00%22 cy=%2250.00%22 r=%2240.00%22/%3E%3Ccircle cx=%2250.00%22 cy=%2227.66%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2243.92%22 cy=%2238.24%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2256.08%22 cy=%2238.24%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2237.84%22 cy=%2248.81%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2250.00%22 cy=%2248.81%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2262.16%22 cy=%2248.81%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2231.76%22 cy=%2259.39%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2243.92%22 cy=%2259.39%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2256.08%22 cy=%2259.39%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2268.24%22 cy=%2259.39%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2225.68%22 cy=%2269.97%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2237.84%22 cy=%2269.97%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2250.00%22 cy=%2269.97%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2262.16%22 cy=%2269.97%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3Ccircle cx=%2274.32%22 cy=%2269.97%22 r=%222.4%22 fill=%22%23000%22 stroke=%22none%22/%3E%3C/g%3E%3C/svg%3E")}
 :root[data-theme="garden"] .pad[data-pad="15"]{--pfig:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2250.00%22 cy=%2250.00%22 r=%2240.00%22/%3E%3Crect x=%2224.70%22 y=%2224.70%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2224.70%22 y=%2238.30%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2224.70%22 y=%2251.90%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2224.70%22 y=%2265.50%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2238.30%22 y=%2224.70%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2238.30%22 y=%2238.30%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2238.30%22 y=%2251.90%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2238.30%22 y=%2265.50%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2251.90%22 y=%2224.70%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2251.90%22 y=%2238.30%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2251.90%22 y=%2251.90%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2251.90%22 y=%2265.50%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2265.50%22 y=%2224.70%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2265.50%22 y=%2238.30%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2265.50%22 y=%2251.90%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3Crect x=%2265.50%22 y=%2265.50%22 width=%229.79%22 height=%229.79%22 rx=%221.5%22/%3E%3C/g%3E%3C/svg%3E")}
+/* EXP 0.3.22: knobs hold the page still while touched — the browser may not scroll or zoom from a knob */
+:root .pro-knob,:root .fx-knob,:root .mixer-rotary,:root [data-rotary-for]{touch-action:none!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.knob-held,html.knob-held body{overscroll-behavior:none}
 </style>
 
 </head>
@@ -3580,7 +3587,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.21 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.22 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4504,7 +4511,7 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.21 Garden</span>
+    <span>Shmung Machine · EXP 0.3.22 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -9295,5 +9302,16 @@ body:not(.daybreak-focus-mode) .daybreak-guide-look{display:none!important}
 })();
 </script>
 
+<script>
+/* EXP 0.3.22: while a finger is on a knob the page stays still until that finger lifts (iPhone ignores touch-action on some
+   nested scrollers, so touchmove is also blocked directly for that touch). */
+(()=>{const KNOB='.pro-knob,.fx-knob,.mixer-rotary,[data-rotary-for]';const held=new Set();
+  const root=document.documentElement;
+  document.addEventListener('touchstart',e=>{for(const t of e.changedTouches){if(t.target?.closest?.(KNOB))held.add(t.identifier);}if(held.size)root.classList.add('knob-held');},{capture:true,passive:true});
+  document.addEventListener('touchmove',e=>{if(!held.size)return;for(const t of e.touches){if(held.has(t.identifier)){if(e.cancelable)e.preventDefault();return;}}},{capture:true,passive:false});
+  const end=e=>{for(const t of e.changedTouches)held.delete(t.identifier);if(!held.size)root.classList.remove('knob-held');};
+  document.addEventListener('touchend',end,{capture:true,passive:true});document.addEventListener('touchcancel',end,{capture:true,passive:true});
+})();
+</script>
 </body>
 </html>
