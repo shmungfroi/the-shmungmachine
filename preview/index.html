@@ -2,6 +2,11 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.31 — PHONE KEYBOARDS (16 Nov 2026)
+Sampling Keyboard and Synth keys on phones: four octaves (C2–B5) at finger size (about 46 px white keys), roughly one
+octave on screen, with ‹ › octave buttons and the range shown between them. Moves by transform, so a glissando never
+shifts the keyboard.
+
 EXP 0.3.30 — PHONE SEQUENCER (16 Nov 2026)
 On phones the step grid comes first (under the heading and bar selector) with eight steps per screen: narrow row labels,
 snap to each beat group, and a bar with Drums / Sampler / Synth and 1–8 / 9–16 step pages. Settings and the transport box move
@@ -2421,7 +2426,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.30 Garden</title>
+  <title>Shmung Machine — EXP 0.3.31 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3849,6 +3854,17 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 .seq-phone-bar .seg button+button{border-left:1px solid var(--line,rgba(201,162,74,.2))}
 .seq-phone-bar .seg button.active{background:var(--module,#4d8fe0);color:#0d0b07}
 .seq-phone-bar .pager{flex:0 0 auto}
+/* ===== EXP 0.3.31 PHONE KEYBOARDS — finger-sized keys, one octave a screen, ‹ › octave stepping ===== */
+.kb-phone-wrap{display:contents}
+.kb-octave-bar{display:none}
+:root:root.phone .kb-phone-wrap{display:block;overflow:hidden;position:relative;border-radius:12px}
+:root:root.phone .kb-phone-wrap>.keyboard{width:calc(var(--kb-whites,28) * 46px)!important;max-width:none!important;min-width:0!important;height:210px!important;transition:transform .25s ease;will-change:transform}
+:root:root.phone .kb-phone-wrap>.keyboard .key.white{flex:1 1 0!important;min-width:0!important}
+:root:root.phone .kb-phone-wrap>.keyboard .key .key-label{font-size:.62rem!important}
+:root:root.phone .kb-octave-bar{display:flex;align-items:center;gap:8px;margin:8px 0}
+.kb-octave-bar button{min-width:52px;min-height:40px;border-radius:10px;border:1px solid var(--line,rgba(201,162,74,.25));background:transparent;color:var(--ink,#efe6d2);font-size:1.1rem;font-weight:700}
+.kb-octave-bar button:disabled{opacity:.3}
+.kb-octave-bar output{flex:1;text-align:center;font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--muted)}
 </style>
 
 </head>
@@ -3858,7 +3874,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.30 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.31 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4981,6 +4997,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
             <ul>
               <li>The modules live in the <b>crown bar</b> along the bottom, or down the left side when you turn the phone sideways. The slim bar at the top holds <b>Play</b>, <b>Stop</b>, <b>Record</b>, <b>MIDI</b> and <b>Project</b>.</li>
               <li><b>Knobs:</b> drag up or down; double-tap to reset. The page stays still while your finger is on a knob or fader, so you can turn it without scrolling away.</li>
+              <li><b>Keyboards</b> show about an octave at a time; <b>‹ ›</b> under the keys step through four octaves. The <b>Sequencer</b> shows eight steps at a time, with <b>1–8 / 9–16</b> and <b>Drums · Sampler · Synth</b> buttons above the grid. The <b>Mixer</b> shows narrow strips; swipe sideways for more channels.</li>
               <li><b>Sound:</b> tap the page once to wake it. iPhone plays with the silent switch on. Bluetooth headphones add a small delay; wired is tighter.</li>
               <li><b>Mic:</b> allow microphone access when asked, and use headphones with Daybreak to avoid feedback.</li>
               <li><b>Home screen:</b> in Safari, tap Share → <b>Add to Home Screen</b>. It then opens full-screen like an app.</li>
@@ -5063,7 +5080,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.30 Garden</span>
+    <span>Shmung Machine · EXP 0.3.31 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
@@ -6815,7 +6832,8 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
     let startMidi = 48, endMidi = 71;
     if (sourceType === "synth" || sourceType === "sample") {
       const viewportWidth = Math.max(container.clientWidth || 0, window.innerWidth || 0);
-      const octaves = viewportWidth >= 1580 ? 5 : viewportWidth >= 1180 ? 4 : viewportWidth >= 860 ? 3 : 2;
+      const phoneKeys = matchMedia('(max-width: 760px), (max-height: 500px) and (pointer: coarse)').matches && new URLSearchParams(location.search).get('layout') !== 'desktop';
+      const octaves = phoneKeys ? 4 : viewportWidth >= 1580 ? 5 : viewportWidth >= 1180 ? 4 : viewportWidth >= 860 ? 3 : 2; /* EXP 0.3.31: phones get 4 octaves to step through */
       startMidi = octaves >= 4 ? 36 : 48;
       endMidi = startMidi + octaves * 12 - 1;
     }
@@ -9947,6 +9965,32 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   new MutationObserver(()=>buildPager()).observe(grid,{childList:true});
   new ResizeObserver(()=>{if(!grid.clientWidth)return;clearTimeout(grid._rs);grid._rs=setTimeout(buildPager,60);}).observe(grid);
   syncTarget();buildPager();
+})();
+</script>
+<script>
+/* EXP 0.3.31: phone keyboards — wrap each in a viewport the width of the screen, step by octave with ‹ ›.
+   Uses a transform (not scrolling) so a glissando across the keys never moves the keyboard. */
+(()=>{const ids=['sampleKeyboard','synthKeyboard'];const names=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  function setup(id){const kb=document.getElementById(id);if(!kb||kb.dataset.phoneWrap)return !!kb?.dataset.phoneWrap;
+    const whites=[...kb.querySelectorAll('.key.white')];if(!whites.length)return false;kb.dataset.phoneWrap='1';
+    const wrap=document.createElement('div');wrap.className='kb-phone-wrap';kb.parentNode.insertBefore(wrap,kb);wrap.append(kb);
+    kb.style.setProperty('--kb-whites',whites.length);
+    const bar=document.createElement('div');bar.className='kb-octave-bar';bar.innerHTML='<button type="button" aria-label="Octave down">‹</button><output></output><button type="button" aria-label="Octave up">›</button>';
+    wrap.parentNode.insertBefore(bar,wrap.nextSibling);
+    const [dn,up]=bar.querySelectorAll('button'),out=bar.querySelector('output');
+    const cs=whites.map((k,i)=>({i,m:+k.dataset.midi})).filter(o=>o.m%12===0);
+    let at=Math.max(0,cs.findIndex(o=>o.m===48));if(at<0)at=0;
+    function show(){if(!document.documentElement.classList.contains('phone')){kb.style.transform='';return;}
+      const kw=whites[0].getBoundingClientRect().width||46;const view=wrap.clientWidth||kw*8;const total=kw*whites.length;
+      let x=cs[at].i*kw;x=Math.min(x,Math.max(0,total-view));kb.style.transform=`translateX(${-x}px)`;
+      const first=cs[at].m,lastVis=whites[Math.min(whites.length-1,cs[at].i+Math.floor(view/kw)-1)].dataset.midi;
+      out.textContent=`${names[first%12]}${Math.floor(first/12)-1} – ${names[lastVis%12]}${Math.floor(lastVis/12)-1}`;
+      dn.disabled=at===0;up.disabled=at===cs.length-1;}
+    dn.addEventListener('click',()=>{if(at>0){at--;show();}});up.addEventListener('click',()=>{if(at<cs.length-1){at++;show();}});
+    new ResizeObserver(show).observe(wrap);new MutationObserver(show).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    show();return true;}
+  let tries=0;const go=()=>{const done=ids.map(setup).every(Boolean);if(!done&&tries++<40)setTimeout(go,150);};
+  if(document.readyState==='loading')addEventListener('DOMContentLoaded',go);else go();
 })();
 </script>
 </body>
