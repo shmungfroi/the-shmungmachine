@@ -104,3 +104,14 @@
 @media (prefers-reduced-motion:reduce){#gardenBg>i{transition:none}}
 :root[data-theme="garden"] .daybreak-focus-guide{border-left-color:#c9a24a!important;background:rgba(18,16,11,.86)!important}
 :root[data-theme="garden"] .daybreak-focus-guide strong{color:#f0d48a!important;font-family:"G Poiret",serif;font-weight:400;letter-spacing:.24em}
+
+/* the sixteen pads: the number made visible, one figure per pad in its row colour */
+:root[data-theme="garden"] .pad{position:relative;isolation:isolate}
+:root[data-theme="garden"] .pad::after{content:"";position:absolute;left:50%;top:50%;width:min(62%,96px);aspect-ratio:1;transform:translate(-50%,-52%);z-index:-1;pointer-events:none;
+  background:var(--pc,#c9a24a);-webkit-mask:var(--pfig) center/contain no-repeat;mask:var(--pfig) center/contain no-repeat;opacity:.3;transition:opacity .12s,transform .12s}
+:root[data-theme="garden"] .pad:hover::after{opacity:.5}
+:root[data-theme="garden"] .pad.selected::after{opacity:.62}
+:root[data-theme="garden"] .pad:active::after,:root[data-theme="garden"] .pad.playing::after,:root[data-theme="garden"] .pad.hit::after{opacity:.95;transform:translate(-50%,-52%) scale(1.06)}
+:root[data-theme="garden"] .pad.muted::after{opacity:.1}
+:root[data-theme="garden"] .pad:nth-child(-n+4){--pc:#e0604d} :root[data-theme="garden"] .pad:nth-child(n+5){--pc:#ec9640}
+:root[data-theme="garden"] .pad:nth-child(n+9){--pc:#4d8fe0} :root[data-theme="garden"] .pad:nth-child(n+13){--pc:#9b7be8}

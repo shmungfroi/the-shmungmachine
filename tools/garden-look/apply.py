@@ -7,7 +7,7 @@ def rep(a,b,n=1):
 i=s.index('<style id="studio-pro-theme">'); j=s.index('</style>',i)
 blk=s[i:j]; assert blk.count(':root[data-theme="pro"]')==3
 blk=blk.replace(':root[data-theme="pro"]',':root[data-theme="pro"],:root[data-theme="garden"]')
-css=open('/home/claude/gbuild/garden.css').read()+'\n'+open('/home/claude/gbuild/assets.css').read()
+css=open('/home/claude/gbuild/garden.css').read()+'\n'+open('/home/claude/gbuild/assets.css').read()+'\n'+open('/home/claude/gbuild/pads_assets.css').read()
 s=s[:i]+blk+'</style>\n<style id="garden-theme">\n'+css+'\n</style>'+s[j+len('</style>'):]
 rep('themeOrder = ["pro",','themeOrder = ["garden","pro",')
 rep('const themeLabels = {pro:"Studio",','const themeLabels = {garden:"Garden",pro:"Studio",')
