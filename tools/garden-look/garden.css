@@ -1,0 +1,106 @@
+/* ===== GARDEN LOOK (EXP 0.3.20) — the Garden of Earthly Sounds palette, crowns and line work ===== */
+@font-face{font-family:"G Outfit";src:url(fonts/Outfit-Regular.ttf)}
+@font-face{font-family:"G Outfit";font-weight:700;src:url(fonts/Outfit-Bold.ttf)}
+@font-face{font-family:"G Poiret";src:url(fonts/PoiretOne-Regular.ttf)}
+:root[data-theme="garden"]{
+  --ink:#ece2c8;--muted:#9c927c;--paper:#0b0906;--panel:#12100b;--line:#2a2418;--line-strong:#3a3222;
+  --gold:#c9a24a;--gold-deep:#c9a24a;--mint:#1c2414;--purple:#9b7be8;--coral:#c8473b;--teal:#3fb6a8;
+  --shadow:none;--radius:4px;--control-radius:3px;
+  --app-bg:#0b0906;--surface-1:rgba(18,16,11,.9);--surface-2:rgba(22,19,13,.92);--surface-3:#1c1810;
+  --control-bg:#1a160f;--control-hover:#231e14;--panel-border:#2a2418;
+  --visual-bg:#080705;--meter-track:#221d13;--knob-face-a:#2a2418;--knob-face-b:#14110b;--key-white-a:#ece2c8;--key-white-b:#cfc4a6;
+  --canvas-top:#100e09;--canvas-bottom:#0b0906;--canvas-grid:rgba(240,212,138,.06);--canvas-midline:rgba(240,212,138,.16);--canvas-empty:rgba(236,226,200,.45);--canvas-trim:rgba(200,71,59,.22);--canvas-fade:rgba(201,162,74,.18);
+  --c-red:#e0604d;--c-orange:#ec9640;--c-yellow:#e0b44d;--c-green:#6fbf5a;--c-teal:#3fb6a8;--c-blue:#4d8fe0;--c-violet:#9b7be8;--c-pink:#e46d9c;
+  --s-bg:#0b0906;--s-bar:rgba(13,11,7,.94);--s-1:rgba(18,16,11,.8);--s-2:rgba(22,19,13,.9);--s-3:#1c1810;--s-ctl:#1a160f;--s-ctl-hover:#231e14;
+  --s-line:#2a2418;--s-line-strong:#3a3222;--s-hi:#5a4e36;--s-active:#2c2517;--s-strong:#f5ecd4;--s-muted-dim:#5d5546;--s-menu:#14110b;
+  --s-pad:rgba(22,19,13,.92);--s-pad-hover:#1d1910;--s-pad-line:#30291c;--s-step:#14110b;--s-step-line:#2a2418;--s-well:#070605;--s-thumb:#f0d48a;
+  --s-tip:#1d1910;--s-tip-text:#ece2c8;--s-on-accent:#0b0906;
+  --module:#9b7be8;--g-mod:#9b7be8;color-scheme:dark;
+}
+:root[data-theme="garden"] #tab-daybreak{--module:#9b7be8} :root[data-theme="garden"] #tab-pads{--module:#e0604d}
+:root[data-theme="garden"] #tab-keyboard{--module:#e46d9c} :root[data-theme="garden"] #tab-synth{--module:#3fb6a8}
+:root[data-theme="garden"] #tab-sequencer{--module:#4d8fe0} :root[data-theme="garden"] #tab-mixer{--module:#6fbf5a}
+:root[data-theme="garden"] #tab-effects{--module:#ec9640} :root[data-theme="garden"] #tab-guide{--module:#e0b44d}
+:root[data-theme="garden"] .tab[data-tab="daybreak"]{--tab-c:#9b7be8;--crown:var(--gc-daybreak)} :root[data-theme="garden"] .tab[data-tab="pads"]{--tab-c:#e0604d;--crown:var(--gc-pads)}
+:root[data-theme="garden"] .tab[data-tab="keyboard"]{--tab-c:#e46d9c;--crown:var(--gc-keyboard)} :root[data-theme="garden"] .tab[data-tab="synth"]{--tab-c:#3fb6a8;--crown:var(--gc-synth)}
+:root[data-theme="garden"] .tab[data-tab="sequencer"]{--tab-c:#4d8fe0;--crown:var(--gc-sequencer)} :root[data-theme="garden"] .tab[data-tab="mixer"]{--tab-c:#6fbf5a;--crown:var(--gc-mixer)}
+:root[data-theme="garden"] .tab[data-tab="effects"]{--tab-c:#ec9640;--crown:var(--gc-effects)} :root[data-theme="garden"] .tab[data-tab="guide"]{--tab-c:#e0b44d;--crown:var(--gc-guide)}
+/* the module in view drives the page background */
+:root[data-theme="garden"][data-gmod="daybreak"]{--g-mod:#9b7be8;--g-tile:var(--gt-daybreak);--g-tw:var(--gt-daybreak-w);--g-th:var(--gt-daybreak-h);--g-crown:var(--gc-daybreak)}
+:root[data-theme="garden"][data-gmod="pads"]{--g-mod:#e0604d;--g-tile:var(--gt-pads);--g-tw:var(--gt-pads-w);--g-th:var(--gt-pads-h);--g-crown:var(--gc-pads)}
+:root[data-theme="garden"][data-gmod="keyboard"]{--g-mod:#e46d9c;--g-tile:var(--gt-keyboard);--g-tw:var(--gt-keyboard-w);--g-th:var(--gt-keyboard-h);--g-crown:var(--gc-keyboard)}
+:root[data-theme="garden"][data-gmod="synth"]{--g-mod:#3fb6a8;--g-tile:var(--gt-synth);--g-tw:var(--gt-synth-w);--g-th:var(--gt-synth-h);--g-crown:var(--gc-synth)}
+:root[data-theme="garden"][data-gmod="sequencer"]{--g-mod:#4d8fe0;--g-tile:var(--gt-sequencer);--g-tw:var(--gt-sequencer-w);--g-th:var(--gt-sequencer-h);--g-crown:var(--gc-sequencer)}
+:root[data-theme="garden"][data-gmod="mixer"]{--g-mod:#6fbf5a;--g-tile:var(--gt-mixer);--g-tw:var(--gt-mixer-w);--g-th:var(--gt-mixer-h);--g-crown:var(--gc-mixer)}
+:root[data-theme="garden"][data-gmod="effects"]{--g-mod:#ec9640;--g-tile:var(--gt-effects);--g-tw:var(--gt-effects-w);--g-th:var(--gt-effects-h);--g-crown:var(--gc-effects)}
+:root[data-theme="garden"][data-gmod="guide"]{--g-mod:#e0b44d;--g-tile:var(--gt-guide);--g-tw:var(--gt-guide-w);--g-th:var(--gt-guide-h);--g-crown:var(--gc-guide)}
+
+/* type */
+:root[data-theme="garden"] body{font-family:"G Outfit",Outfit,system-ui,sans-serif!important;background:#0b0906!important}
+:root[data-theme="garden"] body button,:root[data-theme="garden"] body select,:root[data-theme="garden"] body input,:root[data-theme="garden"] body textarea{font-family:inherit;font-weight:500}
+:root[data-theme="garden"] .topbar h1{font-family:"G Poiret",serif!important;font-weight:400!important;letter-spacing:.34em!important;text-transform:uppercase;font-size:19px!important;color:var(--ink)!important}
+:root[data-theme="garden"] .topbar .eyebrow{color:var(--muted)!important;letter-spacing:.22em}
+:root[data-theme="garden"] .tab-page h2,:root[data-theme="garden"] .daybreak-title-line h2{font-family:"G Poiret",serif!important;font-weight:400!important;letter-spacing:.2em;text-transform:uppercase;color:#f0d48a!important}
+:root[data-theme="garden"] .topbar{background:rgba(11,9,6,.92)!important;border-bottom-color:var(--s-line)!important}
+
+/* the background: the module's figure as line work, its crown as a watermark, its colour as a wash */
+#gardenBg{display:none}
+:root[data-theme="garden"] #gardenBg{display:block;position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:#0b0906}
+#gardenBg>i{position:absolute;inset:0;display:block;transition:opacity .45s}
+#gardenBg .g-wash{background:radial-gradient(120% 70% at 50% -10%,color-mix(in srgb,var(--g-mod) 20%,transparent),transparent 62%),radial-gradient(60% 50% at 50% 115%,rgba(201,162,74,.06),transparent 70%)}
+#gardenBg .g-lattice{background-image:var(--g-tile);background-size:var(--g-tw) var(--g-th);background-position:center -14px;opacity:.17;
+  -webkit-mask-image:linear-gradient(180deg,#000 0,rgba(0,0,0,.6) 38%,rgba(0,0,0,.28) 100%);mask-image:linear-gradient(180deg,#000 0,rgba(0,0,0,.6) 38%,rgba(0,0,0,.28) 100%)}
+#gardenBg .g-crown{display:none;
+  -webkit-mask-image:radial-gradient(70% 60% at 50% 22%,#000 35%,transparent 80%);mask-image:radial-gradient(70% 60% at 50% 22%,#000 35%,transparent 80%)}
+#gardenBg .g-rule{background:repeating-linear-gradient(90deg,transparent 0 calc(12.5vw - 1px),rgba(201,162,74,.05) calc(12.5vw - 1px) 12.5vw);
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);mask-image:linear-gradient(180deg,#000,transparent 70%)}
+
+/* the skyline: eight crowns are the module tabs */
+:root[data-theme="garden"] nav.tabs{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr));gap:0;align-items:end;padding:12px 18px 0!important;height:auto!important;
+  background:#0d0b07!important;border-bottom:1px solid var(--s-line)!important;overflow:visible!important}
+:root[data-theme="garden"] nav.tabs .tab{display:flex!important;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;padding:0 2px 11px!important;margin:0!important;border:0!important;
+  background:none!important;font-family:"G Poiret",serif!important;font-weight:400!important;font-size:11.5px!important;letter-spacing:.2em!important;text-transform:uppercase;color:var(--muted)!important;position:relative;white-space:nowrap;min-width:0}
+:root[data-theme="garden"] nav.tabs .tab::before{content:"";display:block!important;width:88px!important;height:76px!important;margin:0 0 -6px!important;border-radius:0!important;
+  background:var(--crown) no-repeat 50% 0/88px auto!important;opacity:.36;filter:saturate(.3) brightness(.95);transition:opacity .2s,filter .2s}
+:root[data-theme="garden"] nav.tabs .tab:hover{color:var(--ink)!important}
+:root[data-theme="garden"] nav.tabs .tab:hover::before{opacity:.7;filter:saturate(.75)}
+:root[data-theme="garden"] nav.tabs .tab.active{color:var(--tab-c)!important;box-shadow:none!important}
+:root[data-theme="garden"] nav.tabs .tab.active::before{opacity:1;filter:drop-shadow(0 0 12px color-mix(in srgb,var(--tab-c) 50%,transparent))}
+:root[data-theme="garden"] nav.tabs .tab.active::after{content:"";position:absolute;left:22%;right:22%;bottom:-1px;height:2px;background:var(--tab-c)}
+:root[data-theme="garden"] nav.tabs .tab:focus-visible{outline:1px solid var(--gold);outline-offset:-2px}
+
+/* Daybreak Focus has no tab bar */
+:root[data-theme="garden"] body.daybreak-focus-mode nav.tabs{display:none!important}
+:root[data-theme="garden"] .tab-page,:root[data-theme="garden"] .tab-page.active{background:transparent!important;border:0!important}
+
+/* the module's colour pours down from its crown into the page */
+:root[data-theme="garden"] .tab-page.active>.panel:first-of-type{border-top:2px solid var(--module)!important;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--module) 16%,rgba(18,16,11,.8)) 0,rgba(18,16,11,.8) 340px)!important}
+
+/* focus mode (no tab bar): Daybreak wears its own crown */
+#gardenFocusCrown{display:none}
+:root[data-theme="garden"] body.daybreak-focus-mode #gardenFocusCrown{display:block;height:92px;margin:4px auto -2px;width:150px;background:var(--gc-daybreak) no-repeat 50% 0/150px auto;
+  filter:drop-shadow(0 0 16px rgba(155,123,232,.45))}
+
+/* gold accents */
+:root[data-theme="garden"] ::selection{background:rgba(201,162,74,.35)}
+:root[data-theme="garden"] .theme-choice[data-theme-choice="garden"] .theme-choice-swatches i:nth-child(1){background:#0b0906}
+:root[data-theme="garden"] .theme-choice[data-theme-choice="garden"] .theme-choice-swatches i:nth-child(2){background:#c9a24a}
+.theme-choice[data-theme-choice="garden"] .theme-choice-swatches i:nth-child(1){background:#0b0906!important}
+.theme-choice[data-theme-choice="garden"] .theme-choice-swatches i:nth-child(2){background:#c9a24a!important}
+.theme-choice[data-theme-choice="garden"] .theme-choice-swatches i:nth-child(3){background:#9b7be8!important}
+.theme-choice[data-theme-choice="garden"] .theme-choice-swatches i:nth-child(4){background:#3fb6a8!important}
+
+/* phones: the skyline scrolls sideways */
+@media (max-width:760px){
+  :root[data-theme="garden"] nav.tabs{display:flex!important;overflow-x:auto!important;overflow-y:hidden!important;padding:8px 6px 0!important;scrollbar-width:none}
+  :root[data-theme="garden"] nav.tabs::-webkit-scrollbar{display:none}
+  :root[data-theme="garden"] nav.tabs .tab{flex:0 0 84px;font-size:9px!important;letter-spacing:.12em!important;padding-bottom:8px!important}
+  :root[data-theme="garden"] nav.tabs .tab::before{width:52px!important;height:46px!important;background-size:52px auto!important;margin-bottom:-4px!important}
+  :root[data-theme="garden"] body.daybreak-focus-mode #gardenFocusCrown{width:110px;height:68px;background-size:110px auto}
+  #gardenBg .g-crown{background-size:160vw auto;background-position:50% 90px}
+  #gardenBg .g-rule{display:none}
+}
+@media (prefers-reduced-motion:reduce){#gardenBg>i{transition:none}}
+:root[data-theme="garden"] .daybreak-focus-guide{border-left-color:#c9a24a!important;background:rgba(18,16,11,.86)!important}
+:root[data-theme="garden"] .daybreak-focus-guide strong{color:#f0d48a!important;font-family:"G Poiret",serif;font-weight:400;letter-spacing:.24em}
