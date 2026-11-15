@@ -3643,6 +3643,17 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 :root:root.phone.landscape main{width:auto!important;max-width:none!important;margin-left:12px!important;margin-right:calc(12px + env(safe-area-inset-right,0px))!important}
 :root:root.phone.landscape nav.tabs .tab::before{width:30px!important;height:22px!important;background-size:30px auto!important}
 :root:root.phone.landscape nav.tabs .tab::after{font-size:8px}
+:root:root.phone .daybreak-character-panel{display:grid!important;grid-template-columns:1fr!important;gap:14px!important}
+:root:root.phone .daybreak-character-panel>*{grid-column:1/-1!important;width:100%!important;max-width:none!important;min-width:0!important}
+:root:root.phone .daybreak-character-control,:root:root.phone .daybreak-return-control{display:grid!important;gap:8px}
+:root:root.phone .daybreak-character-control input[type=range],:root:root.phone .daybreak-return-control input[type=range]{width:100%!important;min-height:44px}
+:root:root.phone .daybreak-spectrum-labels{display:flex!important;justify-content:space-between!important;width:100%!important;font-size:.62rem!important}
+:root:root.phone .input-filter-strip{display:flex!important;flex-wrap:wrap!important;gap:10px 14px!important}
+:root:root.phone .input-filter-strip>*{min-width:0!important}
+:root:root.phone .input-filter-strip>.input-filter-title{flex:1 1 100%!important}
+:root:root.phone .input-filter-strip>.toggle-row{flex:1 1 100%!important}
+:root:root.phone .tab-page label:has(>input[type=range]:not(.pro-knobbed)){min-width:0!important}
+:root:root.phone .tab-page label>input[type=range]:not(.pro-knobbed):not(.mixer-fader){width:100%!important;max-width:none!important;flex:1 1 100%}
 /* focus mode keeps its own big opening screen, but no tab bar */
 :root:root.phone body.daybreak-focus-mode nav.tabs{display:none!important}
 :root:root.phone body.daybreak-focus-mode{padding-bottom:28px!important}
