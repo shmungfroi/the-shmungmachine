@@ -3663,6 +3663,10 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 :root:root.phone .input-filter-strip>.toggle-row{flex:1 1 100%!important}
 :root:root.phone .tab-page label:has(>input[type=range]:not(.pro-knobbed)){min-width:0!important}
 :root:root.phone .tab-page label>input[type=range]:not(.pro-knobbed):not(.mixer-fader){width:100%!important;max-width:none!important;flex:1 1 100%}
+:root:root.phone body .topbar>.top-actions>#themePickerWrap:not(#x1):not(#x2):not(#x3):not(#x4){display:none!important}
+:root:root.phone body:not(.daybreak-focus-mode) .top-actions{justify-content:flex-start!important}
+:root:root.phone .top-actions>details,:root:root.phone .top-actions .pro-transport{flex:0 0 auto}
+:root:root.phone #utilityMenu{margin-left:auto!important}
 /* focus mode keeps its own big opening screen, but no tab bar */
 :root:root.phone body.daybreak-focus-mode nav.tabs{display:none!important}
 :root:root.phone body.daybreak-focus-mode{padding-bottom:28px!important}
@@ -9432,6 +9436,11 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   const apply=()=>{const on=q==='phone'||(q!=='desktop'&&mq.matches);root.classList.toggle('phone',on);root.classList.toggle('landscape',on&&land.matches&&innerHeight<=500);};
   apply();mq.addEventListener?.('change',apply);land.addEventListener?.('change',apply);addEventListener('resize',apply);
   window.shmungIsPhone=()=>root.classList.contains('phone');
+  /* EXP 0.3.25: phones always wear the Garden Look (the tab bar is drawn with its crowns). The saved Look is left untouched
+     and comes back if the window widens to the computer layout. */
+  const saved=()=>{try{const t=localStorage.getItem('shmungThemeV2');return !t||t==='sky'?'':t;}catch(_){return 'garden';}};
+  let guard=false;const keep=()=>{if(guard)return;guard=true;const want=root.classList.contains('phone')?'garden':saved();if((root.dataset.theme||'')!==want)root.dataset.theme=want;guard=false;};
+  new MutationObserver(keep).observe(root,{attributes:true,attributeFilter:['data-theme','class']});keep();
 })();
 </script>
 <script>
