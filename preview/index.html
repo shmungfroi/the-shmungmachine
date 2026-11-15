@@ -2,6 +2,10 @@
 <html lang="en-AU">
 <head>
 <!--
+EXP 0.3.27 — WIDE SCREENS (16 Nov 2026)
+On external and wide screens the top bar and crown tabs were a fixed 1380 px pinned to the left while the page centred.
+They now span the full width with their contents aligned to the centred page.
+
 EXP 0.3.26 — DEEPER GUIDE (16 Nov 2026)
 The Guide tab becomes a searchable manual in module colours and crowns: Start here, each module control by control, recipes,
 phone and tablet, keys and MIDI, saving and exporting, troubleshooting, and the classroom workflow (Book 1 and 2). Each module
@@ -2403,7 +2407,7 @@ body.transport-size-collapsed{padding-bottom:0!important}
 @media(max-width:900px){.sampler-program-actions{grid-template-columns:repeat(3,1fr)}.sampler-transfer-row{grid-template-columns:1fr 1fr}.sampler-program-readout{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.sampler-program-actions,.sampler-transfer-row,.sampler-program-readout{grid-template-columns:1fr}.sampler-wave-shell canvas{height:132px}}
 </style>
-  <title>Shmung Machine — EXP 0.3.26 Garden</title>
+  <title>Shmung Machine — EXP 0.3.27 Garden</title>
 <style>
 /* Reset 1.18.8 — responsive auto-fit Pad workspace.
    Layout-only checkpoint: the complete 4 × 4 bank and essential waveform workbench
@@ -3732,6 +3736,10 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 .sg-go{margin-top:16px}
 .sg-body mark{background:color-mix(in srgb,var(--sgc) 45%,transparent);color:inherit;border-radius:3px;padding:0 1px}
 @media(max-width:620px){.sg-chips{flex-wrap:nowrap;overflow-x:auto;margin-inline:-4px;padding:0 4px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.sg-chips::-webkit-scrollbar{display:none}.sg-chips a{flex:0 0 auto}.sg-body dl{grid-template-columns:1fr;gap:2px 0}.sg-body dd{margin:0 0 10px}.sg-body{padding:2px 14px 16px}.sg-sec>summary{padding:10px 12px}}
+/* EXP 0.3.27: wide and external screens — top bar and crown tabs run edge to edge, contents lined up with the centred page */
+:root:root:not(.phone) body:not(.daybreak-focus-mode) .topbar,:root:root:not(.phone) body:not(.daybreak-focus-mode) nav.tabs{
+  width:auto!important;max-width:none!important;margin-left:0!important;margin-right:0!important;left:0!important;right:0!important;box-sizing:border-box!important;
+  padding-left:max(18px,calc((100% - 1380px) / 2 + 18px))!important;padding-right:max(18px,calc((100% - 1380px) / 2 + 18px))!important}
 </style>
 
 </head>
@@ -3741,7 +3749,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.26 GARDEN</div>
+      <div class="eyebrow">SHMUNG MACHINE · EXP 0.3.27 GARDEN</div>
       <h1>Shmung Machine</h1>
       <p class="subtitle">Interactive instrument · drum machine · sampler · synth · sequencer · Daybreak</p>
     </div>
@@ -4946,7 +4954,7 @@ html.knob-held,html.knob-held body{overscroll-behavior:none}
   </main>
 
   <footer>
-    <span>Shmung Machine · EXP 0.3.26 Garden</span>
+    <span>Shmung Machine · EXP 0.3.27 Garden</span>
     <span>No login · no cloud upload · audio remains on the device</span>
   </footer>
 
